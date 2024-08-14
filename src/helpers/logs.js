@@ -1,27 +1,17 @@
-const aprendicesHelper = {
-    existeAprendizID: async (id) => {
+import logs from "../models/logs.js";
+
+const logsHelper = {
+    existsLogID: async (id) => {
         try {
-            const existe = await Aprendices.findById(id);
-            if (!existe) {
-                throw new Error(`El Aprendiz con ID ${id} no existe`);
+            const exists = await logs.findById(id);
+            if (!exists) {
+                throw new Error(`The log with ID ${id} does not exist`);
             }
-            return existe;
+            return exists;
         } catch (error) {
-            throw new Error(`Error al buscar el aprendiz por ID: ${error.message}`);
+            throw new Error(`Error searching for log by ID: ${error.message}`);
         }
     },
-
-    existecc: async (cc, method = "POST") => {
-        try {
-            const existe = await Aprendices.findOne({ cc });
-            if (existe) {
-                throw new Error(`Ya existe ese cc en la base de datos: ${cc}`);
-            }
-        } catch (error) {
-            throw new Error(`Error al verificar cc: ${error.message}`);
-        }
-    },
-
 }
 
-export { aprendicesHelper };
+export { logsHelper };

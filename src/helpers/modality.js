@@ -1,27 +1,17 @@
-const aprendicesHelper = {
-    existeAprendizID: async (id) => {
+import Modality from "../models/modality.js";
+
+const modalityHelper = {
+    existsModalityID: async (id) => {
         try {
-            const existe = await Aprendices.findById(id);
-            if (!existe) {
-                throw new Error(`El Aprendiz con ID ${id} no existe`);
+            const exists = await Modality.findById(id);
+            if (!exists) {
+                throw new Error(`The modality with ID ${id} does not exist`);
             }
-            return existe;
+            return exists;
         } catch (error) {
-            throw new Error(`Error al buscar el aprendiz por ID: ${error.message}`);
+            throw new Error(`Error searching for modality by ID: ${error.message}`);
         }
     },
-
-    existecc: async (cc, method = "POST") => {
-        try {
-            const existe = await Aprendices.findOne({ cc });
-            if (existe) {
-                throw new Error(`Ya existe ese cc en la base de datos: ${cc}`);
-            }
-        } catch (error) {
-            throw new Error(`Error al verificar cc: ${error.message}`);
-        }
-    },
-
 }
 
-export { aprendicesHelper };
+export { modalityHelper };
