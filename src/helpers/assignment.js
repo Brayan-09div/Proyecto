@@ -1,31 +1,20 @@
-const aprendicesHelper = {
-    existeAprendizID: async (id) => {
-        try {
-            const existe = await Aprendices.findById(id);
-            if (!existe) {
-                throw new Error(`El Aprendiz con ID ${id} no existe`);
-            }
-            return existe;
-        } catch (error) {
-            throw new Error(`Error al buscar el aprendiz por ID: ${error.message}`);
-        }
-    },
+import Assignment from '../models/assignment.js';
 
-    existecc: async (cc, method = "POST") => {
+const assignmentHelper = {
+    existsAssignmentID: async (id) => {
         try {
-            const existe = await Aprendices.findOne({ cc });
-            if (existe) {
-                throw new Error(`Ya existe ese cc en la base de datos: ${cc}`);
+            const exists = await Assignment.findById(id);
+            if (!exists) {
+                throw new Error(`The assignment with ID ${id} does not exist`);
             }
+            return exists;
         } catch (error) {
-            throw new Error(`Error al verificar cc: ${error.message}`);
+            throw new Error(`Error searching for assignment by ID: ${error.message}`);
         }
-    },
-
+    }
 }
 
-export { aprendicesHelper };
-
+export { assignmentHelper };
 
 
 

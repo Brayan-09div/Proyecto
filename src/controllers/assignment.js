@@ -1,4 +1,5 @@
 import Assignment from '../models/assignment.js';
+import Register from '../models/register.js';
 
 const controllerAssignments = {
 
@@ -30,6 +31,19 @@ const controllerAssignments = {
         }
     },
 
+    // Listar register por id---------------------------------------------------
+    listregisterassignment: async (req, res) => {
+        const { register } = req.params;
+        try {
+            const data = await Register.find({ register });
+            res.json(data);
+        } catch (error) {
+            console.error('Error al listar register por id', error);
+            res.status(500).json({ message: 'Error al listar register por id' });
+        }
+    },
+
+
     // Listar asignaciones por instructor de seguimiento---------------------------------------------------------------
     listfollowupinstructor: async (req, res) => {
         const { idinstructor } = req.params;
@@ -56,18 +70,6 @@ const controllerAssignments = {
 
     // Listar asignaciones por instructor de proyecto------------------------------------------------------------
     listprojectinstructor: async (req, res) => {
-        const { idinstructor } = req.params;
-        try {
-            const data = await Assignment.find({ instructorproject: idinstructor });
-            res.json(data);
-        } catch (error) {
-            console.error('Error al listar asignaciones por instructor de proyecto', error);
-            res.status(500).json({ message: 'Error al listar asignaciones por instructor de proyecto' });
-        }
-    },
-
-    // Listar asignaciones por instructor del proyecto-------------------------------------------------
-    listassigmentbyprojectinstructor: async (req, res) => {
         const { idinstructor } = req.params;
         try {
             const data = await Assignment.find({ instructorproject: idinstructor });

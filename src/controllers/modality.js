@@ -98,23 +98,6 @@ const modalityController = {
       res.status(500).json({ error: "Error toggling modality state" });
     }
   }, 
-   // Eliminar una modalidad por su ID
-  deleteModality: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const deletedModality = await Modality.findByIdAndDelete(id);
-
-      if (!deletedModality) {
-        throw new Error("Modality not found");
-      }
-
-      console.log("Modality deleted:", deletedModality);
-      res.json({ message: "Modality deleted successfully", deletedModality });
-    } catch (error) {
-      console.error("Error deleting modality:", error);
-      res.status(500).json({ error: "Error deleting modality" });
-    }
-  },
 };
 
 export default modalityController;

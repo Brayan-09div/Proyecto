@@ -5,7 +5,7 @@ const logsSchema = new mongoose.Schema({
     information: { type: Object, required: true }, 
     data: { type: Object, required: true },
     hourInstructorProject: { type: Number, required: true }, 
-    estado: { type: Number, required: true, default: 1 }
+    status: { type: Number, required: true, default: 1 }
 }, { timestamps: true });
 
 export default mongoose.model("Logs", logsSchema);
