@@ -1,9 +1,4 @@
-import { } from 'dotenv/config.js'
+import 'dotenv/config'
 import { Server } from './src/models/Server.js'
-
-
 const server = new Server();
-
-
-
 server.listen();
