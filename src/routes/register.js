@@ -4,48 +4,58 @@ import { validarJWT } from '../middleware/validarJWT.js';
 import { validarCampos } from '../middleware/validar-campos.js';
 import { Router } from 'express';
 import controllerRegister from '../controllers/register.js';
+import { ficheHelper, registerHelper } from '../helpers/register.js';
+import register from '../models/register.js';
 
  const router = Router()
 
+// --------------------------------------------------------------------
  router.get('/listregister',[
-validarCampos,
-validarJWT
+   validarJWT
  ],controllerRegister.listtheregister )
 
+// --------------------------------------------------------------------
  router.get('/listregisterbyid/:id',[
+ validarJWT,
  check('id','El id no es valido').isMongoId(),
  check('id','El campo id es obligatorio').notEmpty(),
- validarCampos,
- validarJWT
+ validarCampos
  ], controllerRegister.listtheregisterbyid)
 
+// --------------------------------------------------------------------
  router.get('/lisregisterbyapprentice/:apprentice',[
-    check('apprentice').custom(),
-    check('apprentice','El campo apprentice es obigatorio')
+   validarJWT,
+    check('apprentice').custom(ficheHelper),
+    validarCampos
  ], controllerRegister.listtheapprenticebyid)
 
- router.get('/listregisterbyfiche/:fiche',[
-    check('fiche').custom(),
-    check('fiche','El campo fiche es obigatorio')
- ], controllerRegister.listhefichebyid)
-
+// --------------------------------------------------------------------
  router.get('/listregisterbymodality/:madality',[
-    check('modality').custom(),
-    check('modality','El campo modality es obigatorio')
+   validarJWT,
+    check('modality').custom(ficheHelper),
+    check('modality','El campo modality es obigatorio').notEmpty(),
+    validarCampos
  ],controllerRegister.listthemodalitybyid)
 
-
+// --------------------------------------------------------------------
  router.get('/listregisterbystartdate',[
-    check('startDate','El campo StartDate es obigatorio')
+   validarJWT,
+    check('startDate','El campo StartDate es obigatorio').notEmpty(),
+    validarCampos
  ],controllerRegister.listregisterstardatebyid)
 
+// --------------------------------------------------------------------
  router.get('/listregisterbyenddate',[
-    check('endDate','El campo endDate es obigatorio')
+   validarJWT,
+    check('endDate','El campo endDate es obigatorio').notEmpty(),
+    validarCampos
  ], controllerRegister.listregisterenddatebyid)
 
+// -------------------------------------------------------------------
  router.post('/addregister',[
-    check('apprentice').custom(),
-    check('modality').custom(),
+   validarJWT,
+    check('apprentice').custom(registerHelper),
+    check('modality').custom(registerHelper),
     check('startDate','El campo startDate es obligatorio').notEmpty(),
     check('endDate', 'El campo endDate es obligatorio').notEmpty(),
     check('company','El campo company es obligatorio').notEmpty(),
@@ -54,21 +64,25 @@ validarJWT
     check('owner', 'El campo owner es obligatorio').notEmpty(),
     check('docalternative', 'El campo docalternative').notEmpty(),
     check('hour','El campo hour es obligatorio').notEmpty(),
-    check('adreesscompany').custom(),
-    validarCampos,
-    validarJWT
+    check('adreessCompany').custom(registerHelper.existAddressCompany),
+    check('phoneCompany').custom(registerHelper.existPhoneCompany),
+    validarCampos
  ], controllerRegister.insertregister)
-
+ 
+// -------------------------------------------------------------------------
  router.put('/updatemodalitybyid/:id',[
-    check('apprentice').custom(),
-    check('modality').custom(),
-    check('adresscompany').custom(),
+   validarJWT,
+    check('apprentice').custom(registerHelper),
+    check('modality').custom(registerHelper),
+    check('adresscompany').custom(registerHelper.existAddressCompany),
+    check('phoneCompany').custom(registerHelper.existPhoneCompany),
     validarCampos,
-    validarJWT
  ],controllerRegister.updateregisterbyid)
 
- router.put('/activateanddeactivateregisterbyid/:id',[
-    validarCampos,
+// ---------------------------------------------------------------------------
+ router.put('/enableAndDisablebinnacles/:id',[
+    validarJWT,
+    check('id','El id no es valido').isMongoId(),
     validarCampos
  ],controllerRegister.activateAndDesactiveregister)
 

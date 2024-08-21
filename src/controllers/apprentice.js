@@ -31,10 +31,10 @@ listtheapprenticebyid: async (res, req)=>{
    
 },
 // listar por ficha------------------------------------------------------------------
-listtheapprenticebyid: async (res, req) => {
+listtheapprenticebyficheid: async (res, req) => {
 const {fiche} = req.paramas;
 try {
-    const apprentice = await Apprentice.find({fiche : fiche})
+    const apprentice = await Apprentice.find({fiche})
      console.log(`lista de fiche en apprentice ${fiche}`);
      req.json(apprentice)
     
