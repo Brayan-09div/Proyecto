@@ -42,9 +42,6 @@ const modalityController = {
           hourinstructorfollow,
           hourinstructortechnical,
           hourinstructorproyect,
-          createdAt,
-          updatedAt,
-          estado
         });
         const result = await newModality.save();
         console.log("Modality created:", result);
@@ -62,7 +59,7 @@ const modalityController = {
     try {
       const result = await Modality.findByIdAndUpdate(
         id,
-        { name, hourinstructorfollow, hourinstructortechnical, hourinstructorproyect, createdAt, updatedAt, estado },
+        { name, hourinstructorfollow, hourinstructortechnical, hourinstructorproyect },
         { new: true }
       );
 
