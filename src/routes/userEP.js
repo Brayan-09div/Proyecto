@@ -1,15 +1,17 @@
 import express from 'express';
 import { check } from 'express-validator';
 import { validarJWT } from '../middleware/validateJWT.js';
-import { validarCampos } from '../middleware/validar-campos.js';
-import userController from '../controllers/user.js';
-import { userHelper } from '../helpers/Users.js';
+import { validarCampos } from '../middleware/validate-fields.js';
+import userController from '../controllers/userEP.js';
+import { userHelper } from '../helpers/userEP.js';
 
 const router = express.Router();
 
-// Create a new user (only admins)
+
 router.post('/', [
     validarJWT,
+    check('name', 'Name is required').not().isEmpty(),
+    check('name', 'Name cannot be longer than 60 characters').isLength({ max: 60 }),
     check('email', 'Email is required').not().isEmpty(),
     check('email', 'Invalid email').isEmail(),
     check('email').custom(userHelper.emailExists),
@@ -17,7 +19,7 @@ router.post('/', [
     validarCampos
 ], userController.createUser);
 
-// Login (accessible to everyone)
+
 router.post('/login', [
     check('email', 'Email is required').not().isEmpty(),
     check('email', 'Invalid email').isEmail(),
@@ -25,10 +27,9 @@ router.post('/login', [
     validarCampos
 ], userController.login);
 
-// List all users (accessible to everyone)
 router.get('/list', userController.listUsers);
 
-// Edit a user by their ID (users can edit only their own information, admins can edit any user)
+
 router.put('/edit/:id', [
     validarJWT,
     check('id', 'Invalid ID').isMongoId(),
@@ -37,7 +38,7 @@ router.put('/edit/:id', [
     validarCampos
 ], userController.editUser);
 
-// Change a user's password by their ID (users can change only their own password, admins can change any password)
+
 router.put('/changePassword/:id', [
     validarJWT,
     check('id', 'Invalid ID').isMongoId(),
@@ -45,14 +46,14 @@ router.put('/changePassword/:id', [
     validarCampos
 ], userController.changePassword);
 
-// Activate or deactivate a user by their ID (only admins)
+
 router.put('/toggleStatus/:id', [
     validarJWT,
     check('id', 'Invalid ID').isMongoId(),
     validarCampos
 ], userController.toggleUserStatus);
 
-// Delete a user by their ID (only admins)
+
 router.delete('/delete/:id', [
     validarJWT,
     check('id', 'Invalid ID').isMongoId(),

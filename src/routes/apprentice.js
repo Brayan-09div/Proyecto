@@ -4,7 +4,7 @@ import { validarJWT } from '../middleware/validarJWT.js';
 import { validarCampos } from '../middleware/validar-campos.js';
 import controllerApprentice from '../controllers/apprentice.js';
 import { registerHelper } from '../helpers/register.js';
-
+import {fichesHelper} from '../helpers/fiches.js'
 
 const router = express.Router();
 
@@ -18,13 +18,14 @@ router.get('/listapprentice', [
 router.get('/listapprenticebyid/:id', [
     validarJWT,
     check('id', 'El id no es valido').isMongoId(),
+    check('id').custom(apprenticeHelper.existApprentice),
     validarCampos
 ], controllerApprentice.listtheapprenticebyid)
 
 //-------------------------------------------------------------
 router.get('/listapprenticebyfiche/:fiche', [
     validarJWT,
-    check('fiche').custom(),
+    check('fiche').custom(fichesHelper.existsFicheID),
     check('fiche', 'El campo fiche es obligaorio').notEmpaty(),
     validarCampos,
 ], controllerApprentice.listtheapprenticebyficheid)
@@ -38,6 +39,7 @@ router.get('/listapprenticebystatus/:status', [
 //-------------------------------------------------------------
 router.post('/addapprentice', [
     validarJWT,
+    check('fiche').custom(fichesHelper.existsFicheID),
     check('tpDocument', 'El campo tpdocument es obligatorio').notEmpaty(),
     check('numdocument', 'El campo numdocument es obligatorio').notEmpaty(),
     check('firname', 'El campo firname es obligatorio').notEmpaty(),
@@ -56,6 +58,8 @@ router.post('/addapprentice', [
 router.put('/updateapprenticebyid/:id', [
     validarJWT,
     check('id', 'El id no es valido').isMongoId(),
+    check('id').custom(apprenticeHelper.existApprentice),
+    check('fiche').custom(fichesHelper.existsFicheID),
     check('firname', 'El campo firname es maximo de 50 caracteres').isLength({ max: 50 }),
     check('lasname', 'El campo lasname es de maximo de 50 caracteres').isLength({ max: 50 }),
     check('phone', 'El campo phone es de maximo 10 caracteres').isLength({ max: 10 }),
@@ -66,5 +70,6 @@ router.put('/updateapprenticebyid/:id', [
 router.put('/enableAndDisablebinnacles/:id', [
     validarJWT,
     check('id', 'El id no es valido').isMongoId(),
+    check('id').custom(apprenticeHelper.existApprentice),
     validarCampos
 ], controllerApprentice.activateAndDesactiveapprentice)

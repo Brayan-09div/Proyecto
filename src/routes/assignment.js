@@ -12,7 +12,8 @@ import { registerHelper } from '../helpers/register.js'
 const router = express.Router();
 //------------------------------------------------------------------------
 router.get('/listallassignment',[
-    validarJWT
+    validarJWT,
+    validarCampos
 ], controllerAssignments.listallassignments)
 
 
@@ -36,7 +37,7 @@ router.get('/listassignmentbyregister/:idregister',[
 //------------------------------------------------------------------------
 router.get('/listassigmentbyfollowupinstructor/:idinstructor',[
     validarJWT,
-    
+    check('instructor').custom(),
     validarCampos
 ], controllerAssignments.listfollowupinstructor)
 
@@ -50,7 +51,7 @@ router.get('/listassigmentbytechnicalinstructor:idinstructor',[
 
 
 //------------------------------------------------------------------------
-router.get('/listassigmentbyprojectinstructor/:idinstructo',[
+router.get('/listassigmentbyprojectinstructor/:idinstructor',[
     validarJWT,
 
     validarCampos
@@ -59,14 +60,23 @@ router.get('/listassigmentbyprojectinstructor/:idinstructo',[
 //------------------------------------------------------------------------
 router.post('/addassignment',[
     validarJWT,
-
+    check('register').custom(),
+    check(' instructorfollow').custom(),
+    check(' instructortechnical').custom(),
+    check(' instructorproject').custom(),
+    check('certificationdoc','El campo certificationdoc es obligatorio').notEmpty(),
+    check('judymentPhoto','El campo judymentPhoto es olbigatorio').notEmpty(),
+    check('observation','El campo observation es obligatyorio').notEmpty(),
     validarCampos
 ],controllerAssignments.addassignment)
 
 //------------------------------------------------------------------------
 router.put('/updateassignmentbyid/:id',[
     validarJWT,
-
+    check('register').custom(),
+    check(' instructorfollow').custom(),
+    check(' instructortechnical').custom(),
+    check(' instructorproject').custom(),
     validarCampos
 ],controllerAssignments.updateassignmentbyid)
 

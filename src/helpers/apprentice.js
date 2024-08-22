@@ -1,6 +1,6 @@
 import Apprentice from '../models/register'
 
-const registerHelper = {
+const apprenticeHelper = {
     existApprentice: async (id) => {
         try {
             const exist = await Apprentice.findById(id)
@@ -84,4 +84,4 @@ const registerHelper = {
 
 }
 
-export { registerHelper };
+export { apprenticeHelper };

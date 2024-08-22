@@ -1,7 +1,7 @@
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
-import { dbconnect } from "../../databases/config.js";
+import { dbconnect } from "../../databases/config.js"
 
 
 class Server {
@@ -39,5 +39,4 @@ class Server {
         });
     }
 }
-
 export { Server };

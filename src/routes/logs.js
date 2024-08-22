@@ -9,25 +9,36 @@ const router = express.Router();
 
 //------------------------------------------------
 router.get('/listlogs',[
-    
+    validarJWT
 ],logController.listLogs)
 
 
 //------------------------------------------------
 router.get('/listlogs/:id',[
-
+    validarJWT,
+    check('id','El id no es valido').isMongoId(),
+    check('id').custom(logsHelper.existsLogID),
+    validarCampos
 ],logController.getLogById)
 
 
 //------------------------------------------------
 router.post('/addlog',[
-
+    validarJWT,
+    check('users','El users es obligatorio').notEmpaty(),
+    check('action','La action es obligatoria').notEmpty(),
+    check('information','La information es obligatoria').notEmpaty(),
+    check('data','La data es obligatoria').notEmpty(),
+    check('hourInstructorProject','Las horas son olbigatorias').notEmpaty(),
 ],logController.createLog)
 
 //------------------------------------------------
 
-router.put('/toggleLogState/:id',[
-
-],logController.toggleLogState)
+router.put('/enableAndDisablelogsbyid/:id',[
+    validarJWT,
+    check('id','El id no es valido').isMongoId(),
+    check('id').custom(logsHelper.existsLogID),
+    validarCampos
+],logController.enableAndDisablelogsbyid)
 
 

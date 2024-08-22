@@ -10,3 +10,4 @@ const dbconnect  = async ()=>{
         throw new Error("Error connecting")
     }
 }
+export { dbconnect }; 
