@@ -16,7 +16,7 @@ router.get('/listarbinnacles',[
 ],controllerBinnacles.listthebinnacles)
 
 
-router.get('/listbinnaclesbyid:id',[
+router.get('/listbinnaclesbyid/:id',[
     validarJWT,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(binnaclesHelper.existBinnacles),
