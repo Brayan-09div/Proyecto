@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 
 const logsSchema = new mongoose.Schema({
     users: { type: String, required: true }, 

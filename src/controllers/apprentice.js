@@ -63,6 +63,7 @@ listApprenticeByStatus: async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 },
+
 // insertar por aprendiz--------------------------------------------------------------
 inserttheapprentice: async (res, req) =>{
  const {tpdocument, numrDocument, firstname, lastname, phone, email, fiche } = req.body
@@ -77,6 +78,7 @@ try {
     res.status(500).json({error: 'Error al insertapprentice' })    
 }
 },
+
 // actualizar--------------------------------------------------------------------------
 
 updateapprenticebyid: async (req, res) => {
