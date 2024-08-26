@@ -1,7 +1,7 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { validarJWT } from '../middleware/validarJWT.js';
-import { validarCampos } from '../middleware/validar-campos.js';
+import { validarJWT } from '../middleware/validateJWT.js';
+import { validarCampos } from '../middleware/validate-fields.js';
 import { Router } from 'express';
 import controllerRegister from '../controllers/register.js';
 import {registerHelper, } from '../helpers/register.js';
@@ -90,4 +90,4 @@ router.put('/enableAndDisablebinnacles/:id', [
 
 
 
-
+export default router;

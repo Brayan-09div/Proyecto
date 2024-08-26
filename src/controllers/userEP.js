@@ -64,6 +64,24 @@ const userController = {
     }
   },
 
+
+// List user by ID-------------------------------------------------------------------------------------
+listUserByID: async (req, res) => {
+  const { id } = req.params;
+  try {
+      const user = await User.findById(id);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+      console.log('User found:', user);
+      res.json(user);
+  } catch (error) {
+      console.error('Error retrieving user by ID', error);
+      res.status(500).json({ message: 'Error retrieving user by ID' });
+  }
+},
+
+
   // Edit a user by their ID-------------------------------------------------------------------------------------
   editUser: async (req, res) => {
     const { id } = req.params;
@@ -71,6 +89,7 @@ const userController = {
 
     try {
       const updatedUser = await User.findByIdAndUpdate(
+
         id,
         { email, name },
         { new: true }
@@ -85,26 +104,32 @@ const userController = {
     }
   },
 
-  // Change a user's password by their ID---------------------------------------------------------------------------
-  changePassword: async (req, res) => {
-    const { id } = req.params;
-    const { password } = req.body;
+// Change a user's password by their ID------------------------------------------------------------------------
+changePassword: async (req, res) => {
+  const { id } = req.params;
+  const { oldpassword, password } = req.body;
 
-    try {
-      const user = await User.findById(id);
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
+  try {
+    const user = await User.findById(id);
 
-      const salt = bcryptjs.genSaltSync();
-      user.password = bcryptjs.hashSync(password, salt);
-
-      await user.save();
-      res.json({ msg: "Password changed successfully" });
-    } catch (error) {
-      res.status(500).json({ error: "Error changing password" });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
-  },
+
+    if (!bcryptjs.compareSync(oldpassword, user.password)) {
+      return res.status(401).json({ msg: "Current password is incorrect" });
+    }
+
+  
+    const salt = bcryptjs.genSaltSync();
+    user.password = bcryptjs.hashSync(password, salt);
+
+    await user.save();
+    res.json({ msg: "Password changed successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Error changing password" });
+  }
+},
 
   // Delete a user by their ID----------------------------------------------------------------------
   deleteUser: async (req, res) => {
@@ -122,26 +147,27 @@ const userController = {
     }
   },
 
-  // Activate or deactivate a user by their ID-----------------------------------------------------------------
-  toggleUserStatus: async (req, res) => {
-    const { id } = req.params;
+// Activate or deactivate a user by their ID-----------------------------------------------------------------
+toggleUserStatus: async (req, res) => {
+  const { id } = req.params;
 
-    try {
+  try {
       const user = await User.findById(id);
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+          return res.status(404).json({ error: "User not found" });
       }
 
-      user.estado = user.estado === 1 ? 0 : 1;
+      // Toggle status between 1 (active) and 0 (inactive)
+      user.status = user.status === 1 ? 0 : 1;
       await user.save();
 
       const message =
-        user.estado === 1 ? "User activated" : "User deactivated";
+          user.status === 1 ? "User activated" : "User deactivated";
       res.json({ msg: message + " successfully" });
-    } catch (error) {
+  } catch (error) {
       res.status(500).json({ error: "Error toggling user status" });
-    }
-  },
+  }
+},
 };
 
 export default userController;

@@ -27,25 +27,35 @@ router.post('/login', [
     validarCampos
 ], userController.login);
 
-router.get('/list', userController.listUsers);
+router.get('/list', [
+    validarJWT
+],userController.listUsers);
+
+router.get('/listid/:id', [
+    validarJWT,
+    check('id', 'Invalid ID').isMongoId(),
+    check('id').custom(userHelper.userExistsByID),
+    validarCampos
+], userController.listUserByID);
 
 
 router.put('/edit/:id', [
     validarJWT,
     check('id', 'Invalid ID').isMongoId(),
+    check('id').custom(userHelper.userExistsByID),
     check('email', 'Email is required').not().isEmpty(),
     check('email', 'Invalid email').isEmail(),
     validarCampos
 ], userController.editUser);
 
-
 router.put('/changePassword/:id', [
     validarJWT,
     check('id', 'Invalid ID').isMongoId(),
-    check('password', 'Password must be at least 8 characters long').isLength({ min: 8 }),
+    check('oldpassword', 'Current password is required').not().isEmpty(),
+    check('oldpassword', 'Password must be at least 8 characters long').isLength({ min: 8 }),
+    check('password', 'New password must be at least 8 characters long').isLength({ min: 8 }),
     validarCampos
 ], userController.changePassword);
-
 
 router.put('/toggleStatus/:id', [
     validarJWT,

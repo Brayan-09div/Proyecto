@@ -1,4 +1,4 @@
-import Register from '../models/register'
+import Register from '../models/register.js'
 
 const registerHelper = {
 

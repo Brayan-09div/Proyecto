@@ -1,7 +1,7 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { validarJWT } from '../middleware/validarJWT.js';
-import { validarCampos } from '../middleware/validar-campos.js';
+import { validarJWT } from '../middleware/validateJWT.js';
+import { validarCampos } from '../middleware/validate-fields.js';
 import controllerBinnacles from '../controllers/binnacles.js';
 import {binnaclesHelper} from '../helpers/binnacles.js';
 import {assignmentHelper} from '../helpers/assignment.js';
@@ -12,8 +12,7 @@ const router = express.Router();
 
 router.get('/listarbinnacles',[
     validarJWT,
-    validarCampos
-],controllerBinnacles.listthebinnacles)
+],controllerBinnacles.listAllBinnacles)
 
 
 router.get('/listbinnaclesbyid/:id',[
@@ -21,33 +20,33 @@ router.get('/listbinnaclesbyid/:id',[
     check('id','El id no es valido').isMongoId(),
     check('id').custom(binnaclesHelper.existBinnacles),
     validarCampos
-],controllerBinnacles.listthebinnaclesbyid)
+],controllerBinnacles.listAssignmentsById)
 
 
 router.get('listbinnaclesbyassignment/:idassignment',[
     validarJWT,
-    check('assignment').custom(),
+    check('assignment').custom(assignmentHelper.existsAssignmentID),
     validarCampos
-],controllerBinnacles.listthebinnaclesbyassignment)
+],controllerBinnacles.listAssignmentsById)
 
 
 router.get('listbinnaclesbyinstructor/:idinstructor',[
     validarJWT,
     check('instructor').custom(),
     validarCampos
-],controllerBinnacles.listthebinnaclesbyinstructor)
+],controllerBinnacles.listInstructorsById)
 
 
 router.post('/addbinnacles',[
     validarJWT,
-    check('assignment','La assignment es obligatoria').notEmpaty(),
+    check('assignment','La assignment es obligatoria').notEmpty(),
     check('number','El number es maximo de 10 caracteres').isLength({ max: 10 }),
-    check('number','El number es obligatorio').notEmpaty(),
+    check('number','El number es obligatorio').notEmpty(),
     check('document','El document es maximo de 50 caracteres').isLength({ max: 50 }),
-    check('document','El document es obligatorio').notEmpaty(),
+    check('document','El document es obligatorio').notEmpty(),
     check('observations','El observations es de maximo 50 caracteres').isLength({ max: 50 }),
-    check('observations','El observations es obligatorio').notEmpaty(),
-    check('users','El users es obligatorio').notEmpaty(),
+    check('observations','El observations es obligatorio').notEmpty(),
+    check('users','El users es obligatorio').notEmpty(),
     validarCampos
 ],controllerBinnacles.insertBinnacles)
 
@@ -66,4 +65,6 @@ router.put('enableAndDisablebinnacles/id',[
     check('id','El id no es valido').isMongoId(),
     check('id').custom(binnaclesHelper.existBinnacles),
     validarCampos
-],controllerBinnacles.enablebinnacle)
+],controllerBinnacles.toggleBinnacleStatus)
+
+export default router;

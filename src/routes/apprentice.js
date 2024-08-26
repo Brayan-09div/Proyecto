@@ -1,17 +1,16 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { validarJWT } from '../middleware/validarJWT.js';
-import { validarCampos } from '../middleware/validar-campos.js';
+import { validarJWT } from '../middleware/validateJWT.js';
+import { validarCampos } from '../middleware/validate-fields.js';
 import controllerApprentice from '../controllers/apprentice.js';
-import { registerHelper } from '../helpers/register.js';
 import {fichesHelper} from '../helpers/fiches.js'
+import {apprenticeHelper}from '../helpers/apprentice.js'
 
 const router = express.Router();
 
 //-------------------------------------------------------------
 router.get('/listapprentice', [
     validarJWT,
-    validarCampos
 ], controllerApprentice.listtheapprentice)
 
 //-------------------------------------------------------------
@@ -26,7 +25,7 @@ router.get('/listapprenticebyid/:id', [
 router.get('/listapprenticebyfiche/:fiche', [
     validarJWT,
     check('fiche').custom(fichesHelper.existsFicheID),
-    check('fiche', 'El campo fiche es obligaorio').notEmpaty(),
+    check('fiche', 'El campo fiche es obligaorio').notEmpty(),
     validarCampos,
 ], controllerApprentice.listtheapprenticebyficheid)
 
@@ -39,15 +38,16 @@ router.get('/listapprenticebystatus/:status', [
 //-------------------------------------------------------------
 router.post('/addapprentice', [
     validarJWT,
+    check('fiche', 'El campo fiche es obligaorio').notEmpty(),
     check('fiche').custom(fichesHelper.existsFicheID),
-    check('tpDocument', 'El campo tpdocument es obligatorio').notEmpaty(),
-    check('numdocument', 'El campo numdocument es obligatorio').notEmpaty(),
-    check('firname', 'El campo firname es obligatorio').notEmpaty(),
-    check('lasname', 'El campo lastname es obligatorio').notEmpaty(),
-    check('phone', 'El campo phone es obligatorio').notEmpaty(),
-    check('email', 'El campo email es obligatorio').notEmpaty(),
-    check('numdocument').custom(registerHelper.exisNu),
-    check('email').custom(),
+    check('tpDocument', 'El campo tpdocument es obligatorio').notEmpty(),
+    check('numdocument', 'El campo numdocument es obligatorio').notEmpty(),
+    check('numdocument').custom(apprenticeHelper.existNumDocument),
+    check('firname', 'El campo firname es obligatorio').notEmpty(),
+    check('lasname', 'El campo lastname es obligatorio').notEmpty(),
+    check('phone', 'El campo phone es obligatorio').notEmpty(),
+    check('email', 'El campo email es obligatorio').notEmpty(),
+    check('email').custom(apprenticeHelper.existEmail),
     check('firname', 'El campo firname es maximo de 50 caracteres').isLength({ max: 50 }),
     check('lasname', 'El campo lasname es de maximo de 50 caracteres').isLength({ max: 50 }),
     check('phone', 'El campo phone es de maximo 10 caracteres').isLength({ max: 10 }),
@@ -73,3 +73,6 @@ router.put('/enableAndDisablebinnacles/:id', [
     check('id').custom(apprenticeHelper.existApprentice),
     validarCampos
 ], controllerApprentice.activateAndDesactiveapprentice)
+
+
+export default router;

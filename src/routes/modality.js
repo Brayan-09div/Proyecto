@@ -1,7 +1,7 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { validarJWT } from '../middleware/validarJWT.js';
-import { validarCampos } from '../middleware/validar-campos.js';
+import { validarJWT } from '../middleware/validateJWT.js';
+import { validarCampos } from '../middleware/validate-fields.js';
 import modalityController from '../controllers/modality.js'
 import {modalityHelper} from '../helpers/modality.js'
 
@@ -18,6 +18,7 @@ router.get('/listallmodality', [
 router.get('/listmodalitybyid/:id', [
 validarJWT,
 check('id', 'El id es invalido').isMongoId(),
+check('id').custom(modalityHelper.existsModalityID),
 validarCampos
 ], modalityController.getModalityById);
 
@@ -50,9 +51,11 @@ validarCampos
 router.put('/togglemodalitystate/:id', [
 validarJWT,
 check('id', 'El id es invalido').isMongoId(),
+check('id').custom(modalityHelper.existsModalityID),
 validarCampos
 ], modalityController.toggleModalityState);
 
 
 
 
+export default router;
