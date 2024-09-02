@@ -31,10 +31,10 @@ listtheapprenticebyid: async (res, req)=>{
    
 },
 // listar por ficha------------------------------------------------------------------
-listtheapprenticebyid: async (res, req) => {
+listtheapprenticebyficheid: async (res, req) => {
 const {fiche} = req.paramas;
 try {
-    const apprentice = await Apprentice.find({fiche : fiche})
+    const apprentice = await Apprentice.find({fiche})
      console.log(`lista de fiche en apprentice ${fiche}`);
      req.json(apprentice)
     
@@ -63,6 +63,7 @@ listApprenticeByStatus: async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 },
+
 // insertar por aprendiz--------------------------------------------------------------
 inserttheapprentice: async (res, req) =>{
  const {tpdocument, numrDocument, firstname, lastname, phone, email, fiche } = req.body
@@ -77,6 +78,7 @@ try {
     res.status(500).json({error: 'Error al insertapprentice' })    
 }
 },
+
 // actualizar--------------------------------------------------------------------------
 
 updateapprenticebyid: async (req, res) => {

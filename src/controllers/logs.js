@@ -1,7 +1,7 @@
 import logs from "../models/logs.js";
 
 const logController = {
- 
+
   // Listar todos los logs---------------------------------------------
   listLogs: async (req, res) => {
     try {
@@ -28,19 +28,24 @@ const logController = {
       res.status(500).json({ error: "Error listing log by ID" });
     }
   },
- // Crear nuevo log-------------------------------------------------
- createLog: async (req, res) => {
-  const { users, information, data, hourinstructorproyect, createdAt, updatedAt, status} = req.body;
-  try {
-    const newLog = new logs({ users, information, data, hourinstructorproyect, createdAt, updatedAt, status});
-    const result = await newLog.save();
-    console.log("Log created:", result);
-    res.json(result);
-  } catch (error) {
-    console.error("Error creating log:", error);
-    res.status(500).json({ error: "Error creating log" });
-  }
-},
+
+  // Crear nuevo log-------------------------------------------------
+  createLog: async (req, res) => {
+    const { users, email, action, information } = req.body;
+    try {
+      const newLog = new logs({ users, email, action, information });
+      const result = await newLog.save();
+      console.log("Log created:", result);
+      res.json(result);
+    } catch (error) {
+      console.error("Error creating log:", error);
+      if (error.code === 11000) {
+        res.status(400).json({ error: "Email already exists" });
+      } else {
+        res.status(500).json({ error: "Error creating log" });
+      }
+    }
+  },
 
   // Activar o desactivar un log por su ID--------------------------------------
   toggleLogState: async (req, res) => {
@@ -49,10 +54,10 @@ const logController = {
       const log = await logs.findById(id);
       if (!log) return res.status(404).json({ error: "Log not found" });
 
-      log.status= log.status=== 1 ? 0 : 1; 
+      log.status = log.status === 1 ? 0 : 1; 
       await log.save();
 
-      const message = log.status=== 1 ? "Log activated successfully" : "Log deactivated successfully";
+      const message = log.status === 1 ? "Log activated successfully" : "Log deactivated successfully";
       res.json({ msg: message });
     } catch (error) {
       console.error("Error toggling log state:", error);
