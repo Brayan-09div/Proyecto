@@ -2,44 +2,42 @@ import express from 'express';
 import { check } from 'express-validator';
 import { validarJWT } from '../middleware/validateJWT.js';
 import { validarCampos } from '../middleware/validate-fields.js';
-import logController from '../controllers/logs.js'
-import {logsHelper} from '../helpers/logs.js'
+import logController from '../controllers/logs.js';
+import { logsHelper } from '../helpers/logs.js';
 
 const router = express.Router();
 
 //------------------------------------------------
-router.get('/listlogs',[
+router.get('/listlogs', [
     validarJWT
-],logController.listLogs)
-
+], logController.listLogs);
 
 //------------------------------------------------
-router.get('/listlogs/:id',[
+
+router.get('/listlogsId/:id', [
     validarJWT,
-    check('id','El id no es valido').isMongoId(),
+    check('id', 'El ID no es válido').isMongoId(),
     check('id').custom(logsHelper.existsLogID),
     validarCampos
-],logController.getLogById)
-
+], logController.getLogById);
 
 //------------------------------------------------
-router.post('/addlog',[
+router.post('/addlog', [
     validarJWT,
-    check('users','El users es obligatorio').notEmpty(),
-    check('action','La action es obligatoria').notEmpty(),
-    check('information','La information es obligatoria').notEmpty(),
-    check('data','La data es obligatoria').notEmpty(),
-    check('hourInstructorProject','Las horas son olbigatorias').notEmpty(),
+    check('users', 'El campo users es obligatorio').notEmpty(),
+    check('email', 'El campo email es obligatorio').notEmpty().isEmail(), 
+    check('email').custom(logsHelper.existEmail), 
+    check('action', 'El campo action es obligatorio').notEmpty(),
+    check('information', 'El campo information es obligatorio').notEmpty(),
     validarCampos
-],logController.createLog)
+], logController.createLog);
 
 //------------------------------------------------
-router.put('/enableAndDisablelogsbyid/:id',[
+router.put('/enableAndDisablelogsbyid/:id', [
     validarJWT,
-    check('id','El id no es valido').isMongoId(),
+    check('id', 'El ID no es válido').isMongoId(),
     check('id').custom(logsHelper.existsLogID),
     validarCampos
-],logController.toggleLogState)
-
+], logController.toggleLogState);
 
 export default router;
