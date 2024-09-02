@@ -12,4 +12,4 @@ const apprenticeSchema = new mongoose.Schema({
     status:{type:Number, require:true, default:1}
 },{timestamps:true})
 
-export default mongoose.model("Apprentice", apprenticeShema);
+export default mongoose.model("Apprentice", apprenticeSchema);

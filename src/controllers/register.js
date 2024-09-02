@@ -100,9 +100,9 @@ const controllerRegister = {
     },
     // Insertar registro-----------------------------------------------------------------
     insertregister: async (req, res) => {
-        const { apprentice, modality, fstart, fend, company, phonecompany, addresscompany, owner, docalternative, hour } = req.body;
+        const { apprentice, modality, startDate, fend, company, phonecompany, addresscompany, owner, docalternative, hour } = req.body;
         try {
-            const register = new Register({ apprentice, modality, fstart, fend, company, phonecompany, addresscompany, owner, docalternative, hour });
+            const register = new Register({ apprentice, modality, startDate, fend, company, phonecompany, addresscompany, owner, docalternative, hour });
             const result = await register.save();
             console.log('Registro guardado', result);
             res.json(result);

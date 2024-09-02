@@ -1,7 +1,7 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { validarJWT } from '../middleware/validarJWT.js';
-import { validarCampos } from '../middleware/validar-campos.js';
+import { validarJWT } from '../middleware/validateJWT.js';
+import { validarCampos } from '../middleware/validate-fields.js';
 import controllerAssignments from '../controllers/assignment.js'
 import {assignmentHelper} from '../helpers/assignment.js'
 import { instructorHelper } from '../helpers/instructor.js'
@@ -12,7 +12,7 @@ import { registerHelper } from '../helpers/register.js'
 const router = express.Router();
 //------------------------------------------------------------------------
 router.get('/listallassignment',[
-    validarJWT
+    validarJWT,
 ], controllerAssignments.listallassignments)
 
 
@@ -28,7 +28,8 @@ router.get('/listassignmentbyid/:id',[
 //------------------------------------------------------------------------
 router.get('/listassignmentbyregister/:idregister',[
    validarJWT,
-    check('register').custom(registerHelper),
+    check('id', 'el id es invalido').isMongoId(),
+    check('register').custom(registerHelper.existResgister),
    validarCampos
 ], controllerAssignments.listregisterassignment)
 
@@ -36,7 +37,7 @@ router.get('/listassignmentbyregister/:idregister',[
 //------------------------------------------------------------------------
 router.get('/listassigmentbyfollowupinstructor/:idinstructor',[
     validarJWT,
-    
+    check('instructor').custom(),
     validarCampos
 ], controllerAssignments.listfollowupinstructor)
 
@@ -50,7 +51,7 @@ router.get('/listassigmentbytechnicalinstructor:idinstructor',[
 
 
 //------------------------------------------------------------------------
-router.get('/listassigmentbyprojectinstructor/:idinstructo',[
+router.get('/listassigmentbyprojectinstructor/:idinstructor',[
     validarJWT,
 
     validarCampos
@@ -59,27 +60,36 @@ router.get('/listassigmentbyprojectinstructor/:idinstructo',[
 //------------------------------------------------------------------------
 router.post('/addassignment',[
     validarJWT,
-
+    check('register').custom(),
+    check(' instructorfollow').custom(),
+    check(' instructortechnical').custom(),
+    check(' instructorproject').custom(),
+    check('certificationdoc','El campo certificationdoc es obligatorio').notEmpty(),
+    check('judymentPhoto','El campo judymentPhoto es olbigatorio').notEmpty(),
+    check('observation','El campo observation es obligatyorio').notEmpty(),
     validarCampos
 ],controllerAssignments.addassignment)
 
 //------------------------------------------------------------------------
 router.put('/updateassignmentbyid/:id',[
     validarJWT,
-
+    check('register').custom(),
+    check(' instructorfollow').custom(),
+    check(' instructortechnical').custom(),
+    check(' instructorproject').custom(),
     validarCampos
 ],controllerAssignments.updateassignmentbyid)
 
 //------------------------------------------------------------------------
 router.put('enableAndDisableAssignmets/id',[
     validarJWT,
-
+    check('id','El id no es valido').isMongoId(),
+    check('id').custom(assignmentHelper.existsAssignmentID),
     validarCampos
 ],controllerAssignments.enableassignment)
 
-
-
  
+export default router;
 
 
 
@@ -92,6 +102,3 @@ router.put('enableAndDisableAssignmets/id',[
 
 
 
-
-
-;

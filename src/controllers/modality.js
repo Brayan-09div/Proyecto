@@ -2,8 +2,6 @@ import Modality from "../models/modality.js";
 
 const modalityController = {
 
-
-
   // Listar todas las modalidades
   listModalities: async (req, res) => {
     try {

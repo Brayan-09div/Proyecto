@@ -1,4 +1,4 @@
-import Binnacles from '../models/binnacles'
+import Binnacles from '../models/binnacles.js'
 
 const binnaclesHelper = {
 
