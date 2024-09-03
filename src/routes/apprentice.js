@@ -67,13 +67,22 @@ router.put('/updateapprenticebyid/:id', [
     validarCampos,
 ], controllerApprentice.updateapprenticebyid)
 
-//-------------------------------------------------------------
-router.put('/enableAndDisablebinnacles/:id', [
+// -----------------------------------------------------------
+router.put('/enableApprentice/:id', [
     validarJWT,
     check('id', 'El id no es valido').isMongoId(),
     check('id').custom(apprenticeHelper.existApprentice),
     validarCampos
-], controllerApprentice.activateAndDesactiveapprentice)
+], controllerApprentice.enableapprenticeStatus)
+
+
+//-------------------------------------------------------------
+router.put('/disableApprentice/:id', [
+    validarJWT,
+    check('id', 'El id no es valido').isMongoId(),
+    check('id').custom(apprenticeHelper.existApprentice),
+    validarCampos
+], controllerApprentice.disableapprenticeStatus)
 
 
 export default router;

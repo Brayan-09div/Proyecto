@@ -80,13 +80,21 @@ router.put('/updateassignmentbyid/:id',[
     validarCampos
 ],controllerAssignments.updateassignmentbyid)
 
-//------------------------------------------------------------------------
-router.put('enableAndDisableAssignmets/id',[
+// ----------------------------------------------------------------------
+router.put('enableAssignmet/id',[
     validarJWT,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(assignmentHelper.existsAssignmentID),
     validarCampos
-],controllerAssignments.enableassignment)
+],controllerAssignments.enableassignmentStatus)
+
+//------------------------------------------------------------------------
+router.put('disableAssignmet/id',[
+    validarJWT,
+    check('id','El id no es valido').isMongoId(),
+    check('id').custom(assignmentHelper.existsAssignmentID),
+    validarCampos
+],controllerAssignments.disableAssignmetStatus)
 
  
 export default router;
