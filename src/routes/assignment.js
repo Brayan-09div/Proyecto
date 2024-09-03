@@ -6,7 +6,7 @@ import controllerAssignments from '../controllers/assignment.js'
 import {assignmentHelper} from '../helpers/assignment.js'
 import { instructorHelper } from '../helpers/instructor.js'
 import { registerHelper } from '../helpers/register.js'
-
+import {followupHelper} from '../helpers/followup.js'
 
 
 const router = express.Router();
@@ -60,7 +60,7 @@ router.get('/listassigmentbyprojectinstructor/:idinstructor',[
 //------------------------------------------------------------------------
 router.post('/addassignment',[
     validarJWT,
-    check('register').custom(),
+    check('register').custom(registerHelper.existResgister),
     check(' instructorfollow').custom(),
     check(' instructortechnical').custom(),
     check(' instructorproject').custom(),
@@ -73,7 +73,7 @@ router.post('/addassignment',[
 //------------------------------------------------------------------------
 router.put('/updateassignmentbyid/:id',[
     validarJWT,
-    check('register').custom(),
+    check('register').custom(registerHelper.existResgister),
     check(' instructorfollow').custom(),
     check(' instructortechnical').custom(),
     check(' instructorproject').custom(),
