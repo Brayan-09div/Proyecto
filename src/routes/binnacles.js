@@ -25,6 +25,7 @@ router.get('/listbinnaclesbyid/:id',[
 
 router.get('listbinnaclesbyassignment/:idassignment',[
     validarJWT,
+    check('assignment', 'El id no es valido').isMongoId(),
     check('assignment').custom(assignmentHelper.existsAssignmentID),
     validarCampos
 ],controllerBinnacles.listAssignmentsById)
@@ -32,7 +33,7 @@ router.get('listbinnaclesbyassignment/:idassignment',[
 
 router.get('listbinnaclesbyinstructor/:idinstructor',[
     validarJWT,
-    check('instructor').custom(),
+    check('instructor').custom(instructorHelper.existsInstructorID),
     validarCampos
 ],controllerBinnacles.listInstructorsById)
 
@@ -40,13 +41,20 @@ router.get('listbinnaclesbyinstructor/:idinstructor',[
 router.post('/addbinnacles',[
     validarJWT,
     check('assignment','La assignment es obligatoria').notEmpty(),
-    check('number','El number es maximo de 10 caracteres').isLength({ max: 10 }),
+    check('instructor','El instructor es obigatorio').notEmpty(),
     check('number','El number es obligatorio').notEmpty(),
-    check('document','El document es maximo de 50 caracteres').isLength({ max: 50 }),
     check('document','El document es obligatorio').notEmpty(),
-    check('observations','El observations es de maximo 50 caracteres').isLength({ max: 50 }),
     check('observations','El observations es obligatorio').notEmpty(),
     check('users','El users es obligatorio').notEmpty(),
+    check('number').custom(binnaclesHelper.existNumber),
+    check('number').custom(binnaclesHelper.verifyNumber),
+    check('document').custom(binnaclesHelper.existDocument), 
+    check('document').custom(binnaclesHelper.verifyDocument),
+    check('number','El number es maximo de 10 caracteres').isLength({ max: 10 }),
+    check('document','El document es maximo de 50 caracteres').isLength({ max: 50 }),
+    check('observations','El observations es de maximo 50 caracteres').isLength({ max: 50 }),
+    
+    
     validarCampos
 ],controllerBinnacles.insertBinnacles)
 
@@ -54,6 +62,8 @@ router.put('/updatebinnaclebyid/:id',[
     validarJWT,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(binnaclesHelper.existBinnacles),
+    check('number').custom(binnaclesHelper.existNumber),
+    check('document').custom(binnaclesHelper.existDocument),
     check('number','El number es maximo de 10 caracteres').isLength({ max: 10 }),
     check('document','El document es maximo de 50 caracteres').isLength({ max: 50 }),
     check('observations','El observations es de maximo 50 caracteres').isLength({ max: 50 }),

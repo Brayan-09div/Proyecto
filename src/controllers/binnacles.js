@@ -13,7 +13,7 @@ const controllerBinnacles = {
             res.status(500).json({ message: 'Error al listar bitácoras' });
         }
     },
-
+    
     // Listar bitácoras por id-------------------------------------------------------
     listBinnacleById: async (req, res) => {
         const { id } = req.params;
