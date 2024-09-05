@@ -74,7 +74,7 @@ router.put('/updatefollowupbyid/:id',[
 ],controllerFollowup.updateFollowup)
 
 // ----------------------------------------------------------------
-router.put('enableFollowup/id',[
+router.put('/enableFollowup/id',[
     validarJWT,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(followupHelper.existsFollowupID),
@@ -83,7 +83,7 @@ router.put('enableFollowup/id',[
 
 
 //-------------------------------------------------------------
-router.put('disableFollowup/id',[
+router.put('/disableFollowup/id',[
     validarJWT,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(followupHelper.existsFollowupID),

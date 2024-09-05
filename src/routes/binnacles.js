@@ -70,14 +70,14 @@ router.put('/updatebinnaclebyid/:id',[
     validarCampos
 ],controllerBinnacles.insertBinnacles)
 
-router.put('enablebinnacles/id',[
+router.put('/enablebinnacles/id',[
     validarJWT,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(binnaclesHelper.existBinnacles),
     validarCampos
 ],controllerBinnacles.enableBinnacleStatus)
 
-router.put('disablebinnacles/id',[
+router.put('/disablebinnacles/id',[
     validarJWT,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(binnaclesHelper.existBinnacles),
