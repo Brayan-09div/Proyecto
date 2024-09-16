@@ -112,24 +112,35 @@ const controllerAssignments = {
         }
     },
 
-    // Activar o desactivar una asignación---------------------------------------------------------------------
-    enableassignment: async (req, res) => {
+    // activar------------------------------------------------------------------------------------
+    enableassignmentStatus: async (req, res) => {
         const { id } = req.params;
         try {
-            const assignment = await Assignment.findById(id);
+            const assignment = await Assignment.findByIdAndUpdate(id,{status:1},{new:true});
 
             if (!assignment) {
                 return res.status(404).json({ error: 'Asignación no encontrada' });
             }
-
-            assignment.status = assignment.status === 1 ? 0 : 1;
-            await assignment.save();
-
-            const message = assignment.status === 1 ? 'Asignación activada' : 'Asignación desactivada';
             res.json({ message });
         } catch (error) {
-            console.error('Error al activar/desactivar asignación:', error);
-            res.status(500).json({ error: 'Error al activar/desactivar asignación' });
+            console.error('Error al activar:', error);
+            res.status(500).json({ error: 'Error al activar' });
+        }
+    },
+
+    // desactivar una asignación---------------------------------------------------------------------
+    disableAssignmetStatus: async (req, res) => {
+        const { id } = req.params;
+        try {
+            const assignment = await Assignment.findByIdAndUpdate(id,{status:0}, {new:true});
+
+            if (!assignment) {
+                return res.status(404).json({ error: 'Asignación no encontrada' });
+            }
+            res.json({ message });
+        } catch (error) {
+            console.error('Error al desactivar asignación:', error);
+            res.status(500).json({ error: 'Error al desactivar asignación' });
         }
     }
 };

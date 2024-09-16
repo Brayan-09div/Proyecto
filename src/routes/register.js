@@ -55,6 +55,7 @@ router.get('/listregisterbyenddate', [
 // -------------------------------------------------------------------
 router.post('/addregister', [
   validarJWT,
+  check('apprentice', 'El campo es obigatorio').notEmpty(),
   check('apprentice').custom(apprenticeHelper.existApprentice),
   check('modality').custom(modalityHelper.existsModalityID),
   check('startDate', 'El campo startDate es obligatorio').notEmpty(),

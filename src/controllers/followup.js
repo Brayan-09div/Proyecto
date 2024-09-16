@@ -100,23 +100,33 @@ const followupController = {
     }
   },
 
-  // Activar o desactivar un followup por su ID-------------------------------------------
-  toggleFollowupStatus: async (req, res) => {
+  // Activar-------------------------------------------------------------------
+
+  enableFollowupStatus: async (req, res) => {
     const { id } = req.body;
     try {
-      const followup = await Followup.findById(id);
+      const followup = await Followup.findByIdAndUpdate(id, {status:1}, {new: true});
       if (!followup)
         return res.status(404).json({ error: "Followup not found" });
-
-      followup.status = followup.status === 1 ? 0 : 1;
-      await followup.save();
-
-      const message =
-        followup.status === 1 ? "Followup activated" : "Followup deactivated";
       res.json({ msg: message });
     } catch (error) {
-      console.error("Error toggling followup status:", error);
-      res.status(500).json({ error: "Error toggling followup status" });
+      console.error("Error enabel followup status:", error);
+      res.status(500).json({ error: "Error enabel followup status" });
+    }
+  },
+
+
+  //  desactivar un followup por su ID-------------------------------------------
+  disableFollowupStatus: async (req, res) => {
+    const { id } = req.body;
+    try {
+      const followup = await Followup.findByIdAndUpdate(id, {status:0}, {new: true});
+      if (!followup)
+        return res.status(404).json({ error: "Followup not found" });
+      res.json({ msg: message });
+    } catch (error) {
+      console.error("Error disable followup status:", error);
+      res.status(500).json({ error: "Error disable followup status" });
     }
   },
 };

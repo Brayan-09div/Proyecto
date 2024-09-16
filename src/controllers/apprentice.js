@@ -98,21 +98,31 @@ updateapprenticebyid: async (req, res) => {
         }
 
 },
-// activar// desactivar----------------------------------------------------------------
-activateAndDesactiveapprentice: async (res, req) => {
+// activar
+enableapprenticeStatus: async (req, res)=>{
+    const {id} = req.params
+    try {
+
+        const apprentice = await Apprentice.findByIdAndUpdate(id,{status:1}, {new:true})
+        if (!apprentice) {
+            return res.status(404).json({ error: 'apprentice no encontrado' })
+        }
+        res.json({ message });
+    } catch (error) {
+        console.log("Error al activar apprentice");
+        res.status(500).json({error:`activar apprentice`} )
+    }  
+    },
+// desactivar----------------------------------------------------------------
+disableapprenticeStatus: async (res, req) => {
     const { id } = req.paramas
     try {
-        const apprentice = await Apprentice.findById(id)
+        const apprentice = await Apprentice.findByIdAndUpdate(id,{status:0}, {new:true})
 
         if (!apprentice) {
             return res.status(404).json({ error: 'apprentice no encontrado' })
         }
-
-        apprentice.status = apprentice.status === 1 ? 0 : 1;
-        await apprentice.save();
-
-        const messages = apprentice.status === 1 ? "apprentice active" : "apprentive inactive"
-        res.json({ messages })
+        res.json({ message });
     } catch (error) {
         console.log("Error al desactivar / activar apprentice");
         res.status(500).json({error:`Error al desactivar / activar apprentice`} )

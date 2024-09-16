@@ -30,6 +30,7 @@ check('name', ' El campo name es obligatorio').notEmpty(),
 check('hourInstructorFollo','El campo hourInstructorFollow es obligatorio').notEmpty(),
 check('hourInstructorTechnical','El campo hourInstructorTechnical es obligatorio').notEmpty(),
 check('hourInstructorProject', 'El campo hourInstructorProject es obligatorio').notEmpty(),
+
 validarCampos
 
 ], modalityController.createModality);
