@@ -74,25 +74,7 @@ const modalityController = {
   },
 
 
-  // Activar o desactivar una modalidad por su ID
-  toggleModalityState: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const modality = await Modality.findById(id);
-      if (!modality) {
-        return res.status(404).json({ error: "Modality not found" });
-      }
 
-      modality.estado = modality.estado === 1 ? 0 : 1; // Cambiar estado (1 -> 0, 0 -> 1)
-      await modality.save();
-
-      const message = modality.estado === 1 ? "Modality activated correctly" : "Modality deactivated correctly";
-      res.json({ msg: message });
-    } catch (error) {
-      console.error("Error toggling modality state:", error);
-      res.status(500).json({ error: "Error toggling modality state" });
-    }
-  }, 
 };
 
 export default modalityController;

@@ -130,26 +130,36 @@ const controllerRegister = {
         }
     },
 
-    // Activar y Desactivar registro--------------------------------------------------------
-    activateAndDesactiveregister: async (req, res) => {
-        const { id } = req.params;
-        try {
-            const register = await Register.findById(id);
-
-            if (!register) {
-                return res.status(404).json({ error: 'Registro no encontrado' });
-            }
-
-            register.status = register.status === 1 ? 0 : 1;
-            await register.save();
-
-            const message = register.status === 1 ? "Registro activo" : "Registro inactivo";
-            res.json({ message });
-        } catch (error) {
-            console.log("Error al desactivar/activar registro", error);
-            res.status(500).json({ error: 'Error al desactivar/activar registro' });
-        }
+ 
+ // Activar registro
+ enableRegiterStatus: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const register = await Register.findByIdAndUpdate(id, { status: 1 }, { new: true });
+      if (!register) {
+        return res.status(404).json({ error: "Registro no encontrado" });
+      }
+      res.json({ msg: "Registro activado exitosamente" });
+    } catch (error) {
+      console.error("Error al activar el estado del registro:", error);
+      res.status(500).json({ error: "Error al activar el estado del registro" });
     }
+  },
+
+  // Desactivar registro
+  disableRegisterStatus: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const register = await Register.findByIdAndUpdate(id, { status: 0 }, { new: true });
+      if (!register) {
+        return res.status(404).json({ error: "Registro no encontrado" });
+      }
+      res.json({ msg: "Registro desactivado exitosamente" });
+    } catch (error) {
+      console.error("Error al desactivar el estado del registro:", error);
+      res.status(500).json({ error: "Error al desactivar el estado del registro" });
+    }
+  },
 };
 
 export default controllerRegister;

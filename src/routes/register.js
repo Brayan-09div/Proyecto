@@ -82,12 +82,20 @@ router.put('/updatemodalitybyid/:id', [
 ], controllerRegister.updateregisterbyid)
 
 // ---------------------------------------------------------------------------
-router.put('/enableAndDisablebinnacles/:id', [
+router.put('/enableRegister/:id', [
   validarJWT,
   check('id', 'El id no es valido').isMongoId(),
-  check('id').custom(registerHelper.existResgister),
+  check('id').custom(registerHelper.existRegister),
   validarCampos
-], controllerRegister.activateAndDesactiveregister)
+], controllerRegister.enableRegisterStatus);
+
+// -----------------------------------------------------------------------
+router.put('/disableRegister/:id', [
+  validarJWT,
+  check('id', 'El id no es valido').isMongoId(),
+  check('id').custom(registerHelper.existRegister),
+  validarCampos
+], controllerRegister.disableRegisterStatus);
 
 
 

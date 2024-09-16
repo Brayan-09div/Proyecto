@@ -47,23 +47,35 @@ const logController = {
     }
   },
 
-  // Activar o desactivar un log por su ID--------------------------------------
-  toggleLogState: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const log = await logs.findById(id);
-      if (!log) return res.status(404).json({ error: "Log not found" });
+ // Activar un log por su ID-------------------------------------------
+ enablelogsStatus: async (req, res) => {
+  const { id } = req.params;
+  try {
+    const log = await logsModel.findByIdAndUpdate(id, { status: 1 }, { new: true });
+    if (!log) return res.status(404).json({ error: "Log not found" });
+    
+    res.json({ msg: "Log status enabled successfully", log });
+  } catch (error) {
+    console.error("Error enabling log status:", error);
+    res.status(500).json({ error: "Error enabling log status" });
+  }
+},
 
-      log.status = log.status === 1 ? 0 : 1; 
-      await log.save();
+// Desactivar un log por su ID---------------------------------------
+disablelogsStatus: async (req, res) => {
+  const { id } = req.params;
+  try {
+    const log = await logsModel.findByIdAndUpdate(id, { status: 0 }, { new: true });
+    if (!log) return res.status(404).json({ error: "Log not found" });
+    
+    res.json({ msg: "Log status disabled successfully", log });
+  } catch (error) {
+    console.error("Error disabling log status:", error);
+    res.status(500).json({ error: "Error disabling log status" });
+  }
+},
 
-      const message = log.status === 1 ? "Log activated successfully" : "Log deactivated successfully";
-      res.json({ msg: message });
-    } catch (error) {
-      console.error("Error toggling log state:", error);
-      res.status(500).json({ error: "Error toggling log state" });
-    }
-  },
+
 };
 
 export default logController;

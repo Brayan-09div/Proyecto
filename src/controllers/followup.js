@@ -103,7 +103,7 @@ const followupController = {
   // Activar-------------------------------------------------------------------
 
   enableFollowupStatus: async (req, res) => {
-    const { id } = req.body;
+    const { id } = req.params;
     try {
       const followup = await Followup.findByIdAndUpdate(id, {status:1}, {new: true});
       if (!followup)
@@ -118,7 +118,7 @@ const followupController = {
 
   //  desactivar un followup por su ID-------------------------------------------
   disableFollowupStatus: async (req, res) => {
-    const { id } = req.body;
+    const { id } = req.params;
     try {
       const followup = await Followup.findByIdAndUpdate(id, {status:0}, {new: true});
       if (!followup)

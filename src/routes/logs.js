@@ -32,12 +32,21 @@ router.post('/addlog', [
     validarCampos
 ], logController.createLog);
 
-//------------------------------------------------
-router.put('/enableAndDisablelogsbyid/:id', [
+// -------------------------------------------------
+router.put('/enablelog/:id', [
     validarJWT,
     check('id', 'El ID no es válido').isMongoId(),
     check('id').custom(logsHelper.existsLogID),
     validarCampos
-], logController.toggleLogState);
+], logController.enablelogsStatus);
+
+//------------------------------------------------
+router.put('/disablelog/:id', [
+    validarJWT,
+    check('id', 'El ID no es válido').isMongoId(),
+    check('id').custom(logsHelper.existsLogID),
+    validarCampos
+], logController.disablelogsStatus);
+
 
 export default router;

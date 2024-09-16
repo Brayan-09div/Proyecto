@@ -47,15 +47,21 @@ check('hourInstructorProject', 'El campo hourInstructorProject es obligatorio').
 validarCampos
 ], modalityController.editModality);
 
-
 //-----------------------------------------------------------
-router.put('/togglemodalitystate/:id', [
-validarJWT,
-check('id', 'El id es invalido').isMongoId(),
-check('id').custom(modalityHelper.existsModalityID),
-validarCampos
-], modalityController.toggleModalityState);
-
+router.put('/enablemodality/:id', [
+    validarJWT,
+    check('id', 'El id es inválido').isMongoId(),
+    check('id').custom(modalityHelper.existsModalityID),
+    validarCampos
+  ], modalityController.enableModalityStatus);
+  
+  //-----------------------------------------------------------
+  router.put('/disablemodality/:id', [
+    validarJWT,
+    check('id', 'El id es inválido').isMongoId(),
+    check('id').custom(modalityHelper.existsModalityID),
+    validarCampos
+  ], modalityController.disableModalityStatus);
 
 
 
