@@ -72,9 +72,38 @@ const modalityController = {
       res.status(500).json({ error: "Error editing modality" });
     }
   },
+   // activar------------------------------------------------------------------------------------
+   enablemodalityStatus: async (req, res) => {
+    const { id } = req.params;
+    try {
+        const  modality = await Modality.findByIdAndUpdate(id,{status:1},{new:true});
 
+        if (!modality) {
+            return res.status(404).json({ error: 'Modality no encontrada' });
+        }
+        res.json({ message });
+    } catch (error) {
+        console.error('Error al activar:', error);
+        res.status(500).json({ error: 'Error al activar' });
+    }
+},
 
+// desactivar una asignación---------------------------------------------------------------------
+disablemodalityStatus: async (req, res) => {
+    const { id } = req.params;
+    try {
+        const  modality = await Modality.findByIdAndUpdate(id,{status:0}, {new:true});
 
+        if (!modality) {
+            return res.status(404).json({ error: 'Modality no encontrada' });
+        }
+        res.json({ message });
+    } catch (error) {
+        console.error('Error al desactivar Modality:', error);
+        res.status(500).json({ error: 'Error al desactivar Modality' });
+    }
+}
 };
+
 
 export default modalityController;

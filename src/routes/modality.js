@@ -53,7 +53,7 @@ router.put('/enablemodality/:id', [
     check('id', 'El id es inválido').isMongoId(),
     check('id').custom(modalityHelper.existsModalityID),
     validarCampos
-  ], modalityController.enableModalityStatus);
+  ], modalityController.enablemodalityStatus);
   
   //-----------------------------------------------------------
   router.put('/disablemodality/:id', [
@@ -61,7 +61,7 @@ router.put('/enablemodality/:id', [
     check('id', 'El id es inválido').isMongoId(),
     check('id').custom(modalityHelper.existsModalityID),
     validarCampos
-  ], modalityController.disableModalityStatus);
+  ], modalityController.createModality);
 
 
 

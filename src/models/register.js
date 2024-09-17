@@ -8,6 +8,7 @@ const registerSchema = new mongoose.Schema({
     company: {type:String, require:true},
     phonecompany:{type:String, require:true},
     addresscompany:{type:String, require:true},
+    emailcompany:{type:String, require:true},
     owner:{type:String, require:true},
     docalternative:{type:String, require:true},
     hour:{type:Number, require:true},
