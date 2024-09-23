@@ -72,16 +72,43 @@ const followupController = {
   },
   // Insertar un nuevo followup----------------------------------------------
   insertFollowup: async (req, res) => {
+    const { assignment, instructor, number, month, document, status, users, observation } = req.body;
+    const validNumbers = [1, 2, 3];
+    if (!validNumbers.includes(number)) {
+      return res.status(400).json({ error: 'Número inválido' });
+    }
+    let observations;
+    if (Array.isArray(observation)) {
+      observations = observation.map(obs => ({
+        observation: obs.observation || '', 
+        observationOwner: obs.observationOwner || '', 
+        observationDate: obs.observationDate || new Date()
+      }));
+    } else {
+      return res.status(400).json({ error: 'El campo observación debe ser un array de objetos' });
+    }
     try {
-      const newFollowup = new Followup(req.body);  
+      const newFollowup = new Followup({
+        assignment,
+        instructor,
+        number,
+        month,
+        document,
+        status,
+        users,
+        observation: observations 
+      });
       const result = await newFollowup.save();
+   
       console.log("Followup saved:", result);
-      res.json(result);
+      res.status(201).json(result);
     } catch (error) {
       console.error("Error inserting followup:", error);
       res.status(500).json({ error: "Error inserting followup" });
     }
   },
+
+  
   // Actualizar un followup por su ID---------------------------------------------------
   updateFollowup: async (req, res) => {
     const { id } = req.params;
@@ -99,36 +126,32 @@ const followupController = {
       res.status(500).json({ error: "Error updating followup" });
     }
   },
+// Actuactulizar un El estado del 1,2,3,4
+updateStatus: async (req, res) => {
+  const {id,status} = req.params
 
-  // Activar-------------------------------------------------------------------
+  try {
 
-  enableFollowupStatus: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const followup = await Followup.findByIdAndUpdate(id, {status:1}, {new: true});
-      if (!followup)
-        return res.status(404).json({ error: "Followup not found" });
-      res.json({ msg: message });
-    } catch (error) {
-      console.error("Error enabel followup status:", error);
-      res.status(500).json({ error: "Error enabel followup status" });
+    const statusSelect = [1, 2, 3, 4];
+    if (!statusSelect.includes(status)) {
+      return res.status(400).json({ error: 'Estado inválido' });
     }
-  },
 
+    const updatedFollowup = await Followup.findByIdAndUpdate(id,{ status: status }, { new:true})
 
-  //  desactivar un followup por su ID-------------------------------------------
-  disableFollowupStatus: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const followup = await Followup.findByIdAndUpdate(id, {status:0}, {new: true});
-      if (!followup)
-        return res.status(404).json({ error: "Followup not found" });
-      res.json({ msg: message });
-    } catch (error) {
-      console.error("Error disable followup status:", error);
-      res.status(500).json({ error: "Error disable followup status" });
+    if (!updatedFollowup) {
+      return res.status(404).json({ error: 'Followup no encontrado' });
     }
-  },
-};
+
+
+    console.log("followup encontrado",error)
+    res.json(updatedFollowup)
+  } catch (error) {
+    console.error("Error al actualiar followup",error)
+    res.status(500).json({error:"Error al actualizar followup"})
+  }
+},
+}
+  
 
 export default followupController;

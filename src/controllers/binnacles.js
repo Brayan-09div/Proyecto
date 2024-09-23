@@ -58,18 +58,44 @@ const controllerBinnacles = {
 
     // Insertar bitácoras---------------------------------------------------------------------
     insertBinnacles: async (req, res) => {
-        const { assignment, number, document, status, observations, users } = req.body;
+        const { assignment, instructor, number, document, status, observation, users } = req.body;
+
+        // Validate the number field against the enum values
+        const validNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        if (!validNumbers.includes(number)) {
+            return res.status(400).json({ error: 'Número inválido' });
+        }
+        let observations;
+        if (Array.isArray(observation)) {
+            observations = observation.map(obs => ({
+                observation: obs.observation || '', 
+                observationOwner: obs.observationOwner || '', 
+                observationDate: obs.observationDate || new Date() 
+            }));
+        } else {
+            return res.status(400).json({ error: 'El campo observación debe ser un array de objetos' });
+        }
         try {
-            const binnacle = new Binnacles({ assignment, number, document, status, observations, users });
+            const binnacle = new Binnacles({
+                assignment,
+                instructor,
+                number,
+                document,
+                status,
+                observation: observations, 
+                users
+            });
             const result = await binnacle.save();
+
             console.log('Bitácora guardada', result);
             res.status(201).json(result);
         } catch (error) {
+        
             console.error('Error al insertar bitácora', error);
             res.status(500).json({ error: 'Error al insertar bitácora' });
         }
     },
-
+    
     // Actualizar bitácora---------------------------------------------------------
     updateBinnacleById: async (req, res) => {
         const { id } = req.params;
@@ -88,36 +114,31 @@ const controllerBinnacles = {
         }
     },
 
-    // Activar----------------------------------------------------------------
-    enableBinnacleStatus: async (req, res) => {
-        const { id } = req.params;
-        try {
-            const binnacle = await Binnacles.findByIdAndUpdate(id, {status:1}, {new:true});
+   // Actuactulizar un El estado del 1,2,3,4
+updateStatus: async (req, res) => {
+  const {id,status} = req.params
+  
+  try {
 
-            if (!binnacle) {
-                return res.status(404).json({ error: 'Bitácora no encontrada' });
-            }
-            res.json({ message });
-        } catch (error) {
-            console.error('Error al activar  bitácora', error);
-            res.status(500).json({ error: 'Error al activar bitácora' });
-        }
-    },
-    // desactivar bitácoras----------------------------------------------------
-    disableBinnacleStatus: async (req, res) => {
-        const { id } = req.params;
-        try {
-            const binnacle = await Binnacles.findByIdAndUpdate(id, {status:0}, {new:true});
-
-            if (!binnacle) {
-                return res.status(404).json({ error: 'Bitácora no encontrada' });
-            }
-            res.json({ message });
-        } catch (error) {
-            console.error('Error al desactivar bitácora', error);
-            res.status(500).json({ error: 'Error aldesactivar bitácora' });
-        }
+    const statusSelect = [1, 2, 3, 4];
+    if (!statusSelect.includes(status)) {
+      return res.status(400).json({ error: 'Estado inválido' });
     }
+
+    const updatedBinnacles = await Binnacles.findByIdAndUpdate(id,{ status: status }, { new:true})
+
+    if (!updatedBinnacles) {
+      return res.status(404).json({ error: 'Binnacles no encontrado' });
+    }
+
+
+    console.log("folloup encontrado",error)
+    res.json(updatedBinnacles)
+  } catch (error) {
+    console.error("Error al actualiar Binnacles",error)
+    res.status(500).json({error:"Error al actualizar Binacles"})
+  }
+},
 };
 
 export default controllerBinnacles;

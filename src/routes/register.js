@@ -87,13 +87,13 @@ router.put('/enableRegister/:id', [
   check('id', 'El id no es valido').isMongoId(),
   check('id').custom(registerHelper.existRegister),
   validarCampos
-], controllerRegister.enableRegisterStatus);
+], controllerRegister.enableRegiterStatus);
 
 // -----------------------------------------------------------------------
 router.put('/disableRegister/:id', [
   validarJWT,
   check('id', 'El id no es valido').isMongoId(),
-  check('id').custom(registerHelper.existRegister),
+  check('id').custom(registerHelper.existResgister),
   validarCampos
 ], controllerRegister.disableRegisterStatus);
 
