@@ -1,4 +1,4 @@
-import Fiches from '../models/fiches.js';
+
 
 const fichesHelper = {
     existsFicheID: async (id) => {

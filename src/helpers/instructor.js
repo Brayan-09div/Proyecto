@@ -1,4 +1,4 @@
-import Instructor from '../models/instructor.js';
+
 
 const instructorHelper = {
     existsInstructorID: async (id) => {
