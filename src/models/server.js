@@ -13,23 +13,28 @@ import registerRoutes from '../routes/register.js'
 import userEPRoutes from '../routes/userEP.js'
 import backupDatabase from '../../backup.js';
 
+import aprrenticeRoutes from '../routes/apprentice.js';
+import assignmentRoutes from '../routes/assignment.js';
+import binnaclesRoutes from '../routes/binnacles.js';
+import followupRoutes from '../routes/followup.js';
+import logsRoutes from '../routes/logs.js';
+import modalityRoutes from '../routes/modality.js';
+import registerRoutes from '../routes/register.js';
+import userEPRoutes from '../routes/userEP.js';
 
 class Server {
     constructor() {
         this.app = express();
-        this.port = process.env.PORT 
+        this.port = process.env.PORT;
         this.server = http.createServer(this.app);
     
-        // Middlewares
         this.middlewares();
-
-        // Rutas de mi aplicación
         this.routes();
-
-        this.conectarbd()
+        this.conectarbd();
+        this.scheduleBackups(); // Programar las copias de seguridad
     }
 
-    async conectarbd(){
+    async conectarbd() {
         await dbconnect();
     }
 
@@ -63,4 +68,5 @@ class Server {
         });
     }
 }
+
 export { Server };
