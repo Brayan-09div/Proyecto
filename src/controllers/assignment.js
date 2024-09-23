@@ -142,7 +142,15 @@ const controllerAssignments = {
             console.error('Error al desactivar asignación:', error);
             res.status(500).json({ error: 'Error al desactivar asignación' });
         }
-    }
+    },
+    // correo1: async (req,res) => {
+    //     const {Instructor,Cortdinador, ProductiveStage} = req.body
+    //     try {
+    //         const correo = await Assignment.
+    //     } catch (error) {
+            
+    //     }
+    // }
 };
 
 export default controllerAssignments;

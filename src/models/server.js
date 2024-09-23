@@ -11,6 +11,7 @@ import logsRoutes from '../routes/logs.js'
 import modalityRoutes from '../routes/modality.js'
 import registerRoutes from '../routes/register.js'
 import userEPRoutes from '../routes/userEP.js'
+import backupDatabase from '../../backup.js';
 
 
 class Server {
@@ -47,6 +48,12 @@ class Server {
         this.app.use('/api/logs', logsRoutes);
         this.app.use('/api/modality', modalityRoutes);
         this.app.use('/api/register', registerRoutes);
+
+        this.app.use('/api/backup', (req, res) => {
+            backupDatabase()
+                .then(() => res.send('Backup completado'))
+                .catch(err => res.status(500).send('Error en el backup'));
+        });
  
     }
 
