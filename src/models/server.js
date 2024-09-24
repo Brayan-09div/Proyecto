@@ -11,16 +11,11 @@ import logsRoutes from '../routes/logs.js'
 import modalityRoutes from '../routes/modality.js'
 import registerRoutes from '../routes/register.js'
 import userEPRoutes from '../routes/userEP.js'
-import backupDatabase from '../../backup.js';
+import repfora from '../routes/repfora.js';
 
-import aprrenticeRoutes from '../routes/apprentice.js';
-import assignmentRoutes from '../routes/assignment.js';
-import binnaclesRoutes from '../routes/binnacles.js';
-import followupRoutes from '../routes/followup.js';
-import logsRoutes from '../routes/logs.js';
-import modalityRoutes from '../routes/modality.js';
-import registerRoutes from '../routes/register.js';
-import userEPRoutes from '../routes/userEP.js';
+// import backupDatabase from '../../backup.js';
+
+
 
 class Server {
     constructor() {
@@ -31,7 +26,7 @@ class Server {
         this.middlewares();
         this.routes();
         this.conectarbd();
-        this.scheduleBackups(); // Programar las copias de seguridad
+        // this.scheduleBackups(); // Programar las copias de seguridad
     }
 
     async conectarbd() {
@@ -45,6 +40,7 @@ class Server {
     }
 
     routes() {
+        this.app.use('/api/repfora', repfora);
         this.app.use('/api/userEP', userEPRoutes);
         this.app.use('/api/apprendice', aprrenticeRoutes);
         this.app.use('/api/assignments', assignmentRoutes);

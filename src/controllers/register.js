@@ -129,6 +129,23 @@ const controllerRegister = {
             res.status(500).json({ error: "Error updating Register" });
         }
     },
+// // Actualizar modalidad
+updatemodalityregister: async (req, res) => {
+const {id} = req.params
+ const {modality} = req.body
+try {
+    const updatemodality = await Register.findByIdAndUpdate(id, {modality}, {new:true})
+  if(!updatemodality){
+     return res.status(404).json({message: 'Registro no encontrado' })
+}
+res.json(updatemodality)
+} catch (error) {
+console.log('Error al actualizar modality',error);
+res.status(500).json({error: 'Error al actualizar modality'})    
+}
+},
+
+
 
  // Activar registro
  enableRegiterStatus: async (req, res) => {

@@ -81,6 +81,10 @@ router.put('/updatemodalitybyid/:id', [
   validarCampos,
 ], controllerRegister.updateregisterbyid)
 
+// ----------------------------------------------------------------------------
+router.put('/updatemodalityregister/:id',[
+
+], controllerRegister.updatemodalityregister)
 // ---------------------------------------------------------------------------
 router.put('/enableRegister/:id', [
   validarJWT,
