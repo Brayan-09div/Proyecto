@@ -4,7 +4,7 @@ import axios from 'axios';
 const apiURL = process.env.REPFORA;
 
 const authController = {
-
+    
     login: async (req, res) => {
         const { email, password, role } = req.body;
         try {
@@ -13,8 +13,8 @@ const authController = {
                 password,
                 role,
             });
-            const token = response.data.token; 
-            console.log('Token recibido:', token); 
+            const token = response.data.token;
+            console.log('Token recibido:', token);
             res.json({ token });
         } catch (error) {
             res.status(401).json({
@@ -112,7 +112,4 @@ const authController = {
     }
 
 }
-
-
-
 export { authController };

@@ -38,7 +38,7 @@ router.get('/listapprenticebystatus/:status', [
 
 //-------------------------------------------------------------
 router.post('/addapprentice', [
-    validarJWT,
+    // validarJWT,
     check('fiche', 'El campo fiche es obligaorio').notEmpty(),
     check('fiche').custom(fichesHelper.existsFicheID),
     check('tpDocument', 'El campo tpdocument es obligatorio').notEmpty(),

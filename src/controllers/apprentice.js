@@ -65,19 +65,18 @@ listApprenticeByStatus: async (req, res) => {
 },
 
 // insertar por aprendiz--------------------------------------------------------------
-inserttheapprentice: async (res, req) =>{
- const {tpdocument, numrDocument, firstname, lastname, phone, email, fiche } = req.body
-try {
-   
-    const apprentice =  new Apprentice({tpdocument, numrDocument, firstname, lastname, phone, email, fiche})
-    const result =  await apprentice.save()
-        console.log('apprentice saved', result)
-        res.json('apprentice saved', result)
-} catch (error) {
-    console.log('Error al insertapprentice', error)
-    res.status(500).json({error: 'Error al insertapprentice' })    
-}
-},
+    inserttheapprentice: async (req, res) => {
+        const { tpdocument, numrDocument, firstname, lastname, phone, email, fiche } = req.body;
+        try {
+            const apprentice = new Apprentice({ tpdocument, numrDocument, firstname, lastname, phone, email, fiche });
+            const result = await apprentice.save();
+            console.log('apprentice saved', result);
+            res.status(201).json({ message: 'apprentice saved', apprentice: result });
+        } catch (error) {
+            console.error('Error al insertapprentice:', error);
+            res.status(500).json({ error: 'Error al insertapprentice', details: error.message });
+        }
+    },
 
 // actualizar--------------------------------------------------------------------------
 
