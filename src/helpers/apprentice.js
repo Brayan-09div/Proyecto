@@ -1,42 +1,20 @@
-import Apprentice from '../models/apprentice.js'
+import Apprentice from '../models/apprentice.js';
 
 const apprenticeHelper = {
-  
+    // Verifica si el ID del aprendiz existe
     existApprentice: async (id) => {
         try {
-            const exist = await Apprentice.findById(id)
+            const exist = await Apprentice.findById(id);
             if (!exist) {
-                throw new Error(`No existe el ID: ${id}`)
+                throw new Error(`No existe el ID: ${id}`);
             }
-            return exist
+            return exist;
         } catch (error) {
-            throw new Error(`Error al verificar el ID: ${error.message}`)
+            throw new Error(`Error al verificar el ID: ${error.message}`);
         }
     },
-
-    existNumDocument: async (numdocument) => {
-        try {
-            const existe = await Apprentice.findOne({ numdocument });
-            if (existe) {
-                throw new Error(`Ya existe el numdocument en la base de datos: ${numdocument}`);
-            }
-        } catch (error) {
-            throw new Error(`Error al verificar numdocument: ${error.message}`);
-        }
-    },
-
-    verifyNumDocument: async (numdocument) => {
-        try {
-            const exist = await Apprentice.findOne({ numdocument })
-            if (!exist) {
-                throw new Error(`El numdocument ${numdocument} no está registrado`)
-            }
-            return exist
-        } catch (error) {
-            throw new Error(`Error al verificar numdocument: ${error.message}`)
-        }
-    },
-
+  
+    // Verifica si el numdocument ya existe en la base de datos, excluyendo el propio registro si está editando
     esNumDocumentoValido: async (numdocument, id) => {
         try {
             const documento = await Apprentice.findOne({ numdocument });
@@ -48,7 +26,7 @@ const apprenticeHelper = {
         }
     },
 
-   
+    // Verifica si el email ya existe en la base de datos, excluyendo el propio registro si está editando
     esEmailValido: async (email, id) => {
         try {
             const correo = await Apprentice.findOne({ email });
@@ -60,29 +38,30 @@ const apprenticeHelper = {
         }
     },
 
-    existEmail: async (email) => {
+    // Verifica si el numdocument ya existe en la base de datos
+    existNumDocument: async (numdocument) => {
+        console.log('Verificando existencia de numdocument:', numdocument);
         try {
-            const exist = await Apprentice.findOne({ email })
-            if (exist) {
-                throw new Error(`Ya existe email en la base de datos: ${email}`)
+            const existe = await Apprentice.findOne({ numdocument });
+            if (existe) {
+                throw new Error(`Ya existe el numdocument en la base de datos: ${numdocument}`);
             }
         } catch (error) {
-            throw new Error(`Error al verificar el Email: ${error.message}`)
+            throw new Error(`Error al verificar numdocument: ${error.message}`);
         }
     },
 
-    verifyEmail: async (email) => {
+    // Verifica si el email ya existe en la base de datos
+    existEmail: async (email) => {
         try {
-            const exist = await Apprentice.findOne({ email })
-            if (!exist) {
-                throw new Error(`El Email ${email} no está registrado`)
+            const exist = await Apprentice.findOne({ email });
+            if (exist) {
+                throw new Error(`Ya existe email en la base de datos: ${email}`);
             }
-            return exist
         } catch (error) {
-            throw new Error(`Error al verificar Email: ${error.message}`)
+            throw new Error(`Error al verificar el Email: ${error.message}`);
         }
     },
 };
-
 
 export { apprenticeHelper };

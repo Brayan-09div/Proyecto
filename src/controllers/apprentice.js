@@ -1,4 +1,4 @@
-import Apprentice from '../routes/apprentice.js'
+import Apprentice from '../models/apprentice.js'
 
 const  controllerApprentice ={
     // listar todos los aprendices ---------------------------------------------------
@@ -30,20 +30,20 @@ listtheapprenticebyid: async (res, req)=>{
     }
    
 },
-// listar por ficha------------------------------------------------------------------
-listtheapprenticebyficheid: async (res, req) => {
-const {fiche} = req.paramas;
-try {
-    const apprentice = await Apprentice.find({fiche})
-     console.log(`lista de fiche en apprentice ${fiche}`);
-     req.json(apprentice)
-    
-} catch (error) {
-    console.log(`Error al listar fiche en apprentice ${fiche}`, error)
-    res.status(500).json({error:` Error al listar fiche en apprentice ${fiche}`})
-}
-},
 
+// listar por ficha------------------------------------------------------------------
+listtheapprenticebyficheid: async (req, res) => {
+    const { fiche } = req.params; 
+    try {
+      const apprentice = await Apprentice.find({ fiche });
+      console.log(`lista de fiche en apprentice ${fiche}`);
+      res.json(apprentice); 
+    } catch (error) {
+      console.log(`Error al listar fiche en apprentice ${fiche}`, error);
+      res.status(500).json({ error: `Error al listar fiche en apprentice ${fiche}` });
+    }
+  },
+  
 //Listar por Estado
 
 listApprenticeByStatus: async (req, res) => {
@@ -65,18 +65,32 @@ listApprenticeByStatus: async (req, res) => {
 },
 
 // insertar por aprendiz--------------------------------------------------------------
-    inserttheapprentice: async (req, res) => {
-        const { tpdocument, numrDocument, firstname, lastname, phone, email, fiche } = req.body;
-        try {
-            const apprentice = new Apprentice({ tpdocument, numrDocument, firstname, lastname, phone, email, fiche });
-            const result = await apprentice.save();
-            console.log('apprentice saved', result);
-            res.status(201).json({ message: 'apprentice saved', apprentice: result });
-        } catch (error) {
-            console.error('Error al insertapprentice:', error);
-            res.status(500).json({ error: 'Error al insertapprentice', details: error.message });
+
+inserttheapprentice: async (req, res) => {
+    console.log('req.body:', req.body);
+    const { tpDocument, numdocument, firname, lasname, phone, email, fiche } = req.body;
+    try {
+        if (!tpDocument || !numdocument || !firname || !lasname || !phone || !email || !fiche) {
+            return res.status(400).json({ error: 'Faltan campos obligatorios' });
         }
-    },
+        const apprentice = new Apprentice({ 
+            tpDocument, 
+            numdocument, 
+            firname, 
+            lasname, 
+            phone, 
+            email, 
+            fiche 
+        });
+        const result = await apprentice.save();
+        console.log('Aprendiz guardado:', result);
+        res.status(201).json({ message: 'Aprendiz guardado exitosamente', apprentice: result });
+    } catch (error) {
+        console.error('Error al insertar aprendiz:', error);
+        res.status(500).json({ error: 'Error al insertar aprendiz', details: error.message });
+    }
+},
+
 
 // actualizar--------------------------------------------------------------------------
 
