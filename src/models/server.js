@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { dbconnect } from "../../databases/config.js"
+import AuthService from '../servis/AuthService.js';
 
 import aprrenticeRoutes from '../routes/apprentice.js'
 import assignmentRoutes from '../routes/assignment.js'
@@ -15,8 +16,6 @@ import repfora from '../routes/repfora.js';
 
 // import backupDatabase from '../../backup.js';
 
-
-
 class Server {
     constructor() {
         this.app = express();
@@ -26,6 +25,7 @@ class Server {
         this.middlewares();
         this.routes();
         this.conectarbd();
+        this.initAuthService();
         // this.scheduleBackups(); // Programar las copias de seguridad
     }
 
@@ -37,6 +37,13 @@ class Server {
         this.app.use(cors());
         this.app.use(express.json());
         this.app.use(express.static('public'));
+    }
+
+    initAuthService() {
+        const initialToken = process.env.INITIAL_TOKEN;
+        if (initialToken) {
+            AuthService.setToken(initialToken);
+        }
     }
 
     routes() {
