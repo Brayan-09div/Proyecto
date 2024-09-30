@@ -24,7 +24,7 @@ router.get('/listapprenticebyid/:id', [
 //-------------------------------------------------------------
 router.get('/listapprenticebyfiche/:fiche', [
     // validarJWT,
-    check('fiche').custom(ficheHelper.verifyFiche),
+    check('fiche').custom(ficheHelper.existsFicheID),
     check('fiche', 'El campo fiche es obligatorio').notEmpty(),
     validarCampos,
 ], controllerApprentice.listtheapprenticebyficheid);
@@ -39,7 +39,7 @@ router.get('/listapprenticebystatus/:status', [
 router.post('/addapprentice', [
     // verificar JWT si es necesario
     check('fiche', 'El campo fiche es obligatorio').notEmpty(),
-    check('fiche').custom(ficheHelper.verifyFiche),
+    check('fiche').custom(ficheHelper.existsFicheID),
     check('tpDocument', 'El campo tpDocument es obligatorio').notEmpty(),
     check('numdocument', 'El campo numdocument es obligatorio').notEmpty(),
     check('numdocument').custom(apprenticeHelper.existNumDocument),

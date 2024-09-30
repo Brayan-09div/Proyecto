@@ -65,17 +65,14 @@ listApprenticeByStatus: async (req, res) => {
 },
 
 // insertar por aprendiz--------------------------------------------------------------
+
 inserttheapprentice: async (req, res) => {
-    console.log('Iniciando inserttheapprentice');
     console.log('req.body:', req.body);
     const { tpDocument, numdocument, firname, lasname, phone, email, fiche } = req.body;
     try {
-        // Verificar que los campos existen y no son undefined
         if (!tpDocument || !numdocument || !firname || !lasname || !phone || !email || !fiche) {
             return res.status(400).json({ error: 'Faltan campos obligatorios' });
         }
-        
-        console.log('Creando nuevo Apprentice');
         const apprentice = new Apprentice({ 
             tpDocument, 
             numdocument, 
@@ -85,11 +82,8 @@ inserttheapprentice: async (req, res) => {
             email, 
             fiche 
         });
-        console.log('Apprentice creado:', apprentice);
-
         const result = await apprentice.save();
         console.log('Aprendiz guardado:', result);
-
         res.status(201).json({ message: 'Aprendiz guardado exitosamente', apprentice: result });
     } catch (error) {
         console.error('Error al insertar aprendiz:', error);

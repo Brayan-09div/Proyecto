@@ -6,11 +6,9 @@ class AuthService {
   constructor() {
     this.token = null;
   }
-
   setToken(token) {
     this.token = token;
   }
-
   getToken() {
     return this.token;
   }
@@ -47,5 +45,6 @@ class AuthService {
     }
   }
 }
+
 
 export default new AuthService();
