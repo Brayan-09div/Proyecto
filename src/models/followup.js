@@ -2,7 +2,10 @@ import mongoose from 'mongoose';
 
 const followupSchema = new mongoose.Schema({
     assignment: {type:mongoose.Schema.Types.ObjectId, ref: 'assignment'},
-    instructor: {type:mongoose.Schema.Types.ObjectId, ref: 'instructor'},
+    instructor: {
+        idinstructor: mongoose.Schema.Types.ObjectId,
+        name: String
+    },
     number: { type: Number, required: true, enum: [1, 2, 3] },
     month: {type:String,  require:true},
     document: {type:String, require:true},

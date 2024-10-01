@@ -11,7 +11,6 @@ import followupRoutes from '../routes/followup.js'
 import logsRoutes from '../routes/logs.js'
 import modalityRoutes from '../routes/modality.js'
 import registerRoutes from '../routes/register.js'
-import userEPRoutes from '../routes/userEP.js'
 import repfora from '../routes/repfora.js';
 
 // import backupDatabase from '../../backup.js';
@@ -48,7 +47,6 @@ class Server {
 
     routes() {
         this.app.use('/api/repfora', repfora);
-        this.app.use('/api/userEP', userEPRoutes);
         this.app.use('/api/apprendice', aprrenticeRoutes);
         this.app.use('/api/assignments', assignmentRoutes);
         this.app.use('/api/binnacles', binnaclesRoutes);
