@@ -11,7 +11,9 @@ const registerSchema = new mongoose.Schema({
     emailcompany:{type:String, require:true},
     owner:{type:String, require:true},
     docalternative:{type:String, require:true},
-    hour:{type:Number, require:true},
+    hour: { type: Number, required: true },
+    businessHour: { type: Number },
+    productivityHour: { type: Number },
 },{timestamps:true})
 
 export default mongoose.model("Register", registerSchema);

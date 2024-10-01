@@ -12,7 +12,7 @@ const binnaclesShema = new mongoose.Schema({
     status:{type:String, require:true, default:1},
     observation: [{
         observation: String,
-        observationOwner: String,
+        user: { type: mongoose.Schema.Types.ObjectId },
         observationDate: { type: Date, default: Date.now }
     }],
     users:{type:String, require:true},

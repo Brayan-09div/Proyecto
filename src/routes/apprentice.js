@@ -39,7 +39,11 @@ router.get('/listapprenticebystatus/:status', [
 router.post('/addapprentice', [
     // verificar JWT si es necesario
     check('fiche', 'El campo fiche es obligatorio').notEmpty(),
-    check('fiche').custom(ficheHelper.existsFicheID),
+    check('fiche.idfiche', 'El campo idfiche es obligatorio').isMongoId(),
+    check('fiche.idfiche').custom(ficheHelper.existsFicheID),
+    check('fiche.number', 'El campo number es obligatorio').notEmpty(),
+    check('fiche.name', 'El campo name es obligatorio').notEmpty(),
+
     check('tpDocument', 'El campo tpDocument es obligatorio').notEmpty(),
     check('numdocument', 'El campo numdocument es obligatorio').notEmpty(),
     check('numdocument').custom(apprenticeHelper.existNumDocument),
