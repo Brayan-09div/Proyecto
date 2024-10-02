@@ -1,4 +1,6 @@
 import Apprentice from '../models/apprentice.js'
+import Register from '../models/register.js'
+
 
 const  controllerApprentice ={
     // listar todos los aprendices ---------------------------------------------------
@@ -67,33 +69,29 @@ listApprenticeByStatus: async (req, res) => {
 // insertar por aprendiz--------------------------------------------------------------
 
 inserttheapprentice: async (req, res) => {
-    console.log('req.body:', req.body);
-    const { tpDocument, numdocument, firname, lasname, phone, email, fiche } = req.body;
+    const { fiche, tpDocument, numDocument, firstName, lastName, phone, email } = req.body;
+
     try {
-        if (!tpDocument || !numdocument || !firname || !lasname || !phone || !email || !fiche) {
-            return res.status(400).json({ error: 'Faltan campos obligatorios' });
-        }
-        const apprentice = new Apprentice({ 
-            tpDocument, 
-            numdocument, 
-            firname, 
-            lasname, 
-            phone, 
-            email, 
-            fiche 
+        const newApprentice = new Apprentice({ fiche, tpDocument, numDocument, firstName, lastName, phone, email });
+        const apprenticeCreated = await newApprentice.save();
+
+        const newRegister = new Register({
+            idApprentice: apprenticeCreated._id,
         });
-        const result = await apprentice.save();
-        console.log('Aprendiz guardado:', result);
-        res.status(201).json({ message: 'Aprendiz guardado exitosamente', apprentice: result });
+
+        const preRegisterCreated = await newRegister.save();
+
+        res.status(201).json({
+            apprentice: apprenticeCreated,
+            register: preRegisterCreated
+        });
+        console.log("Aprendiz y pre-registro guardados exitosamente");
     } catch (error) {
-        console.error('Error al insertar aprendiz:', error);
-        res.status(500).json({ error: 'Error al insertar aprendiz', details: error.message });
+        res.status(400).json({ message: error.message });
     }
 },
 
-
 // actualizar--------------------------------------------------------------------------
-
 updateapprenticebyid: async (req, res) => {
         const { id } = req.params;
         try {
