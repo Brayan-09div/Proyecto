@@ -37,25 +37,19 @@ router.get('/listapprenticebystatus/:status', [
 
 //-------------------------------------------------------------
 router.post('/addapprentice', [
-    validarJWT,
-    check('fiche', 'El campo fiche es obligatorio').notEmpty(),
-    check('fiche.idfiche', 'El campo idfiche es obligatorio').isMongoId(),
-    // check('fiche.idfiche').custom(ficheHelper.existsFicheID),
-    check('fiche.number', 'El campo number es obligatorio').notEmpty(),
-    check('fiche.name', 'El campo name es obligatorio').notEmpty(),
-
-    check('tpDocument', 'El campo tpDocument es obligatorio').notEmpty(),
-    check('numdocument', 'El campo numdocument es obligatorio').notEmpty(),
-    check('numdocument').custom(apprenticeHelper.existNumDocument),
-    check('firname', 'El campo firname es obligatorio').notEmpty(),
-    check('lasname', 'El campo lasname es obligatorio').notEmpty(),
-    check('phone', 'El campo phone es obligatorio').notEmpty(),
-    check('email', 'El campo email es obligatorio').notEmpty(),
-    check('email').custom(apprenticeHelper.existEmail),
-    check('firname', 'El campo firname es maximo de 50 caracteres').isLength({ max: 50 }),
-    check('lasname', 'El campo lasname es de maximo de 50 caracteres').isLength({ max: 50 }),
-    check('phone', 'El campo phone es de maximo 10 caracteres').isLength({ max: 10 }),
-    validarCampos,
+    // validarJWT,
+    check('fiche', 'El campo ficha es obligatorio').notEmpty(),
+    check('fiche.idFiche', 'El ID no es valido').isMongoId(),
+    check('fiche.idFiche').custom(ficheHelper.existsFicheID),
+    check('fiche.number', 'El codigo de la ficha es obligatorio').notEmpty(),
+    check('fiche.name', 'El nombre de la ficha es obligatorio').notEmpty(),
+    check('tpDocument', 'el documento es obligatorio').not().isEmpty(),
+    check('numDocument', 'el documento es obligatorio').not().isEmpty(),
+    check('firstName', 'el nombre es obligatorio').not().isEmpty(),
+    check('lastName', 'el apellido es obligatorio').not().isEmpty(),
+    check('phone', 'el telefono es obligatorio').not().isEmpty(),
+    check('email', 'el email es obligatorio').not().isEmpty(),
+    validarCampos
 ], controllerApprentice.inserttheapprentice);
 
 
