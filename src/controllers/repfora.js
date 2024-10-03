@@ -1,68 +1,63 @@
-import AuthService from '../servis/AuthService.js';
+import axios from 'axios';
+import dotenv from 'dotenv';
+
+// Cargar variables de entorno
+dotenv.config();
+
+const REP_FORA = process.env.REPFORA;
+
+if (!REP_FORA) {
+  console.error("La variable de entorno REPFORA no está definida.");
+}
 
 const authController = {
+
   login: async (req, res) => {
     const { email, password, role } = req.body;
     try {
-      const token = await AuthService.login(email, password, role);
+      const response = await axios.post(`${REP_FORA}/api/users/login`, { email, password, role });
+      const token = response.data.token;
+      console.log('Token recibido', token);
       res.json({ token });
     } catch (error) {
-      res.status(401).json({
-        message: error.message,
-        status: 401
+      res.status(error.response?.status || 500).json({
+        message: error.response?.data?.message || error.message,
+        status: error.response?.status,
+        data: error.response?.data
       });
     }
   },
 
-  getInstructors: async (req, res) => {
+  listAllInstructors: async (req, res) => {
+    const token = req.headers['token'];
+    console.log(token);
     try {
-      const data = await AuthService.makeAuthenticatedRequest('get', '/api/instructors');
-      res.json(data);
+      const response = await axios.get(`${REP_FORA}/api/instructors`, { headers: { token } });
+      res.json(response.data);
     } catch (error) {
-      res.status(500).json({
-        message: error.message,
-        status: 500
+      res.status(error.response?.status || 500).json({
+        message: error.response?.data?.message || error.message,
+        status: error.response?.status,
+        data: error.response?.data
       });
     }
   },
 
-  getFiches: async (req, res) => {
-    try {
-      const data = await AuthService.makeAuthenticatedRequest('get', '/api/fiches');
-      res.json(data);
-    } catch (error) {
-      res.status(500).json({
-        message: error.message,
-        status: 500
-      });
-    }
-  },
-
-  getInstructorById: async (req, res) => {
+  listInstructorById: async (req, res) => {
+    const token = req.headers['token'];
+    console.log(token);
     const { id } = req.params;
     try {
-      const data = await AuthService.makeAuthenticatedRequest('get', `/api/instructors/${id}`);
-      res.json(data);
+      const response = await axios.get(`${REP_FORA}/api/instructors/${id}`, { headers: { token } });
+      res.json(response.data);
     } catch (error) {
-      res.status(500).json({
-        message: error.message,
-        status: 500
+      res.status(error.response?.status || 500).json({
+        message: error.response?.data?.message || error.message,
+        status: error.response?.status,
+        data: error.response?.data
       });
     }
   },
-
-  getFichesById: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const data = await AuthService.makeAuthenticatedRequest('get', `/api/fiches/${id}`);
-      res.json(data);
-    } catch (error) {
-      res.status(500).json({
-        message: error.message,
-        status: 500
-      });
-    }
-  }
 };
 
-export { authController };
+export default authController;

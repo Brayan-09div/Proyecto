@@ -33,14 +33,14 @@ const modalityController = {
   },
     // Crear nueva modalidad
     createModality: async (req, res) => {
-      const { name, hourinstructorfollow, hourinstructortechnical, hourinstructorproyect, createdAt, updatedAt, estado } = req.body;
+      const { name, hourInstructorFollow, hourInstructorTechnical, hourInstructorProject,  } = req.body;
       try {
         const newModality = new Modality({
           name,
-          hourinstructorfollow,
-          hourinstructortechnical,
-          hourinstructorproyect,
-        });
+          hourInstructorFollow,
+          hourInstructorTechnical,
+          hourInstructorProject,
+        }); 
         const result = await newModality.save();
         console.log("Modality created:", result);
         res.json(result);
@@ -53,7 +53,7 @@ const modalityController = {
   // Editar una modalidad por su ID
   editModality: async (req, res) => {
     const { id } = req.params;
-    const { name, hourinstructorfollow, hourinstructortechnical, hourinstructorproyect, createdAt, updatedAt, estado } = req.body;
+    const { name, hourinstructorfollow, hourinstructortechnical, hourinstructorproyect,  } = req.body;
     try {
       const result = await Modality.findByIdAndUpdate(
         id,
