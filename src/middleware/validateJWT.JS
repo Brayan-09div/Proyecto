@@ -1,20 +1,4 @@
 import jwt from 'jsonwebtoken';
-import Usuario from '../models/userEP.js';
-
-const generarJWT = (uid) => {
-    return new Promise((resolve, reject) => {
-        const payload = { uid };
-        jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: "10h"
-        }, (err, token) => {
-            if (err) {
-                reject("No se pudo generar el token");
-            } else {
-                resolve(token);
-            }
-        });
-    });
-};
 
 const validarJWT = async (req, res, next) => {
     const token = req.header("x-token");
@@ -59,4 +43,4 @@ const validarJWT = async (req, res, next) => {
     }
 };
 
-export { generarJWT, validarJWT };
+export {  validarJWT };
