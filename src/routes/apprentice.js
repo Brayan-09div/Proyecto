@@ -3,14 +3,14 @@ import { check } from 'express-validator';
 import { validarJWT } from '../middleware/validateJWT.js';
 import { validarCampos } from '../middleware/validate-fields.js';
 import controllerApprentice from '../controllers/apprentice.js';
-import { ficheHelper } from '../helpers/fiches.js';
+// import { ficheHelper } from '../helpers/fiches.js';
 import { apprenticeHelper } from '../helpers/apprentice.js';
 
 const router = express.Router();
 
 //-------------------------------------------------------------
 router.get('/listapprentice', [
-    validarJWT,
+    // validarJWT,
 ], controllerApprentice.listtheapprentice);
 
 //-------------------------------------------------------------
@@ -24,7 +24,7 @@ router.get('/listapprenticebyid/:id', [
 //-------------------------------------------------------------
 router.get('/listapprenticebyfiche/:fiche', [
     // validarJWT,
-    check('fiche').custom(ficheHelper.existsFicheID),
+    // check('fiche').custom(ficheHelper.existsFicheID),
     check('fiche', 'El campo fiche es obligatorio').notEmpty(),
     validarCampos,
 ], controllerApprentice.listtheapprenticebyficheid);
@@ -37,10 +37,10 @@ router.get('/listapprenticebystatus/:status', [
 
 //-------------------------------------------------------------
 router.post('/addapprentice', [
-    // verificar JWT si es necesario
+    validarJWT,
     check('fiche', 'El campo fiche es obligatorio').notEmpty(),
     check('fiche.idfiche', 'El campo idfiche es obligatorio').isMongoId(),
-    check('fiche.idfiche').custom(ficheHelper.existsFicheID),
+    // check('fiche.idfiche').custom(ficheHelper.existsFicheID),
     check('fiche.number', 'El campo number es obligatorio').notEmpty(),
     check('fiche.name', 'El campo name es obligatorio').notEmpty(),
 
@@ -64,7 +64,7 @@ router.put('/updateapprenticebyid/:id', [
     validarJWT,
     check('id', 'El id no es valido').isMongoId(),
     check('id').custom(apprenticeHelper.existApprentice),
-    check('fiche').custom(ficheHelper.verifyFiche),
+    // check('fiche').custom(ficheHelper.verifyFiche),
     check('firname', 'El campo firname es maximo de 50 caracteres').isLength({ max: 50 }),
     check('lasname', 'El campo lasname es de maximo de 50 caracteres').isLength({ max: 50 }),
     check('phone', 'El campo phone es de maximo 10 caracteres').isLength({ max: 10 }),

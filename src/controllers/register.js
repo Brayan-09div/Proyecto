@@ -68,7 +68,7 @@ const controllerRegister = {
             res.status(500).json({ error: `Error al listar modalidades en registros ${modality}`, error });
         }
     },
-
+    
     // Listar los registros por fecha de inicio 
     listregisterstardatebyid: async (req, res) => {
         try {

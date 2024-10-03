@@ -25,16 +25,19 @@ validarCampos
 
 //-----------------------------------------------------------
 router.post('/addmodality', [
-validarJWT,
-check('name', ' El campo name es obligatorio').notEmpty(),
-check('hourInstructorFollo','El campo hourInstructorFollow es obligatorio').notEmpty(),
-check('hourInstructorTechnical','El campo hourInstructorTechnical es obligatorio').notEmpty(),
-check('hourInstructorProject', 'El campo hourInstructorProject es obligatorio').notEmpty(),
-
-validarCampos
-
-], modalityController.createModality);
-
+  // validarJWT,
+  check('name', 'El campo name es obligatorio').notEmpty(),
+  check('hourInstructorFollow')
+    .optional()
+    .isNumeric().withMessage('El campo hourInstructorFollow debe ser numérico'),
+  check('hourInstructorTechnical')
+    .optional()
+    .isNumeric().withMessage('El campo hourInstructorTechnical debe ser numérico'),
+  check('hourInstructorProject')
+    .optional()
+    .isNumeric().withMessage('El campo hourInstructorProject debe ser numérico'),
+  validarCampos
+], modalityController.createModality)
 
 //-----------------------------------------------------------
 router.put('/updatemodalitybyid/:id', [
