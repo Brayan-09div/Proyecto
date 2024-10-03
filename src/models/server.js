@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { dbconnect } from "../../databases/config.js"
+import AuthService from '../servis/AuthService.js';
 
 import aprrenticeRoutes from '../routes/apprentice.js'
 import assignmentRoutes from '../routes/assignment.js'
@@ -10,12 +11,9 @@ import followupRoutes from '../routes/followup.js'
 import logsRoutes from '../routes/logs.js'
 import modalityRoutes from '../routes/modality.js'
 import registerRoutes from '../routes/register.js'
-import userEPRoutes from '../routes/userEP.js'
 import repfora from '../routes/repfora.js';
 
 // import backupDatabase from '../../backup.js';
-
-
 
 class Server {
     constructor() {
@@ -26,6 +24,7 @@ class Server {
         this.middlewares();
         this.routes();
         this.conectarbd();
+        this.initAuthService();
         // this.scheduleBackups(); // Programar las copias de seguridad
     }
 
@@ -39,9 +38,15 @@ class Server {
         this.app.use(express.static('public'));
     }
 
+    initAuthService() {
+        const initialToken = process.env.INITIAL_TOKEN;
+        if (initialToken) {
+            AuthService.setToken(initialToken);
+        }
+    }
+
     routes() {
         this.app.use('/api/repfora', repfora);
-        this.app.use('/api/userEP', userEPRoutes);
         this.app.use('/api/apprendice', aprrenticeRoutes);
         this.app.use('/api/assignments', assignmentRoutes);
         this.app.use('/api/binnacles', binnaclesRoutes);
