@@ -39,7 +39,7 @@ class Server {
 
 
     routes() {
-        this.app.use('/api/repfora', repfora);
+        this.app.use('/api/Repfora', repfora);
         this.app.use('/api/apprendice', aprrenticeRoutes);
         this.app.use('/api/assignments', assignmentRoutes);
         this.app.use('/api/binnacles', binnaclesRoutes);

@@ -39,15 +39,14 @@ const apprenticeHelper = {
     },
 
     // Verifica si el numdocument ya existe en la base de datos
-    existNumDocument: async (numdocument) => {
-        console.log('Verificando existencia de numdocument:', numdocument);
+    existNumDocument: async (numDocument) => {
         try {
-            const existe = await Apprentice.findOne({ numdocument });
+            const existe = await Apprentice.findOne({ numDocument });
             if (existe) {
-                throw new Error(`Ya existe el numdocument en la base de datos: ${numdocument}`);
+                throw new Error(`Ya existe el numDocument en la base de datos: ${numDocument}`);
             }
         } catch (error) {
-            throw new Error(`Error al verificar numdocument: ${error.message}`);
+            throw new Error(`Error al verificar numDocument: ${error.message}`);
         }
     },
 

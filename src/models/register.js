@@ -1,20 +1,21 @@
 import mongoose from 'mongoose';
 
 const registerSchema = new mongoose.Schema({
-    apprentice: {type:mongoose.Schema.Types.ObjectId, ref: 'apprentice'},
-    modality: {type:mongoose.Schema.Types.ObjectId, ref: 'modality'},
-    startDate: {type:Date, require:true},
-    endDate: {type:Date,  require:true},
-    company: {type:String, require:true},
-    phonecompany:{type:String, require:true},
-    addresscompany:{type:String, require:true},
-    emailcompany:{type:String, require:true},
-    owner:{type:String, require:true},
-    docalternative:{type:String, require:true},
-    hour: { type: Number, required: true },
-    businessHour: { type: Number },
-    productivityHour: { type: Number },
-},{timestamps:true})
+    idApprentice: { type: mongoose.Schema.Types.ObjectId, ref: 'Apprentices'},
+    idModality: { type: mongoose.Schema.Types.ObjectId, ref: 'Modality'},
+    startDate: { type: String },
+    endDate: { type: String },
+    company: { type: String },
+    phoneCompany: { type: String },
+    addressCompany: { type: String },
+    owner: { type: String },
+    docAlternative: { type: String },
+    hour : { type: Number },
+    businessProyectHour: { type: Number },
+    productiveProjectHour: { type: Number },
+    status: { type: Number, default: 1 },
+    mailCompany :{ type: String },
+}, { timestamps: true });
 
 export default mongoose.model("Register", registerSchema);
  

@@ -1,4 +1,6 @@
 import Apprentice from '../models/apprentice.js'
+import Register from "../models/register.js";
+
 
 const  controllerApprentice ={
     // listar todos los aprendices ---------------------------------------------------
@@ -15,21 +17,21 @@ try {
 
 // listar id del aprendiz-------------------------------------------------------------
 listtheapprenticebyid: async (res, req)=>{
- const {id} = req.paramas;
-    try {
-         const apprentice = await Apprentice.findById(id)
-         if(!apprentice){
-            return res.status(404).json({error:'apprentice not found'})
-         }
-         console.log('apprentice enconmtrado',apprentice)
-         res.json(apprentice)
-    } catch (error) {
-        console.log('Error al listar apprentice por id', error);
-        res.status(500).json({error:'Error al listar apprentice por id'})
-        
+    const {id} = req.paramas;
+       try {
+            const apprentice = await Apprentice.findById(id)
+            if(!apprentice){
+               return res.status(404).json({error:'apprentice not found'})
+            }
+            console.log('apprentice enconmtrado',apprentice)
+            res.json(apprentice)
+       } catch (error) {
+           console.log('Error al listar apprentice por id', error);
+           res.status(500).json({error:'Error al listar apprentice por id'})
+           
     }
-   
-},
+}, 
+
 
 // listar por ficha------------------------------------------------------------------
 listtheapprenticebyficheid: async (req, res) => {
@@ -65,30 +67,30 @@ listApprenticeByStatus: async (req, res) => {
 },
 
 // insertar por aprendiz--------------------------------------------------------------
-
 inserttheapprentice: async (req, res) => {
-    console.log('req.body:', req.body);
-    const { tpDocument, numdocument, firname, lasname, phone, email, fiche } = req.body;
+    const aprendice = req.body;
     try {
-        if (!tpDocument || !numdocument || !firname || !lasname || !phone || !email || !fiche) {
-            return res.status(400).json({ error: 'Faltan campos obligatorios' });
-        }
-        const apprentice = new Apprentice({ 
-            tpDocument, 
-            numdocument, 
-            firname, 
-            lasname, 
-            phone, 
-            email, 
-            fiche 
+        const newApprentice = new Apprentice(aprendice);
+        console.log(newApprentice);
+          await newApprentice.save();
+       
+        const newRegister = new Register({
+            idApprentice: newApprentice._id,
+            idModality: aprendice.modality
         });
-        const result = await apprentice.save();
-        console.log('Aprendiz guardado:', result);
-        res.status(201).json({ message: 'Aprendiz guardado exitosamente', apprentice: result });
+
+
+        const preRegisterCreated = await newRegister.save();
+
+        res.status(201).json({
+            apprentice: newApprentice,
+            register: preRegisterCreated
+        });
+        console.log("Aprendiz y pre-registro guardados exitosamente");
     } catch (error) {
-        console.error('Error al insertar aprendiz:', error);
-        res.status(500).json({ error: 'Error al insertar aprendiz', details: error.message });
-    }
+        console.log(error);
+        res.status(400).json({ message: error.message });  
+}
 },
 
 

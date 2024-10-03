@@ -6,12 +6,17 @@ const router = express.Router();
 
 router.post('/login', authController.login);
 
+router.post('/validate', authController.validateRepfora);
+
 
 router.get('/instructors', authController.listAllInstructors);
+router.get('/instructors/:id', authController.listInstructorById);
 
-// router.get('/fiches', authController.); 
+router.get('/fiches', authController.listAllFiches); 
+router.get('/fiches/:id', authController.listFicheById);
 
 
-// router.post('/validar', authController.validar); 
+
+
 
 export default router;
