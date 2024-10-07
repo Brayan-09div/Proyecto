@@ -35,17 +35,15 @@ listtheapprenticebyid: async (res, req)=>{
 
 // listar por ficha------------------------------------------------------------------
 listtheapprenticebyficheid: async (req, res) => {
-    const { fiche } = req.params; 
+    const { idfiche } = req.params;
     try {
-      const apprentice = await Apprentice.find({ fiche });
-      console.log(`lista de fiche en apprentice ${fiche}`);
-      res.json(apprentice); 
+        const apprentices = await Apprentice.find({ "fiche.idFiche": idfiche });
+        res.json({ apprentices });
     } catch (error) {
-      console.log(`Error al listar fiche en apprentice ${fiche}`, error);
-      res.status(500).json({ error: `Error al listar fiche en apprentice ${fiche}` });
-    }
-  },
-  
+        res.status(500).json({ message: error.message });
+    }
+},
+
 //Listar por Estado
 
 listApprenticeByStatus: async (req, res) => {
@@ -71,7 +69,6 @@ inserttheapprentice: async (req, res) => {
     const aprendice = req.body;
     try {
         const newApprentice = new Apprentice(aprendice);
-        console.log(newApprentice);
           await newApprentice.save();
        
         const newRegister = new Register({
@@ -79,20 +76,16 @@ inserttheapprentice: async (req, res) => {
             idModality: aprendice.modality
         });
 
-
         const preRegisterCreated = await newRegister.save();
-
         res.status(201).json({
             apprentice: newApprentice,
             register: preRegisterCreated
         });
         console.log("Aprendiz y pre-registro guardados exitosamente");
     } catch (error) {
-        console.log(error);
         res.status(400).json({ message: error.message });  
 }
 },
-
 
 // actualizar--------------------------------------------------------------------------
 

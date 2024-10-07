@@ -23,9 +23,11 @@ router.get('/listapprenticebyid/:id', [
 
 //-------------------------------------------------------------
 router.get('/listapprenticebyfiche/:fiche', [
-    // validarJWT,
-    // check('fiche').custom(ficheHelper.existsFicheID),
-    check('fiche', 'El campo fiche es obligatorio').notEmpty(),
+    validarJWT,
+    // check('fiche', 'El ID de la ficha es obligatorio').notEmpty(),
+    // check('fiche').custom(async (fiche, { req }) => {
+    //     await ficheHelper.validateFicheID(fiche, req.headers.token);
+    // }),
     validarCampos,
 ], controllerApprentice.listtheapprenticebyficheid);
 
@@ -37,16 +39,12 @@ router.get('/listapprenticebystatus/:status', [
 
 //-------------------------------------------------------------
 router.post('/addapprentice', [
-    // validarJWT,
+    validarJWT,
     check('fiche', 'El campo ficha es obligatorio').notEmpty(),
     check('fiche.idFiche', 'El ID no es valido').isMongoId(),
     check('fiche.idFiche').custom(async (idFiche, { req }) => {
-        try {
-          await ficheHelper.existsFicheID(idFiche, req.headers.token);
-        } catch (error) {
-          throw new Error(error.message);
-        }
-      }),
+        await ficheHelper.validateFicheID(idFiche, req.headers.token);
+    }),
     check('fiche.number', 'El codigo de la ficha es obligatorio').notEmpty(),
     check('fiche.name', 'El nombre de la ficha es obligatorio').notEmpty(),
     check('tpDocument', 'el documento es obligatorio').not().isEmpty(),
