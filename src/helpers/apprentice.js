@@ -27,17 +27,18 @@ const apprenticeHelper = {
     },
 
     // Verifica si el email ya existe en la base de datos, excluyendo el propio registro si está editando
-    esEmailValido: async (email, id) => {
+    esEmailValido: async (email, { req }) => {
         try {
             const correo = await Apprentice.findOne({ email });
-            if (correo && correo._id.toString() !== id.toString()) {
+            const id = req.params.id; 
+            if (correo && correo._id.toString() !== id) {
                 throw new Error(`El email ${email} ya existe`);
             }
         } catch (error) {
             throw new Error(`Error al verificar email: ${error.message}`);
         }
     },
-
+    
     // Verifica si el numdocument ya existe en la base de datos
     existNumDocument: async (numDocument) => {
         try {

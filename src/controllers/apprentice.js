@@ -1,5 +1,6 @@
 import Apprentice from '../models/apprentice.js'
 import Register from "../models/register.js";
+import mongoose from 'mongoose';
 
 
 const  controllerApprentice ={
@@ -16,32 +17,39 @@ try {
 },
 
 // listar id del aprendiz-------------------------------------------------------------
-listtheapprenticebyid: async (res, req)=>{
-    const {id} = req.paramas;
-       try {
-            const apprentice = await Apprentice.findById(id)
-            if(!apprentice){
-               return res.status(404).json({error:'apprentice not found'})
-            }
-            console.log('apprentice enconmtrado',apprentice)
-            res.json(apprentice)
-       } catch (error) {
-           console.log('Error al listar apprentice por id', error);
-           res.status(500).json({error:'Error al listar apprentice por id'})
-           
+listtheapprenticebyid: async (req, res) => {
+    const { id } = req.params; 
+    try {
+        const apprentice = await Apprentice.findById(id); 
+        if (!apprentice) {
+            return res.status(404).json({ error: 'Apprentice not found' }); 
+        }
+        console.log('Apprentice encontrado', apprentice);
+        res.json(apprentice);
+    } catch (error) {
+        console.log('Error al listar apprentice por ID', error);
+        res.status(500).json({ error: 'Error al listar apprentice por ID' }); 
     }
-}, 
-
+},
 
 // listar por ficha------------------------------------------------------------------
 listtheapprenticebyficheid: async (req, res) => {
-    const { idfiche } = req.params;
+    const { fiche } = req.params;
     try {
-        const apprentices = await Apprentice.find({ "fiche.idFiche": idfiche });
-        res.json({ apprentices });
+      console.log('ID de ficha recibido:', fiche);
+      if (!mongoose.Types.ObjectId.isValid(fiche)) {
+        return res.status(400).json({ message: 'ID de ficha inválido' });
+      }
+      const ficheObjectId = new mongoose.Types.ObjectId(fiche);  
+      const apprentices = await Apprentice.find({ "fiche.idFiche": ficheObjectId });
+      if (apprentices.length === 0) {
+        return res.status(404).json({ message: 'No se encontraron aprendices para esta ficha' });
+      }
+      res.status(200).json({ apprentices });
     } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+      console.error('Error al listar aprendices por ID de ficha:', error);
+      res.status(500).json({ message: 'Error interno del servidor', error: error.message });
+    }
 },
 
 //Listar por Estado
@@ -88,53 +96,75 @@ inserttheapprentice: async (req, res) => {
 },
 
 // actualizar--------------------------------------------------------------------------
-
 updateapprenticebyid: async (req, res) => {
-        const { id } = req.params;
-        try {
-          const updatedApprentice = await Followup.findByIdAndUpdate(id, req.body, { new: true });
-      
-          if (!updatedApprentice) {
-            return res.status(404).json({ error: 'Apprentice not found' });
-          }
-      
-          console.log("Apprentice updated:", updatedApprentice);
-          res.json(updatedApprentice);
-        } catch (error) {
-          console.error("Error updating apprentice:", error);
-          res.status(500).json({ error: "Error updating appentice" });
-        }
+    const { id } = req.params;
+    const updateData = req.body
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'ID de aprendiz inválido' });
+      }
+      const updatedApprentice = await Apprentice.findByIdAndUpdate(
+        id,
+        updateData,
+        { new: true, runValidators: true }
+      );
 
+      if (!updatedApprentice) {
+        return res.status(404).json({ message: 'Aprendiz no encontrado' });
+      }
+
+      console.log("Aprendiz actualizado:", updatedApprentice);
+      res.status(200).json(updatedApprentice);
+    } catch (error) {
+      console.error("Error al actualizar aprendiz:", error);
+      if (error.name === 'ValidationError') {
+        return res.status(400).json({ message: 'Error de validación', errors: error.errors });
+      }
+      res.status(500).json({ message: "Error interno del servidor al actualizar aprendiz" });
+    }
 },
+
 // activar
-enableapprenticeStatus: async (req, res)=>{
-    const {id} = req.params
+enableapprenticeStatus: async (req, res) => {
+    const { id } = req.params;
     try {
-
-        const apprentice = await Apprentice.findByIdAndUpdate(id,{status:1}, {new:true})
+        const apprentice = await Apprentice.findById(id); 
         if (!apprentice) {
-            return res.status(404).json({ error: 'apprentice no encontrado' })
+            return res.status(404).json({ error: 'Aprendiz no encontrado' });
         }
-        res.json({ message });
+        if (apprentice.status === 1) {
+            return res.status(400).json({ message: 'El aprendiz ya está activo' });
+        }
+        apprentice.status = 1;
+        await apprentice.save(); 
+
+        res.json({ message: 'Aprendiz activado correctamente', apprentice });
     } catch (error) {
-        console.log("Error al activar apprentice");
-        res.status(500).json({error:`activar apprentice`} )
-    }  
-    },
+        console.log("Error al activar aprendiz:", error);
+        res.status(500).json({ error: 'Error al activar aprendiz' });
+    }
+},
+
 // desactivar----------------------------------------------------------------
-disableapprenticeStatus: async (res, req) => {
-    const { id } = req.paramas
+disableapprenticeStatus: async (req, res) => {
+    const { id } = req.params;
     try {
-        const apprentice = await Apprentice.findByIdAndUpdate(id,{status:0}, {new:true})
+        const apprentice = await Apprentice.findById(id); 
 
         if (!apprentice) {
-            return res.status(404).json({ error: 'apprentice no encontrado' })
+            return res.status(404).json({ error: 'Aprendiz no encontrado' });
         }
-        res.json({ message });
+        if (apprentice.status === 0) {
+            return res.status(400).json({ message: 'El aprendiz ya está inactivo' });
+        }
+        apprentice.status = 0; 
+        await apprentice.save(); 
+        res.json({ message: 'Aprendiz desactivado correctamente', apprentice });
     } catch (error) {
-        console.log("Error al desactivar / activar apprentice");
-        res.status(500).json({error:`Error al desactivar / activar apprentice`} )
+        console.log("Error al desactivar aprendiz:", error);
+        res.status(500).json({ error: 'Error al desactivar aprendiz' });
     }
 }
+
 }
 export default controllerApprentice;
