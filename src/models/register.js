@@ -15,6 +15,8 @@ const registerSchema = new mongoose.Schema({
     productiveProjectHour: { type: Number },
     status: { type: Number, default: 1 },
     mailCompany :{ type: String },
+
+
 }, { timestamps: true });
 
 export default mongoose.model("Register", registerSchema);
