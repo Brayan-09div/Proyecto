@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 
 const  controllerApprentice ={
     // listar todos los aprendices ---------------------------------------------------
-listtheapprentice : async (req , res) => {
+listallapprentice : async (req , res) => {
 try {
     const apprentice = await Apprentice.find();
     console.log('lista de appenteci', apprentice)
@@ -17,7 +17,7 @@ try {
 },
 
 // listar id del aprendiz-------------------------------------------------------------
-listtheapprenticebyid: async (req, res) => {
+listapprenticebyid: async (req, res) => {
     const { id } = req.params; 
     try {
         const apprentice = await Apprentice.findById(id); 
@@ -33,14 +33,14 @@ listtheapprenticebyid: async (req, res) => {
 },
 
 // listar por ficha------------------------------------------------------------------
-listtheapprenticebyficheid: async (req, res) => {
-    const { fiche } = req.params;
+listapprenticebyfiche: async (req, res) => {
+    const { idfiche } = req.params;
     try {
-      console.log('ID de ficha recibido:', fiche);
-      if (!mongoose.Types.ObjectId.isValid(fiche)) {
+      console.log('ID de ficha recibido:', idfiche);
+      if (!mongoose.Types.ObjectId.isValid(idfiche)) {
         return res.status(400).json({ message: 'ID de ficha inválido' });
       }
-      const ficheObjectId = new mongoose.Types.ObjectId(fiche);  
+      const ficheObjectId = new mongoose.Types.ObjectId(idfiche);  
       const apprentices = await Apprentice.find({ "fiche.idFiche": ficheObjectId });
       if (apprentices.length === 0) {
         return res.status(404).json({ message: 'No se encontraron aprendices para esta ficha' });
@@ -53,8 +53,7 @@ listtheapprenticebyficheid: async (req, res) => {
 },
 
 //Listar por Estado
-
-listApprenticeByStatus: async (req, res) => {
+listapprenticebystatus: async (req, res) => {
     const { status } = req.params;
     try {
         // const aprendicesActivos = await Apprentice.find(status);
@@ -73,7 +72,7 @@ listApprenticeByStatus: async (req, res) => {
 },
 
 // insertar por aprendiz--------------------------------------------------------------
-inserttheapprentice: async (req, res) => {
+addapprentice: async (req, res) => {
     const aprendice = req.body;
     try {
         const newApprentice = new Apprentice(aprendice);
@@ -125,7 +124,7 @@ updateapprenticebyid: async (req, res) => {
 },
 
 // activar
-enableapprenticeStatus: async (req, res) => {
+enableapprentice: async (req, res) => {
     const { id } = req.params;
     try {
         const apprentice = await Apprentice.findById(id); 
@@ -146,7 +145,7 @@ enableapprenticeStatus: async (req, res) => {
 },
 
 // desactivar----------------------------------------------------------------
-disableapprenticeStatus: async (req, res) => {
+disableapprentice: async (req, res) => {
     const { id } = req.params;
     try {
         const apprentice = await Apprentice.findById(id); 

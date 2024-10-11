@@ -1,6 +1,5 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
-
 // Cargar variables de entorno
 dotenv.config();
 

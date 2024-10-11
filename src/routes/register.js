@@ -11,9 +11,9 @@ import { apprenticeHelper } from '../helpers/apprentice.js'
 const router = Router()
 
 // --------------------------------------------------------------------
-router.get('/listregister', [
+router.get('/listallregister', [
   validarJWT
-], controllerRegister.listtheregister)
+], controllerRegister.listallregister)
 
 // --------------------------------------------------------------------
 router.get('/listregisterbyid/:id', [
@@ -21,36 +21,36 @@ router.get('/listregisterbyid/:id', [
   check('id', 'El id no es valido').isMongoId(),
   check('id').custom(registerHelper.existResgister),
  validarCampos
-], controllerRegister.listtheregisterbyid)
+], controllerRegister.listregisterbyid)
 
 // --------------------------------------------------------------------
-router.get('/lisregisterbyapprentice/:apprentice', [
+router.get('/listregisterbyapprentice/:idapprentice', [
   validarJWT,
   check('apprentice').custom(apprenticeHelper.existApprentice),
   validarCampos
-], controllerRegister.listtheapprenticebyid)
+], controllerRegister.listregisterbyapprentice)
 
 // --------------------------------------------------------------------
-router.get('/listregisterbymodality/:madality', [
+router.get('/listregisterbymodality/:idmodality', [
   validarJWT,
   check('modality').custom(modalityHelper.existsModalityID),
   check('modality', 'El campo modality es obigatorio').notEmpty(),
   validarCampos
-], controllerRegister.listthemodalitybyid)
+], controllerRegister.listregisterbymodality)
 
 // --------------------------------------------------------------------
 router.get('/listregisterbystartdate', [
   validarJWT,
   check('startDate', 'El campo StartDate es obigatorio').notEmpty(),
   validarCampos
-], controllerRegister.listregisterstardatebyid)
+], controllerRegister.listregisterbystartdate)
 
 // --------------------------------------------------------------------
 router.get('/listregisterbyenddate', [
   validarJWT,
   check('endDate', 'El campo endDate es obigatorio').notEmpty(),
   validarCampos
-], controllerRegister.listregisterenddatebyid)
+], controllerRegister.listregisterbyenddate)
 
 // -------------------------------------------------------------------
 router.post('/addregister', [
@@ -69,10 +69,10 @@ router.post('/addregister', [
   check('adreessCompany').custom(registerHelper.existAddressCompany),
   check('phoneCompany').custom(registerHelper.existPhoneCompany),
   validarCampos
-], controllerRegister.insertregister)
+], controllerRegister.addregister)
 
 // -------------------------------------------------------------------------
-router.put('/updatemodalitybyid/:id', [
+router.put('/updateregisterbyid/:id', [
   validarJWT,
   check('apprentice').custom(apprenticeHelper.existApprentice),
   check('modality').custom(modalityHelper.existsModalityID),
@@ -85,21 +85,22 @@ router.put('/updatemodalitybyid/:id', [
 router.put('/updatemodalityregister/:id',[
 
 ], controllerRegister.updatemodalityregister)
+
 // ---------------------------------------------------------------------------
-router.put('/enableRegister/:id', [
+router.put('/enableregister/:id', [
   validarJWT,
   check('id', 'El id no es valido').isMongoId(),
   check('id').custom(registerHelper.existRegister),
   validarCampos
-], controllerRegister.enableRegiterStatus);
+], controllerRegister.enableregister);
 
 // -----------------------------------------------------------------------
-router.put('/disableRegister/:id', [
+router.put('/disableregister/:id', [
   validarJWT,
   check('id', 'El id no es valido').isMongoId(),
   check('id').custom(registerHelper.existResgister),
   validarCampos
-], controllerRegister.disableRegisterStatus);
+], controllerRegister.disableregister);
 
 
 

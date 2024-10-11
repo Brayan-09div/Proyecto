@@ -13,7 +13,8 @@ const router = express.Router();
 //-------------------------------------------------------------
 router.get('/listallfollowup',[
     validarJWT,
-], controllerFollowup.listFollowups)
+], controllerFollowup.listallfollowup
+)
 
 
 
@@ -23,7 +24,7 @@ router.get('/listfollowupbyid/:id',[
     check('id','El id no es valido').isMongoId(),
     check('id').custom(followupHelper.existsFollowupID),
     validarCampos
-], controllerFollowup.getFollowupById)
+], controllerFollowup.listfollowupbyid)
 
 
 
@@ -32,7 +33,7 @@ router.get('/listfollowupbyassignment/:idassigment',[
     validarJWT,
     check('assignment').custom(assignmentHelper.existsAssignmentID),
     validarCampos
-], controllerFollowup.listFollowupsByAssignment)
+], controllerFollowup.listfollowupbyassignment)
 
 
 
@@ -41,7 +42,7 @@ router.get('/listfollowupbyinstructor/:idinstructor',[
     validarJWT,
     check('instructor').custom(instructorHelper.existsInstructorID),
     validarCampos
-], controllerFollowup.listFollowupsByInstructor)
+], controllerFollowup.listfollowupbyinstructor)
 
 
 
@@ -59,7 +60,7 @@ router.post('/addfollowup',[
     check('observations','El observations es de maximo 50 caracteres').isLength({ max: 50 }),
     check('observations','El observations es obligatorio').notEmpty(),
     validarCampos
-],controllerFollowup.insertFollowup)
+],controllerFollowup.addfollowup)
 
 
 
@@ -71,15 +72,15 @@ router.put('/updatefollowupbyid/:id',[
     check('document','El document es maximo de 50 caracteres').isLength({ max: 50 }),
     check('observations','El observations es de maximo 50 caracteres').isLength({ max: 50 }),
     validarCampos
-],controllerFollowup.updateFollowup)
+],controllerFollowup.updatefollowupbyid)
 
 // ----------------------------------------------------------------
-router.put('/updateStatus/:id/:status',[
+router.put('/updatestatus/:id/:status',[
     validarJWT,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(followupHelper.existsFollowupID),
     validarCampos
-],controllerFollowup.updateStatus)
+],controllerFollowup.updatestatus)
 
 
 export default router;

@@ -3,7 +3,7 @@ import logs from "../models/logs.js";
 const logController = {
 
   // Listar todos los logs---------------------------------------------
-  listLogs: async (req, res) => {
+  listlogs: async (req, res) => {
     try {
       const log = await logs.find();
       console.log("Log list:", log);
@@ -15,7 +15,7 @@ const logController = {
   },
 
   // Listar un log por su ID-------------------------------------------
-  getLogById: async (req, res) => {
+  listlogsbyid: async (req, res) => {
     const { id } = req.params;
     try {
       const log = await logs.findById(id);
@@ -30,7 +30,7 @@ const logController = {
   },
 
   // Crear nuevo log-------------------------------------------------
-  createLog: async (req, res) => {
+  addlog: async (req, res) => {
     const { users, email, action, information } = req.body;
     try {
       const newLog = new logs({ users, email, action, information });
@@ -48,7 +48,7 @@ const logController = {
   },
 
  // Activar un log por su ID-------------------------------------------
- enablelogsStatus: async (req, res) => {
+ enablelogsbyid: async (req, res) => {
   const { id } = req.params;
   try {
     const log = await logsModel.findByIdAndUpdate(id, { status: 1 }, { new: true });
@@ -62,7 +62,7 @@ const logController = {
 },
 
 // Desactivar un log por su ID---------------------------------------
-disablelogsStatus: async (req, res) => {
+disablelogsbyid: async (req, res) => {
   const { id } = req.params;
   try {
     const log = await logsModel.findByIdAndUpdate(id, { status: 0 }, { new: true });

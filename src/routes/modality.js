@@ -11,7 +11,7 @@ const router = express.Router();
 //-----------------------------------------------------------
 router.get('/listallmodality', [
     validarJWT,
-], modalityController.listModalities);
+], modalityController.listallmodality);
 
 
 //-----------------------------------------------------------
@@ -20,7 +20,7 @@ validarJWT,
 check('id', 'El id es invalido').isMongoId(),
 check('id').custom(modalityHelper.existsModalityID),
 validarCampos
-], modalityController.getModalityById);
+], modalityController.listmodalitybyid);
 
 
 //-----------------------------------------------------------
@@ -37,7 +37,7 @@ router.post('/addmodality', [
     .optional()
     .isNumeric().withMessage('El campo hourInstructorProject debe ser numérico'),
   validarCampos
-], modalityController.createModality)
+], modalityController.addmodality)
 
 //-----------------------------------------------------------
 router.put('/updatemodalitybyid/:id', [
@@ -48,23 +48,23 @@ check('hourInstructorFollo','El campo hourInstructorFollow es obligatorio').notE
 check('hourInstructorTechnical','El campo hourInstructorTechnical es obligatorio').notEmpty(),
 check('hourInstructorProject', 'El campo hourInstructorProject es obligatorio').notEmpty(),
 validarCampos
-], modalityController.editModality);
+], modalityController.updatemodalitybyid);
 
 //-----------------------------------------------------------
-router.put('/enablemodality/:id', [
+router.put('/enablemodalitybyid/:id', [
     validarJWT,
     check('id', 'El id es inválido').isMongoId(),
     check('id').custom(modalityHelper.existsModalityID),
     validarCampos
-  ], modalityController.enablemodalityStatus);
+  ], modalityController.enablemodalitybyid);
   
   //-----------------------------------------------------------
-  router.put('/disablemodality/:id', [
+  router.put('/disablemodalitybyid/:id', [
     validarJWT,
     check('id', 'El id es inválido').isMongoId(),
     check('id').custom(modalityHelper.existsModalityID),
     validarCampos
-  ], modalityController.createModality);
+  ], modalityController.disablemodalitybyid);
 
 
 

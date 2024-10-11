@@ -13,7 +13,7 @@ const router = express.Router();
 //------------------------------------------------------------------------
 router.get('/listallassignment',[
     validarJWT,
-], controllerAssignments.listallassignments)
+], controllerAssignments.listallassignment)
 
 
 //------------------------------------------------------------------------
@@ -22,7 +22,7 @@ router.get('/listassignmentbyid/:id',[
     check('id', 'el id es invalido').isMongoId(),
     check('id').custom(assignmentHelper.existsAssignmentID),
     validarCampos
-], controllerAssignments.listtheAssignmentById)
+], controllerAssignments.listassignmentbyid)
 
 
 //------------------------------------------------------------------------
@@ -31,7 +31,7 @@ router.get('/listassignmentbyregister/:idregister',[
     check('id', 'el id es invalido').isMongoId(),
     check('register').custom(registerHelper.existResgister),
    validarCampos
-], controllerAssignments.listregisterassignment)
+], controllerAssignments.listassignmentbyregister)
 
 
 //------------------------------------------------------------------------
@@ -39,7 +39,7 @@ router.get('/listassigmentbyfollowupinstructor/:idinstructor',[
     validarJWT,
     check('instructor').custom(),
     validarCampos
-], controllerAssignments.listfollowupinstructor)
+], controllerAssignments.listassigmentbyfollowupinstructor)
 
 
 //------------------------------------------------------------------------
@@ -47,15 +47,14 @@ router.get('/listassigmentbytechnicalinstructor:idinstructor',[
     validarJWT,
 
     validarCampos
-], controllerAssignments.listtechnicalinstructor)
+], controllerAssignments.listassigmentbytechnicalinstructor)
 
 
 //------------------------------------------------------------------------
 router.get('/listassigmentbyprojectinstructor/:idinstructor',[
     validarJWT,
-
     validarCampos
-], controllerAssignments.listprojectinstructor)
+], controllerAssignments.listassigmentbyprojectinstructor)
 
 //------------------------------------------------------------------------
 router.post('/addassignment',[
@@ -81,20 +80,20 @@ router.put('/updateassignmentbyid/:id',[
 ],controllerAssignments.updateassignmentbyid)
 
 // ----------------------------------------------------------------------
-router.put('/enableAssignmet/id',[
+router.put('/enableassignmentbyid/id',[
     validarJWT,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(assignmentHelper.existsAssignmentID),
     validarCampos
-],controllerAssignments.enableassignmentStatus)
+],controllerAssignments.enableassignmentbyid)
 
 //------------------------------------------------------------------------
-router.put('/disableAssignmet/id',[
+router.put('/disableassigmentbyid/id',[
     validarJWT,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(assignmentHelper.existsAssignmentID),
     validarCampos
-],controllerAssignments.disableAssignmetStatus)
+],controllerAssignments.disableassigmentbyid)
 
  
 export default router;

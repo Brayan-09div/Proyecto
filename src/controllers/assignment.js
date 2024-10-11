@@ -4,7 +4,7 @@ import Register from '../models/register.js';
 const controllerAssignments = {
 
     // Listar Assignments----------------------------------------------------------------------------------------------
-    listallassignments: async (req, res) => {
+    listallassignment: async (req, res) => {
         try {
             const assignments = await Assignment.find();
             console.log('Lista de asignaciones', assignments);
@@ -16,7 +16,7 @@ const controllerAssignments = {
     },
 
     // Listar Assignment por id-----------------------------------------------------------------------------------
-    listtheAssignmentById: async (req, res) => {
+    listassignmentbyid: async (req, res) => {
         const { id } = req.params;
         try {
             const assignment = await Assignment.findById(id);
@@ -32,10 +32,10 @@ const controllerAssignments = {
     },
 
     // Listar register por id---------------------------------------------------
-    listregisterassignment: async (req, res) => {
-        const { register } = req.params;
+    listassignmentbyregister: async (req, res) => {
+        const { idregister } = req.params;
         try {
-            const data = await Register.find({ register });
+            const data = await Register.find({register: idregister });
             res.json(data);
         } catch (error) {
             console.error('Error al listar register por id', error);
@@ -45,7 +45,7 @@ const controllerAssignments = {
 
 
     // Listar asignaciones por instructor de seguimiento---------------------------------------------------------------
-    listfollowupinstructor: async (req, res) => {
+    listassigmentbyfollowupinstructor: async (req, res) => {
         const { idinstructor } = req.params;
         try {
             const data = await Assignment.find({ instructorfollow: idinstructor });
@@ -57,7 +57,7 @@ const controllerAssignments = {
     },
 
     // Listar asignaciones por instructor técnico------------------------------------------------------------------
-    listtechnicalinstructor: async (req, res) => {
+    listassigmentbytechnicalinstructor: async (req, res) => {
         const { idinstructor } = req.params;
         try {
             const data = await Assignment.find({ instructortechnical: idinstructor });
@@ -69,7 +69,7 @@ const controllerAssignments = {
     },
 
     // Listar asignaciones por instructor de proyecto------------------------------------------------------------
-    listprojectinstructor: async (req, res) => {
+    listassigmentbyprojectinstructor: async (req, res) => {
         const { idinstructor } = req.params;
         try {
             const data = await Assignment.find({ instructorproject: idinstructor });
@@ -113,7 +113,7 @@ const controllerAssignments = {
     },
 
     // activar------------------------------------------------------------------------------------
-    enableassignmentStatus: async (req, res) => {
+    enableassignmentbyid: async (req, res) => {
         const { id } = req.params;
         try {
             const assignment = await Assignment.findByIdAndUpdate(id,{status:1},{new:true});
@@ -129,7 +129,7 @@ const controllerAssignments = {
     },
 
     // desactivar una asignación---------------------------------------------------------------------
-    disableAssignmetStatus: async (req, res) => {
+    disableassigmentbyid: async (req, res) => {
         const { id } = req.params;
         try {
             const assignment = await Assignment.findByIdAndUpdate(id,{status:0}, {new:true});

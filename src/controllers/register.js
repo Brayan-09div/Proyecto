@@ -2,7 +2,7 @@ import Register from "../models/register.js";
 
 const controllerRegister = {
     // Listar todos los registros---------------------------------------------------------
-    listtheregister: async (req, res) => {
+    listallregister: async (req, res) => {
         try {
             const registers = await Register.find();
             console.log('Lista de registros', registers);
@@ -14,7 +14,7 @@ const controllerRegister = {
     },
 
     // Listar por id-----------------------------------------------------------------------
-    listtheregisterbyid: async (req, res) => {
+    listregisterbyid: async (req, res) => {
         const { id } = req.params;
         try {
             const register = await Register.findById(id);
@@ -31,46 +31,46 @@ const controllerRegister = {
     },
 
     // Listar registro por Id aprendiz-----------------------------------------------------------------
-    listtheapprenticebyid: async (req, res) => {
-        const { apprentice } = req.body;
+    listregisterbyapprentice: async (req, res) => {
+        const { idapprentice } = req.body;
         try {
-            const registers = await Register.find({ apprentice });
-            console.log(`Lista de aprendices en registros: ${apprentice}`);
+            const registers = await Register.find({apprentice: idapprentice });
+            console.log(`Lista de idaprendices en registros: ${idapprentice}`);
             res.json(registers);
         } catch (error) {
-            console.log(`Error al listar aprendices en registros: ${apprentice}`, error);
-            res.status(500).json({ error: 'Error al listar aprendices en registros' });
+            console.log(`Error al listar idaprendices en registros: ${idapprentice}`, error);
+            res.status(500).json({ error: 'Error al listar idaprendices en registros' });
         }
     },
     // Listar registros por ID de ficha
-    listhefichebyid: async (req, res) => {
-        const { fiche } = req.params
+    listregistersbyfiche: async (req, res) => {
+        const { idfiche } = req.params
         try {
-            const register = await Register.find({ fiche })
-            console.log(`Listar fiche en register ${fiche}`,);
+            const register = await Register.find({fiche: idfiche })
+            console.log(`Listar idfiche en register ${idfiche}`,);
             res.json(register);
         } catch (error) {
-            console.log(`Error al listar fiche en register: ${fiche}`, error);
+            console.log(`Error al listar idfiche en register: ${idfiche}`, error);
             res.status(500).json({ error: `Èrror al listra ` })
 
         }
 
     },
     // Listar por modalidad---------------------------------------------------------------
-    listthemodalitybyid: async (req, res) => {
-        const { modality } = req.params;
+    listregisterbymodality: async (req, res) => {
+        const { idmodality } = req.params;
         try {
-            const registers = await Register.find({ modality });
-            console.log(`Lista de modalidades en registros: ${modality}`);
+            const registers = await Register.find({modality: idmodality });
+            console.log(`Lista de modalidades en registros: ${idmodality}`);
             res.json(registers);
         } catch (error) {
-            console.log(`Error al listar modalidades en registros: ${modality}`, error);
-            res.status(500).json({ error: `Error al listar modalidades en registros ${modality}`, error });
+            console.log(`Error al listar modalidades en registros: ${idmodality}`, error);
+            res.status(500).json({ error: `Error al listar modalidades en registros ${idmodality}`, error });
         }
     },
-    
+
     // Listar los registros por fecha de inicio 
-    listregisterstardatebyid: async (req, res) => {
+    listregisterbystartdate: async (req, res) => {
         try {
             const register = await Register.find({ startDate })
             if (!register) {
@@ -85,7 +85,7 @@ const controllerRegister = {
     },
 
     // Listar los registros por fecha de finalización
-    listregisterenddatebyid: async (req, res) => {
+    listregisterbyenddate: async (req, res) => {
         try {
             const register = await Register.find({ endDate })
             if (!register) {
@@ -99,7 +99,7 @@ const controllerRegister = {
         }
     },
     // Insertar registro-----------------------------------------------------------------
-    insertregister: async (req, res) => {
+    addregister: async (req, res) => {
         const { apprentice, modality, startDate, fend, company, phonecompany, addresscompany, emailcompany, owner, docalternative, hour } = req.body;
         try {
             const register = new Register({ apprentice, modality, startDate, fend, company, phonecompany, addresscompany, emailcompany, owner, docalternative, hour });
@@ -129,53 +129,53 @@ const controllerRegister = {
             res.status(500).json({ error: "Error updating Register" });
         }
     },
-// // Actualizar modalidad
-updatemodalityregister: async (req, res) => {
-const {id} = req.params
- const {modality} = req.body
-try {
-    const updatemodality = await Register.findByIdAndUpdate(id, {modality}, {new:true})
-  if(!updatemodality){
-     return res.status(404).json({message: 'Registro no encontrado' })
-}
-res.json(updatemodality)
-} catch (error) {
-console.log('Error al actualizar modality',error);
-res.status(500).json({error: 'Error al actualizar modality'})    
-}
-},
+    // // Actualizar modalidad
+    updatemodalityregister: async (req, res) => {
+        const { id } = req.params
+        const { modality } = req.body
+        try {
+            const updatemodality = await Register.findByIdAndUpdate(id, { modality }, { new: true })
+            if (!updatemodality) {
+                return res.status(404).json({ message: 'Registro no encontrado' })
+            }
+            res.json(updatemodality)
+        } catch (error) {
+            console.log('Error al actualizar modality', error);
+            res.status(500).json({ error: 'Error al actualizar modality' })
+        }
+    },
 
 
 
- // Activar registro
- enableRegiterStatus: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const register = await Register.findByIdAndUpdate(id, { status: 1 }, { new: true });
-      if (!register) {
-        return res.status(404).json({ error: "Registro no encontrado" });
-      }
-      res.json({ msg: "Registro activado exitosamente" });
-    } catch (error) {
-      console.error("Error al activar el estado del registro:", error);
-      res.status(500).json({ error: "Error al activar el estado del registro" });
-    }
-  },
+    // Activar registro
+    enableregister: async (req, res) => {
+        const { id } = req.params;
+        try {
+            const register = await Register.findByIdAndUpdate(id, { status: 1 }, { new: true });
+            if (!register) {
+                return res.status(404).json({ error: "Registro no encontrado" });
+            }
+            res.json({ msg: "Registro activado exitosamente" });
+        } catch (error) {
+            console.error("Error al activar el estado del registro:", error);
+            res.status(500).json({ error: "Error al activar el estado del registro" });
+        }
+    },
 
-  // Desactivar registro
-  disableRegisterStatus: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const register = await Register.findByIdAndUpdate(id, { status: 0 }, { new: true });
-      if (!register) {
-        return res.status(404).json({ error: "Registro no encontrado" });
-      }
-      res.json({ msg: "Registro desactivado exitosamente" });
-    } catch (error) {
-      console.error("Error al desactivar el estado del registro:", error);
-      res.status(500).json({ error: "Error al desactivar el estado del registro" });
-    }
-  },
+    // Desactivar registro
+    disableregister: async (req, res) => {
+        const { id } = req.params;
+        try {
+            const register = await Register.findByIdAndUpdate(id, { status: 0 }, { new: true });
+            if (!register) {
+                return res.status(404).json({ error: "Registro no encontrado" });
+            }
+            res.json({ msg: "Registro desactivado exitosamente" });
+        } catch (error) {
+            console.error("Error al desactivar el estado del registro:", error);
+            res.status(500).json({ error: "Error al desactivar el estado del registro" });
+        }
+    },
 };
 
 export default controllerRegister;

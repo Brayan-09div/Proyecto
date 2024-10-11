@@ -10,16 +10,16 @@ const router = express.Router();
 //------------------------------------------------
 router.get('/listlogs', [
     validarJWT
-], logController.listLogs);
+], logController.listlogs);
 
 //------------------------------------------------
 
-router.get('/listlogsId/:id', [
+router.get('/listlogs/:id', [
     validarJWT,
     check('id', 'El ID no es válido').isMongoId(),
     check('id').custom(logsHelper.existsLogID),
     validarCampos
-], logController.getLogById);
+], logController.listlogsbyid);
 
 //------------------------------------------------
 router.post('/addlog', [
@@ -30,23 +30,23 @@ router.post('/addlog', [
     check('action', 'El campo action es obligatorio').notEmpty(),
     check('information', 'El campo information es obligatorio').notEmpty(),
     validarCampos
-], logController.createLog);
+], logController.addlog);
 
 // -------------------------------------------------
-router.put('/enablelog/:id', [
+router.put('/enablelogsbyid/:id', [
     validarJWT,
     check('id', 'El ID no es válido').isMongoId(),
     check('id').custom(logsHelper.existsLogID),
     validarCampos
-], logController.enablelogsStatus);
+], logController.enablelogsbyid);
 
 //------------------------------------------------
-router.put('/disablelog/:id', [
+router.put('/disablelogsbyid/:id', [
     validarJWT,
     check('id', 'El ID no es válido').isMongoId(),
     check('id').custom(logsHelper.existsLogID),
     validarCampos
-], logController.disablelogsStatus);
+], logController.disablelogsbyid);
 
 
 export default router;

@@ -3,7 +3,7 @@ import Modality from "../models/modality.js";
 const modalityController = {
 
   // Listar todas las modalidades
-  listModalities: async (req, res) => {
+  listallmodality: async (req, res) => {
     try {
       const modalities = await Modality.find();
       console.log("Modality list:", modalities);
@@ -15,7 +15,7 @@ const modalityController = {
   },
 
   // Listar una modalidad por su ID
-  getModalityById: async (req, res) => {
+  listmodalitybyid: async (req, res) => {
     const { id } = req.params;
     try {
       const modality = await Modality.findById(id);
@@ -32,7 +32,7 @@ const modalityController = {
     }
   },
     // Crear nueva modalidad
-    createModality: async (req, res) => {
+    addmodality: async (req, res) => {
       const { name, hourInstructorFollow, hourInstructorTechnical, hourInstructorProject,  } = req.body;
       try {
         const newModality = new Modality({
@@ -51,7 +51,7 @@ const modalityController = {
     },
 
   // Editar una modalidad por su ID
-  editModality: async (req, res) => {
+  updatemodalitybyid: async (req, res) => {
     const { id } = req.params;
     const { name, hourinstructorfollow, hourinstructortechnical, hourinstructorproyect,  } = req.body;
     try {
@@ -73,7 +73,7 @@ const modalityController = {
     }
   },
    // activar------------------------------------------------------------------------------------
-   enablemodalityStatus: async (req, res) => {
+   enablemodalitybyid: async (req, res) => {
     const { id } = req.params;
     try {
         const  modality = await Modality.findByIdAndUpdate(id,{status:1},{new:true});
@@ -89,7 +89,7 @@ const modalityController = {
 },
 
 // desactivar una asignación---------------------------------------------------------------------
-disablemodalityStatus: async (req, res) => {
+disablemodalitybyid: async (req, res) => {
     const { id } = req.params;
     try {
         const  modality = await Modality.findByIdAndUpdate(id,{status:0}, {new:true});

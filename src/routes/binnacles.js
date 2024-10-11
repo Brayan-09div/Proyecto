@@ -10,9 +10,9 @@ import { instructorHelper } from '../helpers/instructor.js'
 
 const router = express.Router();
 
-router.get('/listarbinnacles',[
+router.get('/listallbinnacles',[
     validarJWT,
-],controllerBinnacles.listAllBinnacles)
+],controllerBinnacles.listallbinnacles)
 
 
 router.get('/listbinnaclesbyid/:id',[
@@ -20,7 +20,7 @@ router.get('/listbinnaclesbyid/:id',[
     check('id','El id no es valido').isMongoId(),
     check('id').custom(binnaclesHelper.existBinnacles),
     validarCampos
-],controllerBinnacles.listAssignmentsById)
+],controllerBinnacles.listbinnaclesbyid)
 
 
 router.get('listbinnaclesbyassignment/:idassignment',[
@@ -28,14 +28,14 @@ router.get('listbinnaclesbyassignment/:idassignment',[
     check('assignment', 'El id no es valido').isMongoId(),
     check('assignment').custom(assignmentHelper.existsAssignmentID),
     validarCampos
-],controllerBinnacles.listAssignmentsById)
+],controllerBinnacles.listbinnaclesbyassignment)
 
 
 router.get('listbinnaclesbyinstructor/:idinstructor',[
     validarJWT,
     check('instructor').custom(instructorHelper.existsInstructorID),
     validarCampos
-],controllerBinnacles.listInstructorsById)
+],controllerBinnacles.listbinnaclesbyinstructor)
 
 
 router.post('/addbinnacles',[
@@ -56,7 +56,7 @@ router.post('/addbinnacles',[
     
     
     validarCampos
-],controllerBinnacles.insertBinnacles)
+],controllerBinnacles.addbinnacles)
 
 router.put('/updatebinnaclebyid/:id',[
     validarJWT,
@@ -68,13 +68,13 @@ router.put('/updatebinnaclebyid/:id',[
     check('document','El document es maximo de 50 caracteres').isLength({ max: 50 }),
     check('observations','El observations es de maximo 50 caracteres').isLength({ max: 50 }),
     validarCampos
-],controllerBinnacles.insertBinnacles)
+],controllerBinnacles.updatebinnaclebyid)
 
 router.put('/updatestatus/:id/:status',[
     validarJWT,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(binnaclesHelper.existBinnacles),
     validarCampos
-],controllerBinnacles.updateStatus)
+],controllerBinnacles.updatestatus)
 
 export default router;

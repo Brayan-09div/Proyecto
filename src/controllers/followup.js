@@ -5,7 +5,7 @@ const followupController = {
   
 
   // Listar todos los followups----------------------------------------------------
-  listFollowups: async (req, res) => {
+  listallfollowup: async (req, res) => {
     try {
       const followups = await Followup.find();
       console.log("Followup list:", followups);
@@ -17,7 +17,7 @@ const followupController = {
   },
 
   // Listar un followup ID--------------------------------------------------------
-  getFollowupById: async (req, res) => {
+  listfollowupbyid: async (req, res) => {
     const { id } = req.params;
     try {
       const followup = await Followup.findById(id);
@@ -33,45 +33,45 @@ const followupController = {
   },
 
   // Listar followups  asignación---------------------------------------------------
-  listFollowupsByAssignment: async (req, res) => {
-    const { assignment } = req.params;
+  listfollowupbyassignment: async (req, res) => {
+    const { idassignment } = req.params;
     try {
-      const followups = await Followup.find({ assignment });
-      console.log(`Followups for assignment ${assignment}:`, followups);
+      const followups = await Followup.find({assignment : idassignment });
+      console.log(`Followups for assignment ${idassignment}:`, followups);
       res.json(followups);
     } catch (error) {
       console.error(
-        `Error listing followups for assignment ${assignment}:`,
+        `Error listing followups for assignment ${idassignment}:`,
         error
       );
       res
         .status(500)
         .json({
-          error: `Error listing followups for assignment ${assignment}`,
+          error: `Error listing followups for assignment ${idassignment}`,
         });
       }
   },
   // Listar followups instructor---------------------------------------------------------
-  listFollowupsByInstructor: async (req, res) => {
-    const { instructor } = req.params;
+  listfollowupbyinstructor: async (req, res) => {
+    const { idinstructor } = req.params;
     try {
-      const followups = await Followup.find({ instructor });
-      console.log(`Followups for instructor ${instructor}:`, followups);
+      const followups = await Followup.find({ idinstructor });
+      console.log(`Followups for instructor ${idinstructor}:`, followups);
       res.json(followups);
     } catch (error) {
       console.error(
-        `Error listing followups for instructor ${instructor}:`,
+        `Error listing followups for instructor ${idinstructor}:`,
         error
       );
       res
         .status(500)
         .json({
-          error: `Error listing followups for instructor ${instructor}`,
+          error: `Error listing followups for instructor ${idinstructor}`,
         });
     }
   },
   // Insertar un nuevo followup----------------------------------------------
-  insertFollowup: async (req, res) => {
+  addfollowup: async (req, res) => {
     const { assignment, instructor, number, month, document, status, users, observation } = req.body;
     const validNumbers = [1, 2, 3];
     if (!validNumbers.includes(number)) {
@@ -110,7 +110,7 @@ const followupController = {
 
   
   // Actualizar un followup por su ID---------------------------------------------------
-  updateFollowup: async (req, res) => {
+  updatefollowupbyid: async (req, res) => {
     const { id } = req.params;
     try {
       const updatedFollowup = await Followup.findByIdAndUpdate(id, req.body, { new: true });
@@ -127,7 +127,7 @@ const followupController = {
     }
   },
 // Actuactulizar un El estado del 1,2,3,4
-updateStatus: async (req, res) => {
+updatestatus: async (req, res) => {
   const {id,status} = req.params
 
   try {

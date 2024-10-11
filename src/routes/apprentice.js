@@ -10,9 +10,9 @@ import {modalityHelper} from '../helpers/modality.js'
 const router = express.Router();
 
 //-------------------------------------------------------------
-router.get('/listapprentice', [
+router.get('/listallapprentice', [
      validarJWT,
-], controllerApprentice.listtheapprentice);
+], controllerApprentice.listallapprentice);
 
 //-------------------------------------------------------------
 router.get('/listapprenticebyid/:id', [
@@ -20,23 +20,23 @@ router.get('/listapprenticebyid/:id', [
     check('id', 'El id no es valido').isMongoId(),
     check('id').custom(apprenticeHelper.existApprentice),
     validarCampos
-], controllerApprentice.listtheapprenticebyid);
+], controllerApprentice.listapprenticebyid);
 
 //-------------------------------------------------------------
-router.get('/listapprenticebyfiche/:fiche', [
+router.get('/listapprenticebyfiche/:idfiche', [
     validarJWT,
     check('fiche', 'El ID de la ficha es obligatorio').notEmpty(),
     check('fiche').custom(async (fiche, { req }) => {
         await ficheHelper.validateFicheID(fiche, req.headers.token);
     }),
     validarCampos,
-], controllerApprentice.listtheapprenticebyficheid);
+], controllerApprentice.listapprenticebyfiche);
 
 //-------------------------------------------------------------
 router.get('/listapprenticebystatus/:status', [
     validarJWT,
     validarCampos
-], controllerApprentice.listApprenticeByStatus);
+], controllerApprentice.listapprenticebystatus);
 
 //-------------------------------------------------------------
 router.post('/addapprentice', [
@@ -57,7 +57,7 @@ router.post('/addapprentice', [
     check('email', 'el email es obligatorio').not().isEmpty(),
     check ('modality').custom(modalityHelper.existsModalityID),
     validarCampos
-], controllerApprentice.inserttheapprentice);
+], controllerApprentice.addapprentice);
 
 
 
@@ -85,19 +85,19 @@ router.put('/updateapprenticebyid/:id', [
 
 
 // -----------------------------------------------------------
-router.put('/enableApprentice/:id', [
+router.put('/enableapprentice/:id', [
     validarJWT,
     check('id', 'El id no es valido').isMongoId(),
     check('id').custom(apprenticeHelper.existApprentice),
     validarCampos
-], controllerApprentice.enableapprenticeStatus);
+], controllerApprentice.enableapprentice);
 
 //-------------------------------------------------------------
-router.put('/disableApprentice/:id', [
+router.put('/disableapprentice/:id', [
     validarJWT,
     check('id', 'El id no es valido').isMongoId(),
     check('id').custom(apprenticeHelper.existApprentice),
     validarCampos
-], controllerApprentice.disableapprenticeStatus);
+], controllerApprentice.disableapprentice);
 
 export default router;
