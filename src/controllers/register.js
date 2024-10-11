@@ -6,31 +6,40 @@ const controllerRegister = {
         try {
             const registers = await Register.find();
             console.log('Lista de registros', registers);
-            res.json(registers);
+            res.json({ success: true, data: registers });
         } catch (error) {
-            console.log('Error al listar registros', error);
-            res.status(500).json({ error: 'Error al listar registros' });
+            console.error('Error al listar registros', error); // Mejor uso de console.error
+            res.status(500).json({ success: false, error: 'Error al listar registros' });
         }
     },
 
     // Listar por id-----------------------------------------------------------------------
     listregisterbyid: async (req, res) => {
         const { id } = req.params;
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({ success: false, error: 'ID no válido' });
+        }
         try {
             const register = await Register.findById(id);
 
             if (!register) {
-                return res.status(404).json({ error: 'Registro no encontrado' });
+                return res.status(404).json({ success: false, error: 'Registro no encontrado' });
             }
             console.log('Registro encontrado', register);
-            res.json(register);
+            res.json({ success: true, data: register });
         } catch (error) {
-            console.log('Error al listar registro por id', error);
-            res.status(500).json({ error: 'Error al listar registro por id' });
+            console.error('Error al listar registro por id', error);
+            res.status(500).json({ success: false, error: 'Error al listar registro por id' });
         }
     },
 
+
     // Listar registro por Id aprendiz-----------------------------------------------------------------
+    listtheapprenticebyid: async (req, res) => {
+        const { apprentice } = req.body;
+        if (!mongoose.isValidObjectId(apprentice)) {
+            return res.status(400).json({ success: false, error: 'ID de aprendiz no válido' });
+        }
     listregisterbyapprentice: async (req, res) => {
         const { idapprentice } = req.body;
         try {
@@ -42,6 +51,8 @@ const controllerRegister = {
             res.status(500).json({ error: 'Error al listar idaprendices en registros' });
         }
     },
+
+
     // Listar registros por ID de ficha
     listregistersbyfiche: async (req, res) => {
         const { idfiche } = req.params
@@ -54,8 +65,8 @@ const controllerRegister = {
             res.status(500).json({ error: `Èrror al listra ` })
 
         }
-
     },
+
     // Listar por modalidad---------------------------------------------------------------
     listregisterbymodality: async (req, res) => {
         const { idmodality } = req.params;
@@ -68,6 +79,7 @@ const controllerRegister = {
             res.status(500).json({ error: `Error al listar modalidades en registros ${idmodality}`, error });
         }
     },
+
 
     // Listar los registros por fecha de inicio 
     listregisterbystartdate: async (req, res) => {
@@ -98,6 +110,7 @@ const controllerRegister = {
             res.status(500).json({ error: 'Error al listar por fecha de finalización' })
         }
     },
+
     // Insertar registro-----------------------------------------------------------------
     addregister: async (req, res) => {
         const { apprentice, modality, startDate, fend, company, phonecompany, addresscompany, emailcompany, owner, docalternative, hour } = req.body;
