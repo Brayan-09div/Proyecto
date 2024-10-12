@@ -28,11 +28,11 @@ router.get('/listregisterbyapprentice/:idapprentice', [
   validarJWT,
   check('apprentice').custom(apprenticeHelper.existApprentice),
   validarCampos
-], controllerRegister.listregisterbyapprentice)
+], controllerRegister.listtheapprenticebyid)
 
 // --------------------------------------------------------------------
 router.get('/listregisterbymodality/:idmodality', [
-  validarJWT,
+  validarJWT, 
   check('modality').custom(modalityHelper.existsModalityID),
   check('modality', 'El campo modality es obigatorio').notEmpty(),
   validarCampos
@@ -55,21 +55,22 @@ router.get('/listregisterbyenddate', [
 // -------------------------------------------------------------------
 router.post('/addregister', [
   validarJWT,
-  check('apprentice', 'El campo es obigatorio').notEmpty(),
-  check('apprentice').custom(apprenticeHelper.existApprentice),
-  check('modality').custom(modalityHelper.existsModalityID),
+  check('idApprentice', 'El campo es obligatorio').notEmpty(),
+  check('idApprentice').custom(apprenticeHelper.existApprentice),
+  check('idModality', 'El campo es obligatorio').notEmpty(),
+  check('idModality').custom(modalityHelper.existsModalityID),
   check('startDate', 'El campo startDate es obligatorio').notEmpty(),
   check('endDate', 'El campo endDate es obligatorio').notEmpty(),
   check('company', 'El campo company es obligatorio').notEmpty(),
   check('phoneCompany', 'El campo phoneCompany es obligatorio').notEmpty(),
-  check('addresscompany', 'El campo adrrescompany es obligatorio').notEmpty(),
+  check('addressCompany', 'El campo addressCompany es obligatorio').notEmpty(), // Corregido
   check('owner', 'El campo owner es obligatorio').notEmpty(),
-  check('docalternative', 'El campo docalternative').notEmpty(),
+  check('docAlternative', 'El campo docAlternative es obligatorio').notEmpty(),
   check('hour', 'El campo hour es obligatorio').notEmpty(),
-  check('adreessCompany').custom(registerHelper.existAddressCompany),
+  check('addressCompany').custom(registerHelper.existAddressCompany),
   check('phoneCompany').custom(registerHelper.existPhoneCompany),
   validarCampos
-], controllerRegister.addregister)
+], controllerRegister.addregister);
 
 // -------------------------------------------------------------------------
 router.put('/updateregisterbyid/:id', [
@@ -86,6 +87,7 @@ router.put('/updatemodalityregister/:id',[
 
 ], controllerRegister.updatemodalityregister)
 
+
 // ---------------------------------------------------------------------------
 router.put('/enableregister/:id', [
   validarJWT,
@@ -93,6 +95,8 @@ router.put('/enableregister/:id', [
   check('id').custom(registerHelper.existRegister),
   validarCampos
 ], controllerRegister.enableregister);
+
+
 
 // -----------------------------------------------------------------------
 router.put('/disableregister/:id', [

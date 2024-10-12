@@ -11,7 +11,7 @@ const router = express.Router();
 
 //-------------------------------------------------------------
 router.get('/listallapprentice', [
-     validarJWT,
+    validarJWT,
 ], controllerApprentice.listallapprentice);
 
 //-------------------------------------------------------------

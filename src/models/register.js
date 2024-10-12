@@ -10,9 +10,9 @@ const registerSchema = new mongoose.Schema({
     addressCompany: { type: String },
     owner: { type: String },
     docAlternative: { type: String },
-    hour : { type: Number },
-    businessProyectHour: { type: Number },
-    productiveProjectHour: { type: Number },
+    hour : { type: Number,  default : 0},
+    businessProyectHour: { type: Number, default: 0 },
+    productiveProjectHour: { type: Number, default: 0 },
     status: { type: Number, default: 1 },
     mailCompany :{ type: String },
 

@@ -1,4 +1,3 @@
-// Importar axios
 import axios from 'axios';
 
 const REPFORA = process.env.REPFORA;

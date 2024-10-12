@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 
 
 const  controllerApprentice ={
-    // listar todos los aprendices ---------------------------------------------------
+ // listar todos los aprendices ---------------------------------------------------
 listallapprentice : async (req , res) => {
 try {
     const apprentice = await Apprentice.find();
@@ -80,6 +80,7 @@ addapprentice: async (req, res) => {
        
         const newRegister = new Register({
             idApprentice: newApprentice._id,
+
             idModality: aprendice.modality
         });
 
