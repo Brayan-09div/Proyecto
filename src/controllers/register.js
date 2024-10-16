@@ -123,27 +123,6 @@ const controllerRegister = {
     },
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    add
     // Actualizar registro
     updateregisterbyid: async (req, res) => {
         const { id } = req.params;
