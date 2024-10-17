@@ -36,16 +36,16 @@ const controllerRegister = {
 
     // Listar registro por Id aprendiz
     listtheapprenticebyid: async (req, res) => {
-        const { apprentice } = req.body;
-        if (!mongoose.isValidObjectId(apprentice)) {
+        const { idApprentice } = req.params;
+        if (!mongoose.isValidObjectId(idApprentice)) {
             return res.status(400).json({ success: false, error: 'ID de aprendiz no válido' });
         }
         try {
-            const registers = await Register.find({ apprentice });
-            console.log(`Lista de idaprendices en registros: ${apprentice}`);
+            const registers = await Register.find({ idApprentice });
+            console.log(`Lista de idaprendices en registros: ${idApprentice}`);
             res.json({ success: true, data: registers });
         } catch (error) {
-            console.log(`Error al listar idaprendices en registros: ${apprentice}`, error);
+            console.log(`Error al listar idaprendices en registros: ${idApprentice}`, error);
             res.status(500).json({ error: 'Error al listar idaprendices en registros' });
         }
     },
@@ -63,6 +63,7 @@ const controllerRegister = {
         }
     },
 
+
     // Listar por modalidad
     listregisterbymodality: async (req, res) => {
         const { idmodality } = req.params;
@@ -78,7 +79,7 @@ const controllerRegister = {
 
     // Listar los registros por fecha de inicio 
     listregisterbystartdate: async (req, res) => {
-        const { startDate } = req.body; // Obtener la fecha del cuerpo de la solicitud
+        const { startDate } = req.params; // Obtener la fecha del cuerpo de la solicitud
         try {
             const registers = await Register.find({ startDate });
             if (!registers.length) {
@@ -126,8 +127,18 @@ const controllerRegister = {
     // Actualizar registro
     updateregisterbyid: async (req, res) => {
         const { id } = req.params;
+        const { startDate } = req.body;
         try {
-            const updatedRegister = await Register.findByIdAndUpdate(id, req.body, { new: true });
+            let updateData = { ...req.body };
+
+            if (startDate) {
+                const start = new Date(startDate);
+                const endDate = new Date(start);
+                endDate.setMonth(endDate.getMonth() + 6);
+                endDate.setDate(endDate.getDate() - 1);
+                updateData.endDate = endDate; 
+            }
+            const updatedRegister = await Register.findByIdAndUpdate(id, updateData, { new: true });
             if (!updatedRegister) {
                 return res.status(404).json({ error: 'Registro no encontrado' });
             }
