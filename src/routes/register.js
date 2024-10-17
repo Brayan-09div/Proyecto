@@ -40,7 +40,14 @@ router.get('/listregisterbymodality/:idModality', [
 ], controllerRegister.listregisterbymodality)
 
 // --------------------------------------------------------------------
-router.get('/listregisterbystartdate/:startDate', [
+router.get('/listregisterbyfiche/:idfiche', [
+  validarJWT, 
+  validarCampos
+], controllerRegister.listregistersbyfiche)
+
+
+// --------------------------------------------------------------------
+router.get('/listregisterbystartdate', [
   validarJWT,
   check('startDate', 'El campo StartDate es obigatorio').notEmpty(),
   validarCampos
