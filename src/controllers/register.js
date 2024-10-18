@@ -256,22 +256,18 @@ const controllerRegister = {
 
 
   // Actualizar modalidad
-  updatemodalityregister: async (req, res) => {
+  updateRegisterModality: async (req, res) => {
     const { id } = req.params;
-    const { modality } = req.body;
+    const { idModality, docAlternative } = req.body;
     try {
-      const updatedModality = await Register.findByIdAndUpdate(
-        id,
-        { modality },
-        { new: true }
-      );
+      const updatedModality = await Register.findByIdAndUpdate(id, { idModality, docAlternative }, { new: true });
       if (!updatedModality) {
-        return res.status(404).json({ message: "Registro no encontrado" });
+        return res.status(404).json({ message: 'Registro no encontrado' });
       }
       res.json({ success: true, data: updatedModality });
     } catch (error) {
-      console.log("Error al actualizar modalidad", error);
-      res.status(500).json({ error: "Error al actualizar modalidad" });
+      console.log('Error al actualizar modalidad', error);
+      res.status(500).json({ error: 'Error al actualizar modalidad' });
     }
   },
 

@@ -45,7 +45,6 @@ router.get('/listassigmentbyfollowupinstructor/:idinstructor',[
 //------------------------------------------------------------------------
 router.get('/listassigmentbytechnicalinstructor:idinstructor',[
     validarJWT,
-
     validarCampos
 ], controllerAssignments.listassigmentbytechnicalinstructor)
 

@@ -99,13 +99,14 @@ router.put('/updateregisterbyid/:id', [
 ], controllerRegister.updateRegisterById);
 
 // ----------------------------------------------------------------------------
-router.put('/updatemodalityregister/:id',[
-  validarJWT,
-  check('modality').optional().custom(modalityHelper.existsModalityID),
-  check('modality','la modalidad es obligatoria'),
-  validarCampos,
-], controllerRegister.updatemodalityregister)
-
+router.put('/updatemodalityregister/:id', [
+  validateRepfora,
+  check('idModality', 'No es un ID válido').isMongoId().notEmpty(),
+  check('idModality').custom(modalityHelper.existsModalityID),
+  check('docAlternative', 'El documento alternativo es obligatorio').notEmpty(),
+  check('docAlternative').custom(registerHelper.verifyDocAlternative),
+  validarCampos
+], controllerRegister.updateRegisterModality);
 
 // ---------------------------------------------------------------------------
 router.put('/enableregister/:id', [
