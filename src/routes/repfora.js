@@ -4,7 +4,10 @@ import authController from '../controllers/repfora.js';
 const router = express.Router();
 
 
-router.post('/login', authController.login);
+router.post('/loginAdmin', authController.loginAdmin);
+router.post('/loginInstructors', authController.loguinInstructors);
+
+
 
 router.post('/validate', authController.validateRepfora);
 

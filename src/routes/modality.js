@@ -1,6 +1,6 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { validarJWT } from '../middleware/validateJWT.js';
+import { validateAdmin } from '../middleware/valitate-admin.js';
 import { validarCampos } from '../middleware/validate-fields.js';
 import modalityController from '../controllers/modality.js'
 import {modalityHelper} from '../helpers/modality.js'
@@ -10,13 +10,13 @@ const router = express.Router();
 
 //-----------------------------------------------------------
 router.get('/listallmodality', [
-    validarJWT,
+    validateAdmin,
 ], modalityController.listallmodality);
 
 
 //-----------------------------------------------------------
 router.get('/listmodalitybyid/:id', [
-validarJWT,
+validateAdmin,
 check('id', 'El id es invalido').isMongoId(),
 check('id').custom(modalityHelper.existsModalityID),
 validarCampos
@@ -25,7 +25,7 @@ validarCampos
 
 //-----------------------------------------------------------
 router.post('/addmodality', [
-  // validarJWT,
+  // validateAdmin,
   check('name', 'El campo name es obligatorio').notEmpty(),
   check('hourInstructorFollow')
     .optional()
@@ -41,7 +41,7 @@ router.post('/addmodality', [
 
 //-----------------------------------------------------------
 router.put('/updatemodalitybyid/:id', [
-validarJWT,
+validateAdmin,
 check('id', 'El id es invalido').isMongoId(),
 check('name', ' El campo name es obligatorio').notEmpty(),
 check('hourInstructorFollo','El campo hourInstructorFollow es obligatorio').notEmpty(),
@@ -52,7 +52,7 @@ validarCampos
 
 //-----------------------------------------------------------
 router.put('/enablemodalitybyid/:id', [
-    validarJWT,
+    validateAdmin,
     check('id', 'El id es inválido').isMongoId(),
     check('id').custom(modalityHelper.existsModalityID),
     validarCampos
@@ -60,7 +60,7 @@ router.put('/enablemodalitybyid/:id', [
   
   //-----------------------------------------------------------
   router.put('/disablemodalitybyid/:id', [
-    validarJWT,
+    validateAdmin,
     check('id', 'El id es inválido').isMongoId(),
     check('id').custom(modalityHelper.existsModalityID),
     validarCampos

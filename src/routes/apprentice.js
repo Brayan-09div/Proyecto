@@ -1,6 +1,11 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { validarJWT } from '../middleware/validateJWT.js';
+
+import { validateAdmin } from '../middleware/valitate-admin.js';
+import { validateInstructors } from '../middleware/validate-instructor.js';
+import { validateApprentice } from '../middleware/validate-apprentice.js';
+import { authenticateUser } from '../middleware/validateall.js';
+
 import { validarCampos } from '../middleware/validate-fields.js';
 import controllerApprentice from '../controllers/apprentice.js';
 import  ficheHelper  from '../helpers/fiches.js';
@@ -9,14 +14,41 @@ import {modalityHelper} from '../helpers/modality.js'
 
 const router = express.Router();
 
+//---------------------------------------------------------
+router.post('/loguinApprentice', [
+    check('email', 'El email es obligatorio').not().isEmpty(),
+    check('email').custom(apprenticeHelper.notExistEmail),
+    check('numDocument', 'El documento es obligatorio').not().isEmpty(),
+    check('numDocument').custom(apprenticeHelper.notExistNumDocument),
+    validarCampos,
+], controllerApprentice.loginApprentice);
+
 //-------------------------------------------------------------
 router.get('/listallapprentice', [
-    validarJWT,
+    validateAdmin,
 ], controllerApprentice.listallapprentice);
+
+
+router.get('/listallapprenticeByInstructors', [
+    validateInstructors,
+], controllerApprentice.listallapprentice);
+
+
+router.get('/listallapprenticeByApprentice', [
+    validateApprentice,
+], controllerApprentice.listallapprentice);
+
+
+router.get('/listallapprenticeBy', [
+    authenticateUser,
+], controllerApprentice.listallapprentice);
+//-------------------------------------------------------------
+
+
 
 //-------------------------------------------------------------
 router.get('/listapprenticebyid/:id', [
-    validarJWT,
+    validateAdmin,
     check('id', 'El id no es valido').isMongoId(),
     check('id').custom(apprenticeHelper.existApprentice),
     validarCampos
@@ -24,7 +56,7 @@ router.get('/listapprenticebyid/:id', [
 
 //-------------------------------------------------------------
 router.get('/listapprenticebyfiche/:idfiche', [
-    validarJWT,
+    validateAdmin,
     check('fiche', 'El ID de la ficha es obligatorio').notEmpty(),
     check('fiche').custom(async (fiche, { req }) => {
         await ficheHelper.validateFicheID(fiche, req.headers.token);
@@ -34,13 +66,13 @@ router.get('/listapprenticebyfiche/:idfiche', [
 
 //-------------------------------------------------------------
 router.get('/listapprenticebystatus/:status', [
-    validarJWT,
+    validateAdmin,
     validarCampos
 ], controllerApprentice.listapprenticebystatus);
 
 //-------------------------------------------------------------
 router.post('/addapprentice', [
-    validarJWT,
+    validateAdmin,
     check('fiche', 'El campo ficha es obligatorio').notEmpty(),
     check('fiche.idFiche', 'El ID no es valido').isMongoId(),
     check('fiche.idFiche').custom(async (idFiche, { req }) => {
@@ -55,6 +87,7 @@ router.post('/addapprentice', [
     check('lastName', 'el apellido es obligatorio').not().isEmpty(),
     check('phone', 'el telefono es obligatorio').not().isEmpty(),
     check('email', 'el email es obligatorio').not().isEmpty(),
+    check('email').custom(apprenticeHelper.esEmailValido),
     check ('modality').custom(modalityHelper.existsModalityID),
     validarCampos
 ], controllerApprentice.addapprentice);
@@ -63,7 +96,7 @@ router.post('/addapprentice', [
 
 //-------------------------------------------------------------
 router.put('/updateapprenticebyid/:id', [
-    validarJWT,
+    validateAdmin,
     check('id', 'El id no es válido').isMongoId(),
     check('fiche.idFiche', 'El ID de la ficha no es válido').optional().isMongoId(),
     check('fiche.idFiche').optional().custom(async (idFiche, { req }) => {
@@ -86,7 +119,7 @@ router.put('/updateapprenticebyid/:id', [
 
 // -----------------------------------------------------------
 router.put('/enableapprentice/:id', [
-    validarJWT,
+    validateAdmin,
     check('id', 'El id no es valido').isMongoId(),
     check('id').custom(apprenticeHelper.existApprentice),
     validarCampos
@@ -94,7 +127,7 @@ router.put('/enableapprentice/:id', [
 
 //-------------------------------------------------------------
 router.put('/disableapprentice/:id', [
-    validarJWT,
+    validateAdmin,
     check('id', 'El id no es valido').isMongoId(),
     check('id').custom(apprenticeHelper.existApprentice),
     validarCampos

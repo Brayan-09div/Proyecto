@@ -12,7 +12,7 @@ if (!REPFORA) {
 const authController = {
 
   // Login
-  login: async (req, res) => {
+  loginAdmin: async (req, res) => {
     const { email, password, role } = req.body;
     try {
       const response = await axios.post(`${REPFORA}/api/users/login`, { email, password, role });
@@ -27,6 +27,23 @@ const authController = {
     }
   },
 
+
+  //loguin instructores----------------------------------------------
+  loguinInstructors: async (req, res) => {
+    const { email, password } = req.body;
+    try {
+      const response = await axios.post(`${REPFORA}/api/instructors/login`, { email, password });
+      const token = response.data.token;
+      res.json({ token });
+    } catch (error) {
+      res.status(error.response?.status || 500).json({
+        message: error.response?.data?.message || error.message,
+        status: error.response?.status,
+        data: error.response?.data
+      });
+    }
+  }, 
+  
   // Listar todos los instructores
   listAllInstructors: async (req, res) => {
     const token = req.headers['token'];

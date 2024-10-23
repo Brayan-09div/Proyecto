@@ -1,5 +1,6 @@
 import Apprentice from '../models/apprentice.js'
 import Register from "../models/register.js";
+import { generarJWT } from "../middleware/validate-apprentice.js";
 import mongoose from 'mongoose';
 
 
@@ -70,6 +71,26 @@ listapprenticebystatus: async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 },
+
+
+
+// Login para aprendices
+loginApprentice: async (req, res) => {
+    const { email, numDocument } = req.body;
+    try {
+      const apprentice = await Apprentice.findOne({ email });
+    
+      if (!apprentice || apprentice.estado === 0 || apprentice.numDocument !== numDocument) {
+        return res.status(401).json({ msg: "Apprentice / Documento no son correctos" });
+      }
+      const token = await generarJWT(apprentice._id);
+      res.json({ apprentice, token });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ msg: "Hable con el WebMaster" });
+    }
+  },
+
 
 // insertar por aprendiz--------------------------------------------------------------
 addapprentice: async (req, res) => {

@@ -1,6 +1,6 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { validarJWT } from '../middleware/validateJWT.js';
+import { validateAdmin } from '../middleware/valitate-admin.js';
 import { validarCampos } from '../middleware/validate-fields.js';
 import controllerFollowup from '../controllers/followup.js'
 import {followupHelper} from '../helpers/followup.js'
@@ -12,7 +12,7 @@ const router = express.Router();
 
 //-------------------------------------------------------------
 router.get('/listallfollowup',[
-    validarJWT,
+    validateAdmin,
 ], controllerFollowup.listallfollowup
 )
 
@@ -20,7 +20,7 @@ router.get('/listallfollowup',[
 
 //-------------------------------------------------------------
 router.get('/listfollowupbyid/:id',[
-    validarJWT,
+    validateAdmin,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(followupHelper.existsFollowupID),
     validarCampos
@@ -30,7 +30,7 @@ router.get('/listfollowupbyid/:id',[
 
 //-------------------------------------------------------------
 router.get('/listfollowupbyassignment/:idassigment',[
-    validarJWT,
+    validateAdmin,
     check('assignment').custom(assignmentHelper.existsAssignmentID),
     validarCampos
 ], controllerFollowup.listfollowupbyassignment)
@@ -39,7 +39,7 @@ router.get('/listfollowupbyassignment/:idassigment',[
 
 //-------------------------------------------------------------
 router.get('/listfollowupbyinstructor/:idinstructor',[
-    validarJWT,
+    validateAdmin,
     check('instructor').custom(instructorHelper.existsInstructorID),
     validarCampos
 ], controllerFollowup.listfollowupbyinstructor)
@@ -48,7 +48,7 @@ router.get('/listfollowupbyinstructor/:idinstructor',[
 
 //-------------------------------------------------------------
 router.post('/addfollowup',[
-    validarJWT,
+    validateAdmin,
     check('assignment','La assignment es obligatoria').notEmpty(),
     check('instructor','El instructor es obligatorio').notEmpty(),
     check('number','El number es maximo de 10 caracteres').isLength({ max: 10 }),
@@ -66,7 +66,7 @@ router.post('/addfollowup',[
 
 //-------------------------------------------------------------
 router.put('/updatefollowupbyid/:id',[
-    validarJWT,
+    validateAdmin,
     check('id','El id no es valido').isMongoId(),
     check('number','El number es maximo de 10 caracteres').isLength({ max: 10 }),
     check('document','El document es maximo de 50 caracteres').isLength({ max: 50 }),
@@ -76,7 +76,7 @@ router.put('/updatefollowupbyid/:id',[
 
 // ----------------------------------------------------------------
 router.put('/updatestatus/:id/:status',[
-    validarJWT,
+    validateAdmin,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(followupHelper.existsFollowupID),
     validarCampos

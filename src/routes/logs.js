@@ -1,6 +1,6 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { validarJWT } from '../middleware/validateJWT.js';
+import { validateAdmin } from '../middleware/valitate-admin.js';
 import { validarCampos } from '../middleware/validate-fields.js';
 import logController from '../controllers/logs.js';
 import { logsHelper } from '../helpers/logs.js';
@@ -9,13 +9,13 @@ const router = express.Router();
 
 //------------------------------------------------
 router.get('/listlogs', [
-    validarJWT
+    validateAdmin
 ], logController.listlogs);
 
 //------------------------------------------------
 
 router.get('/listlogs/:id', [
-    validarJWT,
+    validateAdmin,
     check('id', 'El ID no es válido').isMongoId(),
     check('id').custom(logsHelper.existsLogID),
     validarCampos
@@ -23,7 +23,7 @@ router.get('/listlogs/:id', [
 
 //------------------------------------------------
 router.post('/addlog', [
-    validarJWT,
+    validateAdmin,
     check('users', 'El campo users es obligatorio').notEmpty(),
     check('email', 'El campo email es obligatorio').notEmpty().isEmail(), 
     check('email').custom(logsHelper.existEmail), 
@@ -34,7 +34,7 @@ router.post('/addlog', [
 
 // -------------------------------------------------
 router.put('/enablelogsbyid/:id', [
-    validarJWT,
+    validateAdmin,
     check('id', 'El ID no es válido').isMongoId(),
     check('id').custom(logsHelper.existsLogID),
     validarCampos
@@ -42,7 +42,7 @@ router.put('/enablelogsbyid/:id', [
 
 //------------------------------------------------
 router.put('/disablelogsbyid/:id', [
-    validarJWT,
+    validateAdmin,
     check('id', 'El ID no es válido').isMongoId(),
     check('id').custom(logsHelper.existsLogID),
     validarCampos

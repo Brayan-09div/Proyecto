@@ -1,6 +1,6 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { validarJWT } from '../middleware/validateJWT.js';
+import { validateAdmin } from '../middleware/valitate-admin.js';
 import { validarCampos } from '../middleware/validate-fields.js';
 import controllerBinnacles from '../controllers/binnacles.js';
 import {binnaclesHelper} from '../helpers/binnacles.js';
@@ -11,12 +11,12 @@ import { instructorHelper } from '../helpers/instructor.js'
 const router = express.Router();
 
 router.get('/listallbinnacles',[
-    validarJWT,
+   validateAdmin,
 ],controllerBinnacles.listallbinnacles)
 
 
 router.get('/listbinnaclesbyid/:id',[
-    validarJWT,
+   validateAdmin,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(binnaclesHelper.existBinnacles),
     validarCampos
@@ -24,7 +24,7 @@ router.get('/listbinnaclesbyid/:id',[
 
 
 router.get('listbinnaclesbyassignment/:idassignment',[
-    validarJWT,
+   validateAdmin,
     check('assignment', 'El id no es valido').isMongoId(),
     check('assignment').custom(assignmentHelper.existsAssignmentID),
     validarCampos
@@ -32,14 +32,14 @@ router.get('listbinnaclesbyassignment/:idassignment',[
 
 
 router.get('listbinnaclesbyinstructor/:idinstructor',[
-    validarJWT,
+   validateAdmin,
     check('instructor').custom(instructorHelper.existsInstructorID),
     validarCampos
 ],controllerBinnacles.listbinnaclesbyinstructor)
 
 
 router.post('/addbinnacles',[
-    validarJWT,
+   validateAdmin,
     check('assignment','La assignment es obligatoria').notEmpty(),
     check('instructor','El instructor es obigatorio').notEmpty(),
     check('number','El number es obligatorio').notEmpty(),
@@ -59,7 +59,7 @@ router.post('/addbinnacles',[
 ],controllerBinnacles.addbinnacles)
 
 router.put('/updatebinnaclebyid/:id',[
-    validarJWT,
+   validateAdmin,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(binnaclesHelper.existBinnacles),
     check('number').custom(binnaclesHelper.existNumber),
@@ -71,7 +71,7 @@ router.put('/updatebinnaclebyid/:id',[
 ],controllerBinnacles.updatebinnaclebyid)
 
 router.put('/updatestatus/:id/:status',[
-    validarJWT,
+   validateAdmin,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(binnaclesHelper.existBinnacles),
     validarCampos
