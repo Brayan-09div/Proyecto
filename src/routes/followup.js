@@ -4,7 +4,6 @@ import { validateAdmin } from '../middleware/valitate-admin.js';
 import { validarCampos } from '../middleware/validate-fields.js';
 import controllerFollowup from '../controllers/followup.js'
 import {followupHelper} from '../helpers/followup.js'
-import {assignmentHelper } from '../helpers/assignment.js'
 import { instructorHelper } from '../helpers/instructor.js'
  
 const router = express.Router();
@@ -31,7 +30,6 @@ router.get('/listfollowupbyid/:id',[
 //-------------------------------------------------------------
 router.get('/listfollowupbyassignment/:idassigment',[
     validateAdmin,
-    check('assignment').custom(assignmentHelper.existsAssignmentID),
     validarCampos
 ], controllerFollowup.listfollowupbyassignment)
 

@@ -1,5 +1,5 @@
 import Followup from "../models/followup.js";
-import Assignment from '../models/assignment.js';
+
 
 const followupController = {
   

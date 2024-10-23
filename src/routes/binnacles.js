@@ -4,7 +4,6 @@ import { validateAdmin } from '../middleware/valitate-admin.js';
 import { validarCampos } from '../middleware/validate-fields.js';
 import controllerBinnacles from '../controllers/binnacles.js';
 import {binnaclesHelper} from '../helpers/binnacles.js';
-import {assignmentHelper} from '../helpers/assignment.js';
 import { instructorHelper } from '../helpers/instructor.js'
 
 
@@ -26,7 +25,6 @@ router.get('/listbinnaclesbyid/:id',[
 router.get('listbinnaclesbyassignment/:idassignment',[
    validateAdmin,
     check('assignment', 'El id no es valido').isMongoId(),
-    check('assignment').custom(assignmentHelper.existsAssignmentID),
     validarCampos
 ],controllerBinnacles.listbinnaclesbyassignment)
 

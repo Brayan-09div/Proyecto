@@ -188,6 +188,8 @@ const controllerRegister = {
 
 
 
+  
+
   // Insertar registro
   addRegister: async (req, res) => {
     const { idApprentice, idModality, startDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany } = req.body;
@@ -237,8 +239,7 @@ const controllerRegister = {
         endDate.setMonth(endDate.getMonth() + 6);
         endDate.setDate(endDate.getDate() - 1);
       } else {
-        // Si no se proporciona startDate, se utiliza el valor actual de endDate
-        endDate = register.endDate; // Asumiendo que tienes endDate en el registro original
+        endDate = register.endDate; 
       }
       const updatedRegister = await Register.findByIdAndUpdate(
         id,
@@ -279,10 +280,6 @@ const controllerRegister = {
       if (!register) {
         return res.status(404).json({ error: "Registro no encontrado" });
       }
-
-
-
-      
       if (register.status === 1) {
         return res.status(400).json({ error: "El registro ya está activado" });
       }
@@ -315,6 +312,7 @@ const controllerRegister = {
       res.status(500).json({ error: "Error al desactivar el estado del registro" });
     }
   },
+
 
 };
 

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const followupSchema = new mongoose.Schema({
-    assignment: {type:mongoose.Schema.Types.ObjectId, ref: 'assignment'},
+    register: {type:mongoose.Schema.Types.ObjectId, ref: 'register'},
     instructor: {
         idinstructor: mongoose.Schema.Types.ObjectId,
         name: String

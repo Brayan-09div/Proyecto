@@ -72,77 +72,77 @@ listapprenticebystatus: async (req, res) => {
     }
 },
 
+// Listar aprendices por modalidad
+listapprenticebymodality: async (req, res) => {
+  const { idModality } = req.params;
+  try {
+      if (!mongoose.Types.ObjectId.isValid(idModality)) {
+          return res.status(400).json({ message: 'ID de modalidad inválido' });
+      }
+      const apprentices = await Apprentice.find({ idModality });
+      if (apprentices.length === 0) {
+          return res.status(404).json({ message: 'No se encontraron aprendices para esta modalidad' });
+      }
+      res.status(200).json(apprentices);
+  } catch (error) {
+      console.error('Error al listar aprendices por modalidad:', error);
+      res.status(500).json({ message: 'Error interno del servidor', error: error.message });
+  }
+},
+
 
 
 // Login para aprendices
 loginApprentice: async (req, res) => {
-    const { email, numDocument } = req.body;
-    try {
+  const { email, numDocument } = req.body;
+  try {
       const apprentice = await Apprentice.findOne({ email });
-    
-      if (!apprentice || apprentice.estado === 0 || apprentice.numDocument !== numDocument) {
-        return res.status(401).json({ msg: "Apprentice / Documento no son correctos" });
+
+      if (!apprentice || apprentice.status === 0 || apprentice.numDocument !== numDocument) {
+          return res.status(401).json({ msg: "Apprentice / Documento no son correctos" });
       }
+
       const token = await generarJWT(apprentice._id);
       res.json({ apprentice, token });
-    } catch (error) {
+  } catch (error) {
       console.error(error);
       res.status(500).json({ msg: "Hable con el WebMaster" });
-    }
-  },
-
-
-// insertar por aprendiz--------------------------------------------------------------
-addapprentice: async (req, res) => {
-    const aprendice = req.body;
-    try {
-        const newApprentice = new Apprentice(aprendice);
-          await newApprentice.save();
-       
-        const newRegister = new Register({
-            idApprentice: newApprentice._id,
-
-            idModality: aprendice.modality
-        });
-
-        const preRegisterCreated = await newRegister.save();
-        res.status(201).json({
-            apprentice: newApprentice,
-            register: preRegisterCreated
-        });
-        console.log("Aprendiz y pre-registro guardados exitosamente");
-    } catch (error) {
-        res.status(400).json({ message: error.message });  
-}
+  }
 },
 
-// actualizar--------------------------------------------------------------------------
+// Insertar aprendiz
+addapprentice: async (req, res) => {
+  const aprendizData = req.body;
+  try {
+      const newApprentice = new Apprentice(aprendizData);
+      await newApprentice.save();
+      res.status(201).json(newApprentice);
+  } catch (error) {
+      console.error('Error al agregar aprendiz:', error);
+      res.status(400).json({ message: error.message });
+  }
+},
+
+// Actualizar aprendiz por ID
 updateapprenticebyid: async (req, res) => {
-    const { id } = req.params;
-    const updateData = req.body
-    try {
+  const { id } = req.params;
+  const updateData = req.body;
+  try {
       if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ message: 'ID de aprendiz inválido' });
+          return res.status(400).json({ message: 'ID de aprendiz inválido' });
       }
-      const updatedApprentice = await Apprentice.findByIdAndUpdate(
-        id,
-        updateData,
-        { new: true, runValidators: true }
-      );
+
+      const updatedApprentice = await Apprentice.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
 
       if (!updatedApprentice) {
-        return res.status(404).json({ message: 'Aprendiz no encontrado' });
+          return res.status(404).json({ message: 'Aprendiz no encontrado' });
       }
 
-      console.log("Aprendiz actualizado:", updatedApprentice);
       res.status(200).json(updatedApprentice);
-    } catch (error) {
-      console.error("Error al actualizar aprendiz:", error);
-      if (error.name === 'ValidationError') {
-        return res.status(400).json({ message: 'Error de validación', errors: error.errors });
-      }
-      res.status(500).json({ message: "Error interno del servidor al actualizar aprendiz" });
-    }
+  } catch (error) {
+      console.error('Error al actualizar aprendiz:', error);
+      res.status(500).json({ message: 'Error interno del servidor al actualizar aprendiz' });
+  }
 },
 
 // activar

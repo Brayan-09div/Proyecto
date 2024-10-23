@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 const binnaclesShema = new mongoose.Schema({
-    assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment' },
+    register: {type:mongoose.Schema.Types.ObjectId, ref: 'register'},
     instructor: { 
         idinstructor: mongoose.Schema.Types.ObjectId, 
         name: String

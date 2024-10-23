@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const apprenticeSchema = new mongoose.Schema({
     fiche: { idFiche: mongoose.Schema.Types.ObjectId, name: String, number: String },
+    idModality: { type: mongoose.Schema.Types.ObjectId, ref: 'Modality' },
     tpDocument: { type: String, required: true },
     numDocument: { type: String, required: true },
     firstName: { type: String, required: true },
