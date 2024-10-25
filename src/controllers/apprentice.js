@@ -146,32 +146,45 @@ addApprentice: async (req, res) => {
 // actualizar--------------------------------------------------------------------------
 updateapprenticebyid: async (req, res) => {
     const { id } = req.params;
-    const updateData = req.body
+    const updateData = req.body;
+
     try {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ message: 'ID de aprendiz inválido' });
-      }
-      const updatedApprentice = await Apprentice.findByIdAndUpdate(
-        id,
-        updateData,
-        { new: true, runValidators: true }
-      );
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: 'ID de aprendiz inválido' });
+        }
 
-      if (!updatedApprentice) {
-        return res.status(404).json({ message: 'Aprendiz no encontrado' });
-      }
+        // Construir el objeto de actualización
+        const updateFields = {};
+        for (const key in updateData) {
+            if (key === 'fiche') {
+                for (const ficheKey in updateData.fiche) {
+                    updateFields[`fiche.${ficheKey}`] = updateData.fiche[ficheKey];
+                }
+            } else {
+                updateFields[key] = updateData[key];
+            }
+        }
 
-      console.log("Aprendiz actualizado:", updatedApprentice);
-      res.status(200).json(updatedApprentice);
+        const updatedApprentice = await Apprentice.findByIdAndUpdate(
+            id,
+            { $set: updateFields },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedApprentice) {
+            return res.status(404).json({ message: 'Aprendiz no encontrado' });
+        }
+
+        console.log("Aprendiz actualizado:", updatedApprentice);
+        res.status(200).json(updatedApprentice);
     } catch (error) {
-      console.error("Error al actualizar aprendiz:", error);
-      if (error.name === 'ValidationError') {
-        return res.status(400).json({ message: 'Error de validación', errors: error.errors });
-      }
-      res.status(500).json({ message: "Error interno del servidor al actualizar aprendiz" });
+        console.error("Error al actualizar aprendiz:", error);
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: 'Error de validación', errors: error.errors });
+        }
+        res.status(500).json({ message: "Error interno del servidor al actualizar aprendiz" });
     }
 },
-
 // activar
 enableapprentice: async (req, res) => {
     const { id } = req.params;
