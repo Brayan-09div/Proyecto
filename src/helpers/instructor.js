@@ -1,26 +1,31 @@
+import axios from 'axios';
+import dotenv from 'dotenv';
 
+dotenv.config();
 
 const instructorHelper = {
-    existsInstructorID: async (id) => {
-        try {
-            const exists = await Instructor.findById(id);
-            if (!exists) {
-                throw new Error(`The instructor with ID ${id} does not exist`);
-            }
-            return exists;
-        } catch (error) {
-            throw new Error(`Error searching for instructor by ID: ${error.message}`);
+    async existsInstructorsID(idInstructor, token){
+        if (!token) {
+            throw new Error('Token es obligatorio');
         }
-    },
+        if (!idInstructor) {
+            throw new Error('ID de instructor es obligatorio');
+        }
 
-    doesInstructorExist: async (id) => {
         try {
-            const count = await Instructor.countDocuments({ _id: id });
-            return count > 0; // Devuelve true si existe, false si no
-        } catch (error) {
-            throw new Error(`Error checking instructor existence: ${error.message}`);
-        }
+            const response = await axios.get(`${process.env.REPFORA}/api/instructors/${idInstructor}`, { 
+              headers: { token } 
+            });
+      
+            if (!response.data || !response.data._id) {
+              throw new Error("ID de instructor no encontrado");
+            }
+            return response.data; 
+          } catch (error) {
+            throw new Error(error.response?.data?.message || 'Error al verificar instructor: ' + error.message);
+          }
     }
-};
+
+}
 
 export { instructorHelper };

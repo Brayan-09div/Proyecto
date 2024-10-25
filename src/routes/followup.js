@@ -1,10 +1,9 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { validarJWT } from '../middleware/validateJWT.js';
+import { validateAdmin } from '../middleware/valitate-admin.js';
 import { validarCampos } from '../middleware/validate-fields.js';
 import controllerFollowup from '../controllers/followup.js'
 import {followupHelper} from '../helpers/followup.js'
-import {assignmentHelper } from '../helpers/assignment.js'
 import { instructorHelper } from '../helpers/instructor.js'
  
 const router = express.Router();
@@ -12,42 +11,42 @@ const router = express.Router();
 
 //-------------------------------------------------------------
 router.get('/listallfollowup',[
-    validarJWT,
-], controllerFollowup.listFollowups)
+    validateAdmin,
+], controllerFollowup.listallfollowup
+)
 
 
 
 //-------------------------------------------------------------
 router.get('/listfollowupbyid/:id',[
-    validarJWT,
+    validateAdmin,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(followupHelper.existsFollowupID),
     validarCampos
-], controllerFollowup.getFollowupById)
+], controllerFollowup.listfollowupbyid)
 
 
 
 //-------------------------------------------------------------
 router.get('/listfollowupbyassignment/:idassigment',[
-    validarJWT,
-    check('assignment').custom(assignmentHelper.existsAssignmentID),
+    validateAdmin,
     validarCampos
-], controllerFollowup.listFollowupsByAssignment)
+], controllerFollowup.listfollowupbyassignment)
 
 
 
 //-------------------------------------------------------------
 router.get('/listfollowupbyinstructor/:idinstructor',[
-    validarJWT,
+    validateAdmin,
     check('instructor').custom(instructorHelper.existsInstructorID),
     validarCampos
-], controllerFollowup.listFollowupsByInstructor)
+], controllerFollowup.listfollowupbyinstructor)
 
 
 
 //-------------------------------------------------------------
 router.post('/addfollowup',[
-    validarJWT,
+    validateAdmin,
     check('assignment','La assignment es obligatoria').notEmpty(),
     check('instructor','El instructor es obligatorio').notEmpty(),
     check('number','El number es maximo de 10 caracteres').isLength({ max: 10 }),
@@ -59,27 +58,27 @@ router.post('/addfollowup',[
     check('observations','El observations es de maximo 50 caracteres').isLength({ max: 50 }),
     check('observations','El observations es obligatorio').notEmpty(),
     validarCampos
-],controllerFollowup.insertFollowup)
+],controllerFollowup.addfollowup)
 
 
 
 //-------------------------------------------------------------
 router.put('/updatefollowupbyid/:id',[
-    validarJWT,
+    validateAdmin,
     check('id','El id no es valido').isMongoId(),
     check('number','El number es maximo de 10 caracteres').isLength({ max: 10 }),
     check('document','El document es maximo de 50 caracteres').isLength({ max: 50 }),
     check('observations','El observations es de maximo 50 caracteres').isLength({ max: 50 }),
     validarCampos
-],controllerFollowup.updateFollowup)
+],controllerFollowup.updatefollowupbyid)
 
 // ----------------------------------------------------------------
-router.put('/updateStatus/:id/:status',[
-    validarJWT,
+router.put('/updatestatus/:id/:status',[
+    validateAdmin,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(followupHelper.existsFollowupID),
     validarCampos
-],controllerFollowup.updateStatus)
+],controllerFollowup.updatestatus)
 
 
 export default router;
