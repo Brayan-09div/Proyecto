@@ -145,7 +145,7 @@ const controllerRegister = {
 
   // Listar los registros por fecha de inicio
   listregisterbystartdate: async (req, res) => {
-    const { startDate } = req.params; 
+    const { startDate } = req.params;
     try {
       const registers = await Register.find({ startDate });
       if (!registers.length) {
@@ -165,7 +165,7 @@ const controllerRegister = {
   listregisterbyenddate: async (req, res) => {
     const { endDate } = req.params;
     try {
-      const regex = new RegExp(endDate.replace(/-/g, " "), 'i'); 
+      const regex = new RegExp(endDate.replace(/-/g, " "), 'i');
       const registers = await Register.find({
         endDate: {
           $regex: regex
@@ -183,14 +183,7 @@ const controllerRegister = {
       res.status(500).json({ error: "Error al listar por fecha de finalización" });
     }
   },
-
-
-
-
-
-  
-
-  // Insertar registro
+  // Insertar registro -------------------------------------------------------------------------------------------------------
   addRegister: async (req, res) => {
     const { idApprentice, idModality, startDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany } = req.body;
     try {
@@ -232,6 +225,13 @@ const controllerRegister = {
       if (!register) {
         return res.status(404).json({ msg: "Registro no encontrado" });
       }
+
+      if (idModality) {
+        const modality = await Register.find(idModality = 'PROYECTO PRODUCTIVO');
+        if (!modality) {
+          return res.status(404).json({ error: "Modalidad no encontrada" });
+        }
+      }
       let endDate;
       if (startDate) {
         const start = new Date(startDate);
@@ -239,7 +239,7 @@ const controllerRegister = {
         endDate.setMonth(endDate.getMonth() + 6);
         endDate.setDate(endDate.getDate() - 1);
       } else {
-        endDate = register.endDate; 
+        endDate = register.endDate;
       }
       const updatedRegister = await Register.findByIdAndUpdate(
         id,
@@ -312,6 +312,159 @@ const controllerRegister = {
       res.status(500).json({ error: "Error al desactivar el estado del registro" });
     }
   },
+
+
+  // Listar todas las asignaciones ----------------------------------------------------------------
+  listAllAssignments: async (req, res) => {
+    try {
+      const registers = await Register.find()
+        .select('assignment status') // Incluye el campo de estado
+        .populate('assignment.followUpInstructor.idInstructor', 'name')
+        .populate('assignment.technicalInstructor.idInstructor', 'name')
+        .populate('assignment.projectInstructor.idInstructor', 'name');
+
+      if (!registers.length) {
+        return res.status(404).json({ success: false, message: "No se encontraron asignaciones" });
+      }
+
+      console.log("Lista de asignaciones", registers);
+      res.json({ success: true, data: registers });
+    } catch (error) {
+      console.error("Error al listar asignaciones", error);
+      res.status(500).json({ success: false, error: "Error al listar asignaciones" });
+    }
+  },
+
+
+  // Listar registros por ID del instructor de seguimiento
+  listRegisterByFollowUpInstructor: async (req, res) => {
+    const { idinstructor } = req.params;
+    if (!mongoose.isValidObjectId(idinstructor)) {
+      return res.status(400).json({ success: false, error: "ID de instructor no válido" });
+    }
+    try {
+      const registers = await Register.find({
+        'assignment.followUpInstructor.idInstructor': idinstructor,
+      });
+
+      if (!registers.length) {
+        return res.status(404).json({ success: false, message: "No se encontraron registros para este instructor" });
+      }
+
+      console.log("Registros encontrados para el instructor", registers);
+      res.json({ success: true, data: registers });
+    } catch (error) {
+      console.error("Error al listar registros por ID de instructor de seguimiento", error);
+      res.status(500).json({ success: false, error: "Error al listar registros por ID de instructor de seguimiento" });
+    }
+  },
+
+  // Listar registros por ID del instructor técnico
+  listRegisterByTechnicalInstructor: async (req, res) => {
+    const { idinstructor } = req.params;
+    if (!mongoose.isValidObjectId(idinstructor)) {
+      return res.status(400).json({ success: false, error: "ID de instructor no válido" });
+    }
+    try {
+      const registers = await Register.find({
+        'assignment.technicalInstructor.idInstructor': idinstructor,
+      });
+
+      if (!registers.length) {
+        return res.status(404).json({ success: false, message: "No se encontraron registros para este instructor técnico" });
+      }
+
+      console.log("Registros encontrados para el instructor técnico", registers);
+      res.json({ success: true, data: registers });
+    } catch (error) {
+      console.error("Error al listar registros por ID de instructor técnico", error);
+      res.status(500).json({ success: false, error: "Error al listar registros por ID de instructor técnico" });
+    }
+  },
+
+
+  // Listar registros por ID del instructor de proyecto
+  listRegisterByProjectInstructor: async (req, res) => {
+    const { idinstructor } = req.params;
+    if (!mongoose.isValidObjectId(idinstructor)) {
+      return res.status(400).json({ success: false, error: "ID de instructor no válido" });
+    }
+    try {
+      const registers = await Register.find({
+        'assignment.projectInstructor.idInstructor': idinstructor,
+      });
+
+      if (!registers.length) {
+        return res.status(404).json({ success: false, message: "No se encontraron registros para este instructor de proyecto" });
+      }
+      console.log("Registros encontrados para el instructor de proyecto", registers);
+      res.json({ success: true, data: registers });
+    } catch (error) {
+      console.error("Error al listar registros por ID de instructor de proyecto", error);
+      res.status(500).json({ success: false, error: "Error al listar registros por ID de instructor de proyecto" });
+    }
+  },
+
+  // Añadir Asignación
+  addAssignment: async (req, res) => {
+    const { idRegister } = req.params;
+    const { followUpInstructor, technicalInstructor, projectInstructor } = req.body;
+    if (!mongoose.isValidObjectId(idRegister)) {
+      return res.status(400).json({ success: false, error: "ID de registro no válido" });
+    }
+
+    try {
+      const register = await Register.findById(idRegister);
+      if (!register) {
+        return res.status(404).json({ success: false, error: "Registro no encontrado" });
+      }
+      if (register.idModality === 'PROYECTO EMPRESARIAL' || register.idModality === 'PROYECTO PRODUCTIVO I+D') {
+        register.assignment = {
+          followUpInstructor: {
+            idInstructor: followUpInstructor.idInstructor,
+            name: followUpInstructor.name,
+          },
+          technicalInstructor: {
+            idInstructor: technicalInstructor.idInstructor,
+            name: technicalInstructor.name,
+          },
+          projectInstructor: {
+            idInstructor: projectInstructor.idInstructor,
+            name: projectInstructor.name,
+          },
+          status: 1,
+        }
+      } else if (register.idModality === 'PROYECTO PRODUCTIVO') {
+        register.assignment = {
+          followUpInstructor: {
+            idInstructor: followUpInstructor.idInstructor,
+            name: followUpInstructor.name,
+          },
+          technicalInstructor: {
+            idInstructor: technicalInstructor.idInstructor,
+            name: technicalInstructor.name,
+          },
+          status: 1,
+        }
+      } else if (register.idModality === 'PASANTIA' || 
+        register.idModality === 'UNIDAD PRODUCTIVA FAMILIAAR' || 
+        register.idModality === 'CONTRATO DE APRENDIZAJE' || 
+        register.idModality === 'VINCULO LABORAL') {
+
+      }
+
+      const updatedRegister = await register.save();
+      console.log("Asignación añadida correctamente", updatedRegister);
+      res.json({ success: true, data: updatedRegister });
+    } catch (error) {
+      console.error("Error al añadir asignación", error);
+      res.status(500).json({ success: false, error: "Error al añadir asignación" });
+    }
+  },
+
+
+
+
 
 
 };
