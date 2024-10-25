@@ -87,16 +87,16 @@ notExistPersonalEmail: async (personalEmail) => {
 
 // Verifica si el email NO existe (institucional o personal)
 notExistEmail: async (email) => {
-  try {
-      const institutionalEmailExists = await Apprentice.findOne({ institutionalEmail: email });
-      const personalEmailExists = await Apprentice.findOne({ personalEmail: email });
-      if (!institutionalEmailExists && !personalEmailExists) {
-          return true; // El email no existe
-      }
-      return false; // Al menos uno de los correos existe
-  } catch (error) {
-      throw new Error(`Error al verificar el email: ${error.message}`);
-  }
+    try {
+        const institutionalEmailExists = await Apprentice.findOne({ institutionalEmail: email });
+        const personalEmailExists = await Apprentice.findOne({ personalEmail: email });
+        if (!institutionalEmailExists && !personalEmailExists) {
+            return true; // El email no existe
+        }
+        return false; // Al menos uno de los correos existe
+    } catch (error) {
+        throw new Error(`Error al verificar el email: ${error.message}`);
+    }
 },
 
 }

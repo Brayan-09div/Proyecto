@@ -35,7 +35,7 @@ const registerSchema = new mongoose.Schema({
             idInstructor: { type: mongoose.Schema.Types.ObjectId },
             name: { type: String }
         },
-        status: { type: Number, default: 1}
+        status: { type: Number}
     }
 
 }, { timestamps: true });

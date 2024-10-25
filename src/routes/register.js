@@ -99,6 +99,7 @@ router.put('/updateregisterbyid/:id', [
   validarCampos,
 ], controllerRegister.updateRegisterById);
 
+
 // ----------------------------------------------------------------------------
 router.put('/updatemodalityregister/:id', [
  validateAdmin,
