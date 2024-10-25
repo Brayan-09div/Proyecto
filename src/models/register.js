@@ -19,8 +19,8 @@ const registerSchema = new mongoose.Schema({
     
     status: { type: Number, default: 1 },
     mailCompany: { type: String },
-    certificationDoc: { type: String, required: true },
-    judymentPhoto: { type: String, required: true },
+    certificationDoc: { type: String },
+    judymentPhoto: { type: String },
 
     assignment: {
         followUpInstructor: {
@@ -35,7 +35,7 @@ const registerSchema = new mongoose.Schema({
             idInstructor: { type: mongoose.Schema.Types.ObjectId },
             name: { type: String }
         },
-        status: { type: Number, required: true, default: 1}
+        status: { type: Number, default: 1}
     }
 
 }, { timestamps: true });

@@ -1,7 +1,8 @@
 import Apprentice from "../models/apprentice.js";
 
 const apprenticeHelper = {
-  // Verifica si el ID del aprendiz existe
+
+  // Verifica si el ID del aprendiz existe -------------------------------------------------------------------------------------------------
   existApprentice: async (id) => {
     try {
       const exist = await Apprentice.findById(id);
@@ -14,56 +15,90 @@ const apprenticeHelper = {
     }
   },
 
-  // Verifica si el numdocument ya existe, excluyendo el propio registro si está editando
-  esNumDocumentoValido: async (numdocument, id = null) => {
+  // Verifica si el numDocument ya existe, excluyendo el propio registro si está editando ---------------------------------------------------------------
+  esNumDocumentoValido: async (numDocument, id = null) => {
     try {
-      const documento = await Apprentice.findOne({ numdocument });
+      const documento = await Apprentice.findOne({ numDocument });
       if (documento && (!id || documento._id.toString() !== id.toString())) {
-        throw new Error(`El documento ${numdocument} ya existe`);
+        throw new Error(`El documento ${numDocument} ya existe`);
       }
     } catch (error) {
-      throw new Error(`Error al verificar numdocument: ${error.message}`);
+      throw new Error(`Error al verificar numDocument: ${error.message}`);
     }
   },
 
-  // Verifica si el email ya existe, excluyendo el propio registro si está editando
-  esEmailValido: async (email, id = null) => {
+  // Verifica si el institutionalEmail ya existe, excluyendo el propio registro si está editando ---------------------------------------------------------
+  esInstitutionalEmailValido: async (institutionalEmail, id = null) => {
     try {
-      const correo = await Apprentice.findOne({ email });
+      const correo = await Apprentice.findOne({ institutionalEmail });
       if (correo && (!id || correo._id.toString() !== id.toString())) {
-        throw new Error(`El email ${email} ya existe`);
+        throw new Error(`El email institucional ${institutionalEmail} ya existe`);
       }
     } catch (error) {
-      throw new Error(`Error al verificar email: ${error.message}`);
+      throw new Error(`Error al verificar email institucional: ${error.message}`);
     }
   },
 
-// Verifica si el numdocument NO existe
+  // Verifica si el personalEmail ya existe, excluyendo el propio registro si está editando ---------------------------------------------
+  esPersonalEmailValido: async (personalEmail, id = null) => {
+    try {
+      const correo = await Apprentice.findOne({ personalEmail });
+      if (correo && (!id || correo._id.toString() !== id.toString())) {
+        throw new Error(`El email personal ${personalEmail} ya existe`);
+      }
+    } catch (error) {
+      throw new Error(`Error al verificar email personal: ${error.message}`);
+    }
+  },
+
+  // Verifica si el numDocument NO existe ---------------------------------------------------------------------
   notExistNumDocument: async (numDocument) => {
     try {
-        const documento = await Apprentice.findOne({ numDocument });
-        if (!documento) {
-            throw new Error(`No existe un aprendiz con el número de documento: ${numDocument}`);
-        }
-        return true; // El documento sí existe
-    } catch (error) {
-        throw new Error(`Error al verificar número de documento: ${error.message}`);
-    }
- },
-
-  // Verifica si el email NO existe
-  notExistEmail: async (email) => {
-    try {
-      const correo = await Apprentice.findOne({ email });
-      if (!correo) {
-        throw new Error(`No existe un aprendiz con el email: ${email}`);
+      const documento = await Apprentice.findOne({ numDocument });
+      if (!documento) {
+        throw new Error(`No existe un aprendiz con el número de documento: ${numDocument}`);
       }
-      return false;  
+      return true;
     } catch (error) {
-      throw new Error(`Error al verificar el email: ${error.message}`);
+      throw new Error(`Error al verificar número de documento: ${error.message}`);
     }
   },
-};
+
+// Verifica si el institutionalEmail NO existe ---------------------------------------------------------------
+notExistInstitutionalEmail: async (institutionalEmail) => {
+    try {
+        const correo = await Apprentice.findOne({ institutionalEmail });
+        return correo === null; 
+    } catch (error) {
+        throw new Error(`Error al verificar email institucional: ${error.message}`);
+    }
+},
+
+// Verifica si el personalEmail NO  ---------------------------------------------------------------
+notExistPersonalEmail: async (personalEmail) => {
+    try {
+        const correo = await Apprentice.findOne({ personalEmail });
+        return correo === null; 
+    } catch (error) {
+        throw new Error(`Error al verificar email personal: ${error.message}`);
+    }
+},
+
+
+// Verifica si el email NO existe (institucional o personal)
+notExistEmail: async (email) => {
+  try {
+      const institutionalEmailExists = await Apprentice.findOne({ institutionalEmail: email });
+      const personalEmailExists = await Apprentice.findOne({ personalEmail: email });
+      if (!institutionalEmailExists && !personalEmailExists) {
+          return true; // El email no existe
+      }
+      return false; // Al menos uno de los correos existe
+  } catch (error) {
+      throw new Error(`Error al verificar el email: ${error.message}`);
+  }
+},
+
+}
 
 export { apprenticeHelper };
-

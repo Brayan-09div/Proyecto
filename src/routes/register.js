@@ -133,7 +133,7 @@ router.put('/disableregister/:id', [
 // rutas assignments
 router.get('/listallassignment', controllerRegister.listAllAssignments);
 
-outer.get('/listassigmentbyfollowupinstructor/:idinstructor', controllerRegister.listAssignmentsByFollowUpInstructor );
+router.get('/listassigmentbyfollowupinstructor/:idinstructor', controllerRegister.listRegisterByFollowUpInstructor);
 
 
 export default router;

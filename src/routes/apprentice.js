@@ -1,5 +1,6 @@
 import express from 'express';
 import { check } from 'express-validator';
+import mongoose from 'mongoose';
 
 import { validateAdmin } from '../middleware/valitate-admin.js';
 import { authenticateUser } from '../middleware/validateall.js';
@@ -13,11 +14,19 @@ import {modalityHelper} from '../helpers/modality.js'
 const router = express.Router();
 
 //---------------------------------------------------------
-router.post('/loguinApprentice', [
-    check('email', 'El email es obligatorio').not().isEmpty(),
-    check('email').custom(apprenticeHelper.notExistEmail),
-    check('numDocument', 'El documento es obligatorio').not().isEmpty(),
-    check('numDocument').custom(apprenticeHelper.notExistNumDocument),
+router.post('/loginApprentice', [
+    check('email')
+        .isEmail().withMessage('El email es obligatorio y debe ser un email válido')
+        .custom(async (email) => {
+            const exists = await apprenticeHelper.notExistEmail(email);
+            if (exists) {
+                throw new Error('No existe un aprendiz con ese email');
+            }
+            return true;
+        }),
+    check('numDocument', 'El documento es obligatorio').notEmpty()
+        .custom(apprenticeHelper.notExistNumDocument),
+
     validarCampos,
 ], controllerApprentice.loginApprentice);
 
@@ -27,11 +36,11 @@ router.get('/listallapprentice', [
 ], controllerApprentice.listallapprentice);
 
 
+
 router.get('/listallapprenticeBy', [
     authenticateUser,
 ], controllerApprentice.listallapprentice);
 //-------------------------------------------------------------
-
 
 
 //-------------------------------------------------------------
@@ -42,12 +51,17 @@ router.get('/listapprenticebyid/:id', [
     validarCampos
 ], controllerApprentice.listapprenticebyid);
 
+
 //-------------------------------------------------------------rs
 router.get('/listapprenticebyfiche/:idfiche', [
     validateAdmin,
-    check('fiche', 'El ID de la ficha es obligatorio').notEmpty(),
-    check('fiche').custom(async (fiche, { req }) => {
-        await ficheHelper.validateFicheID(fiche, req.headers.token);
+    check('idfiche', 'El ID de la ficha es obligatorio').notEmpty(), 
+    check('idfiche').custom(async (idfiche, { req }) => {
+
+        if (!mongoose.Types.ObjectId.isValid(idfiche)) {
+            throw new Error('El ID de la ficha debe ser un ObjectId válido');
+        }
+        await ficheHelper.validateFicheID(idfiche, req.headers.token); 
     }),
     validarCampos,
 ], controllerApprentice.listapprenticebyfiche);
@@ -55,7 +69,7 @@ router.get('/listapprenticebyfiche/:idfiche', [
 //-------------------------------------------------------------
 router.get('/listapprenticebystatus/:status', [
     validateAdmin,
-    check('idModality').custom(modalityHelper.existsModalityID),
+    check('status', 'El status es obligatorio').notEmpty(),
     validarCampos
 ], controllerApprentice.listapprenticebystatus);
 
@@ -63,13 +77,14 @@ router.get('/listapprenticebystatus/:status', [
 //-------------------------------------------------------------
 router.get('/listapprenticebymodality/:idModality', [
     validateAdmin,
-
+    check('idModality', 'La idModality es obligatoria').notEmpty(),
+    check('idModality').custom(modalityHelper.existsModalityID),
     validarCampos
-], controllerApprentice.listapprenticebystatus);
+], controllerApprentice.listapprenticebymodality);
 
 
 
-//-------------------------------------------------------------
+//------------------------------------------------------------- 
 router.post('/addapprentice', [
     validateAdmin,
     check('fiche', 'El campo ficha es obligatorio').notEmpty(),
@@ -79,20 +94,20 @@ router.post('/addapprentice', [
     }),
     check('fiche.number', 'El código de la ficha es obligatorio').notEmpty(),
     check('fiche.name', 'El nombre de la ficha es obligatorio').notEmpty(),
-    check('idModality', 'la idModality es obligatorio').notEmpty(),
+    check('idModality', 'La idModality es obligatoria').notEmpty(),
     check('idModality').custom(modalityHelper.existsModalityID),
     check('tpDocument', 'El tipo de documento es obligatorio').notEmpty(),
     check('numDocument', 'El número de documento es obligatorio').notEmpty(),
-    check('numDocument').custom(apprenticeHelper.existNumDocument), 
+    check('numDocument').custom(apprenticeHelper.esNumDocumentoValido),
     check('firstName', 'El nombre es obligatorio').notEmpty(),
     check('lastName', 'El apellido es obligatorio').notEmpty(),
     check('phone', 'El teléfono es obligatorio').notEmpty(),
-    check('email', 'El email es obligatorio').notEmpty(),
-    check('email').custom(apprenticeHelper.esEmailValido),
+    check('institutionalEmail', 'El email institucional es obligatorio').notEmpty(),
+    check('institutionalEmail').isEmail().withMessage('El email institucional debe ser válido').custom(apprenticeHelper.esInstitutionalEmailValido),
+    check('personalEmail', 'El email personal es obligatorio').notEmpty(),
+    check('personalEmail').isEmail().withMessage('El email personal debe ser válido').custom(apprenticeHelper.esPersonalEmailValido),
     validarCampos
-], controllerApprentice.addapprentice);
-
-
+], controllerApprentice.addApprentice);
 
 
 //-------------------------------------------------------------
@@ -108,17 +123,20 @@ router.put('/updateapprenticebyid/:id', [
     check('idModality').optional().custom(modalityHelper.existsModalityID),
     check('tpDocument', 'El tipo de documento es obligatorio').optional().notEmpty(),
     check('numDocument', 'El número de documento es obligatorio').optional().notEmpty(),
-    check('numDocument').optional().custom(apprenticeHelper.esNumDocumentoValido),
+    check('numDocument').optional().custom((numDocument, { req }) => apprenticeHelper.esNumDocumentoValido(numDocument, req.params.id)),
     check('firstName', 'El nombre es obligatorio').optional().notEmpty(),
     check('lastName', 'El apellido es obligatorio').optional().notEmpty(),
     check('phone', 'El teléfono es obligatorio').optional().notEmpty(),
-    check('email', 'El email es obligatorio').optional().isEmail(),
-    check('email').optional().custom(apprenticeHelper.esEmailValido),
+
+    check('institutionalEmail').optional().isEmail().withMessage('El email institucional debe ser válido').custom((institutionalEmail, { req }) => apprenticeHelper.esInstitutionalEmailValido(institutionalEmail, req.params.id)),
+
+    check('personalEmail').optional().isEmail().withMessage('El email personal debe ser válido').custom((personalEmail, { req }) => apprenticeHelper.esPersonalEmailValido(personalEmail, req.params.id)),
+
     validarCampos
 ], controllerApprentice.updateapprenticebyid);
 
 
-// -----------------------------------------------------------
+// -----------------------------------------------------------------
 router.put('/enableapprentice/:id', [
     validateAdmin,
     check('id', 'El id no es valido').isMongoId(),
