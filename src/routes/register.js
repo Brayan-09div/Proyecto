@@ -7,7 +7,8 @@ import controllerRegister from '../controllers/register.js';
 import {registerHelper, } from '../helpers/register.js';
 import { modalityHelper } from '../helpers/modality.js'
 import { apprenticeHelper } from '../helpers/apprentice.js'
-import ficheHelper from '../helpers/fiches.js';
+import { instructorHelper } from '../helpers/instructor.js';
+
 
 const router = Router()
 
@@ -65,9 +66,8 @@ router.get('/listregisterbyenddate/:endDate', [
   validarCampos
 ], controllerRegister.listregisterbyenddate)
 
-// -------------------------------------------------------------------
 router.post('/addregister', [
- validateAdmin,
+  validateAdmin,
   check('idApprentice', 'El campo es obligatorio').notEmpty(),
   check('idApprentice').custom(apprenticeHelper.existApprentice),
   check('idModality', 'El campo es obligatorio').notEmpty(),
@@ -75,13 +75,34 @@ router.post('/addregister', [
   check('startDate', 'El campo startDate es obligatorio').notEmpty(),
   check('company', 'El campo company es obligatorio').notEmpty(),
   check('phoneCompany', 'El campo phoneCompany es obligatorio').notEmpty(),
-  check('addressCompany', 'El campo addressCompany es obligatorio').notEmpty(), 
+  check('addressCompany', 'El campo addressCompany es obligatorio').notEmpty(),
   check('owner', 'El campo owner es obligatorio').notEmpty(),
-  check('hour', 'El campo hour es obligatorio').notEmpty(),
+  check('hour', 'El campo hour es obligatorio').notEmpty().isNumeric().withMessage('El campo hour debe ser un número'),
+  check('businessProyectHour', 'El campo businessProyectHour es obligatorio').notEmpty().isNumeric().withMessage('El campo businessProyectHour debe ser un número'),
+  check('productiveProjectHour', 'El campo productiveProjectHour es obligatorio').notEmpty().isNumeric().withMessage('El campo productiveProjectHour debe ser un número'),
+
+check('assignment', 'El campo assignment es obligatorio').notEmpty(),
+  
+check('assignment.followUpInstructor.idInstructor').custom(async (idInstructor, { req }) => {
+    await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+}),
+  
+check('assignment.technicalInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
+    await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+}),
+  
+check('assignment.projectInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
+    await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+}),
+
   check('addressCompany').custom(registerHelper.existAddressCompany),
   check('phoneCompany').custom(registerHelper.existPhoneCompany),
   validarCampos
+
 ], controllerRegister.addRegister);
+
+
+
 
 // -------------------------------------------------------------------------
 router.put('/updateregisterbyid/:id', [

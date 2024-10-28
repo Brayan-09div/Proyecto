@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
 
 const registerSchema = new mongoose.Schema({
-    idApprentice: { 
-        type: mongoose.Schema.Types.ObjectId, ref: 'Apprentices' 
-    },
+    idApprentice: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Apprentices' 
+    }],
     idModality: { type: mongoose.Schema.Types.ObjectId, ref: 'Modality' },
     startDate: { type: String },
     endDate: { type: String },
@@ -35,10 +36,9 @@ const registerSchema = new mongoose.Schema({
             idInstructor: { type: mongoose.Schema.Types.ObjectId },
             name: { type: String }
         },
-        status: { type: Number}
+        status: { type: Number }
     }
 
 }, { timestamps: true });
-
 
 export default mongoose.model("Register", registerSchema);

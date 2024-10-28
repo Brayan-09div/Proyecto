@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const instructorHelper = {
-    async existsInstructorsID(idInstructor, token){
+    async existsInstructorsID(idInstructor, token) {
         if (!token) {
             throw new Error('Token es obligatorio');
         }
@@ -17,15 +17,19 @@ const instructorHelper = {
               headers: { token } 
             });
       
+            // Log para depuración
+            console.log('Respuesta del instructor:', response.data);
+
             if (!response.data || !response.data._id) {
               throw new Error("ID de instructor no encontrado");
             }
             return response.data; 
-          } catch (error) {
+        } catch (error) {
+            // Log el error completo para ayudar con el diagnóstico
+            console.error('Error al verificar instructor:', error);
             throw new Error(error.response?.data?.message || 'Error al verificar instructor: ' + error.message);
-          }
+        }
     }
-
 }
 
 export { instructorHelper };
