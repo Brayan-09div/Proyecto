@@ -24,6 +24,8 @@ const registerHelper = {
         }0
     },
 
+
+    
     verifyAdressCompany: async (adressCompany)=>{
         try {
             const exist = await  Register.findOne({adressCompany})

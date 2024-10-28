@@ -14,4 +14,3 @@ const apprenticeSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 export default mongoose.model("Apprentice", apprenticeSchema);
-
