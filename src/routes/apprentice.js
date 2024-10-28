@@ -129,7 +129,6 @@ router.put('/updateapprenticebyid/:id', [
     check('phone', 'El teléfono es obligatorio').optional().notEmpty(),
 
     check('institutionalEmail').optional().isEmail().withMessage('El email institucional debe ser válido').custom((institutionalEmail, { req }) => apprenticeHelper.esInstitutionalEmailValido(institutionalEmail, req.params.id)),
-
     check('personalEmail').optional().isEmail().withMessage('El email personal debe ser válido').custom((personalEmail, { req }) => apprenticeHelper.esPersonalEmailValido(personalEmail, req.params.id)),
 
     validarCampos
