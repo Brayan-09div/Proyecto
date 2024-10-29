@@ -276,23 +276,32 @@ addRegister: async (req, res) => {
   }
 },
 
-
-  // Actualizar registro
-  updateRegisterById: async (req, res) => {
+// Actualizar registro
+updateRegisterById: async (req, res) => {
     const { id } = req.params;
-    const { idApprentice, idModality, startDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany } = req.body;
+    const { idApprentice, startDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany } = req.body;
     try {
       const register = await Register.findById(id);
       if (!register) {
         return res.status(404).json({ msg: "Registro no encontrado" });
       }
 
-      if (idModality) {
-        const modality = await Register.find(idModality = 'PROYECTO PRODUCTIVO');
-        if (!modality) {
-          return res.status(404).json({ error: "Modalidad no encontrada" });
-        }
+
+
+      const modalityData = await Modality.findById(idModality);
+      if (!modalityData) {
+        return res.status(400).json({ message: "Modalidad no encontrada" });
       }
+      const { name } = modalityData; 
+      const apprenticeCount = Array.isArray(idApprentice) ? idApprentice.length : 1;
+      const singleApprenticeModalities = ["VÍNCULO LABORAL", "MONITORIAS", "PASANTIA", "UNIDAD PRODUCTIVA FAMILIAR", "CONTRATO DE APRENDIZAJE"];
+
+      if (singleApprenticeModalities.includes(name) && apprenticeCount !== 1) {
+        return res.status(400).json({ message: "Solo se permite 1 aprendiz para esta modalidad" });
+      } else if (!singleApprenticeModalities.includes(name) && apprenticeCount < 1) {
+        return res.status(400).json({ message: "Se requiere al menos 1 aprendiz para esta modalidad" });
+      }
+
       let endDate;
       if (startDate) {
         const start = new Date(startDate);
@@ -304,17 +313,16 @@ addRegister: async (req, res) => {
       }
       const updatedRegister = await Register.findByIdAndUpdate(
         id,
-        { idApprentice, idModality, startDate, endDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany },
+        { idApprentice, startDate, endDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany },
         { new: true }
       );
-
       console.log('Registro actualizado correctamente:', updatedRegister);
       res.json({ success: true, data: updatedRegister });
     } catch (error) {
       console.error('Error al actualizar registro:', error);
       res.status(400).json({ error: 'Error al actualizar el registro' });
-    }
-  },
+  }
+},
 
 
   // Actualizar modalidad
