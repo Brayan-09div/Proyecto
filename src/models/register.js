@@ -5,6 +5,7 @@ const registerSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Apprentices' 
     }],
+    
     idModality: { type: mongoose.Schema.Types.ObjectId, ref: 'Modality' },
     startDate: { type: String },
     endDate: { type: String },

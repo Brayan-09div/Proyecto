@@ -11,6 +11,14 @@ const apprenticeSchema = new mongoose.Schema({
     institutionalEmail: { type: String, required: true },
     personalEmail: { type: String, required: true },
     status: { type: Number, required: true, default: 1 },
+    HoursTotal: { type: Number, required: true, default: 864  },
+    HoursExecuted:{ type: Number, required: true, default: 0 }, 
+    HoursPending:{ type: Number, required: true, default: 864 },
+
 }, { timestamps: true });
 
 export default mongoose.model("Apprentice", apprenticeSchema);
+
+// aprendices
+// arreglar modelos de aprendices:  agregar campos horas- HoursTotal, HoursExecuted, HoursPending.
+

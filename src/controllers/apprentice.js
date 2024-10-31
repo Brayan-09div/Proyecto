@@ -185,6 +185,37 @@ updateapprenticebyid: async (req, res) => {
         res.status(500).json({ message: "Error interno del servidor al actualizar aprendiz" });
     }
 },
+
+// actualizar ESTADO----------------------------------------------------------------
+
+updateStatus: async (req, res) =>{
+    const {id} = req.params;
+    const {status} = req.body;
+     try {
+        const apprentice = await Apprentice.findById(id);
+
+        if(!apprentice){
+            return res.status(404).json({massage: 'Aprendiz no encontrado'});
+        }
+        const statusNumber = [0, 1, 2, 3, 4]
+
+        if (!statusNumber.includes(status)) {
+            return res.status(400).json({message: 'Estado inválido'});
+        } 
+        if(apprentice.status > 4 ){
+            return res.status(400).json({message:'EL status no puede ser mayor a 4'})
+        }
+        
+        const statusApprentice = await Apprentice.findByIdAndUpdate(id, {status}, {new: true});
+        res.json({message: 'Estado actualizado correctamente', statusApprentice});
+       
+     
+     } catch (error) {
+        console.log("Error al actualizar el estado del aprendiz", error);
+        res.status(500).json({error: 'Error al actualizar el estado del aprendiz'});
+     }
+},
+
 // activar
 enableapprentice: async (req, res) => {
     const { id } = req.params;

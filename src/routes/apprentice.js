@@ -135,6 +135,19 @@ router.put('/updateapprenticebyid/:id', [
 ], controllerApprentice.updateapprenticebyid);
 
 
+//-------------------------------------------------------------
+router.put('/updateStatus/:id', [
+    validateAdmin,
+    check('id', 'El ID no es válido').isMongoId(),
+    check('status', 'El status es obligatorio').notEmpty(),
+    
+    validarCampos
+], controllerApprentice.updateStatus);
+
+
+
+
+
 // -----------------------------------------------------------------
 router.put('/enableapprentice/:id', [
     validateAdmin,
@@ -143,7 +156,7 @@ router.put('/enableapprentice/:id', [
     validarCampos
 ], controllerApprentice.enableapprentice);
 
-//-------------------------------------------------------------
+//----------------------------------------------------------------
 router.put('/disableapprentice/:id', [
     validateAdmin,
     check('id', 'El id no es valido').isMongoId(),

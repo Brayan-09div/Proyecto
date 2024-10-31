@@ -202,7 +202,6 @@ addRegister: async (req, res) => {
       mailCompany,
       assignment 
   } = req.body;
-
   try {
       const start = new Date(startDate);
       if (isNaN(start)) {
