@@ -187,33 +187,45 @@ updateapprenticebyid: async (req, res) => {
 },
 
 // actualizar ESTADO----------------------------------------------------------------
-
-updateStatus: async (req, res) =>{
-    const {id} = req.params;
-    const {status} = req.body;
-     try {
+updateStatus: async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    try {
         const apprentice = await Apprentice.findById(id);
-
-        if(!apprentice){
-            return res.status(404).json({massage: 'Aprendiz no encontrado'});
+        if (!apprentice) {
+            return res.status(404).json({ message: 'Aprendiz no encontrado' });
         }
-        const statusNumber = [0, 1, 2, 3, 4]
-
+        const statusNumber = [0, 1, 2, 3, 4];
         if (!statusNumber.includes(status)) {
-            return res.status(400).json({message: 'Estado inválido'});
-        } 
-        if(apprentice.status > 4 ){
-            return res.status(400).json({message:'EL status no puede ser mayor a 4'})
+            return res.status(400).json({ message: 'Estado inválido' });
         }
-        
-        const statusApprentice = await Apprentice.findByIdAndUpdate(id, {status}, {new: true});
-        res.json({message: 'Estado actualizado correctamente', statusApprentice});
-       
-     
-     } catch (error) {
-        console.log("Error al actualizar el estado del aprendiz", error);
-        res.status(500).json({error: 'Error al actualizar el estado del aprendiz'});
-     }
+        const register = await Register.findOne({ idApprentice: apprentice._id });
+
+        if (!register) {
+            return res.status(404).json({ message: 'Registro no encontrado para el aprendiz' });
+        }
+        const today = new Date();
+        const totalHoursExecuted = register.hourFollowupExcuted + register.businessProyectHourExcuted + register.productiveProjectHourExcuted;
+
+        if (register.endDate < today && totalHoursExecuted >= 864) {
+            apprentice.status = 3;  
+        }
+        if (status === 4) {
+            if (apprentice.status !== 3) {
+                return res.status(400).json({ message: 'El aprendiz debe estar en estado "Por Certificación" para ser certificado' });
+            }
+            if (!register.certificationDoc || !register.docAlternative) {
+                return res.status(400).json({ message: 'Faltan documentos para certificar' });
+            }
+            apprentice.status = 4;  
+        }
+        const updatedApprentice = await apprentice.save();
+        res.json({ message: 'Estado actualizado correctamente', updatedApprentice });
+
+    } catch (error) {
+        console.error("Error al actualizar el estado del aprendiz", error);
+        res.status(500).json({ error: 'Error al actualizar el estado del aprendiz' });
+    }
 },
 
 // activar
