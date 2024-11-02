@@ -228,6 +228,7 @@ updateStatus: async (req, res) => {
     }
 },
 
+
 // activar
 enableapprentice: async (req, res) => {
     const { id } = req.params;
