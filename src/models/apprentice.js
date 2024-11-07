@@ -11,9 +11,9 @@ const apprenticeSchema = new mongoose.Schema({
     institutionalEmail: { type: String, required: true },
     personalEmail: { type: String, required: true },
     status: { type: Number, required: true, default: 1 },
-    HoursTotal: { type: Number, required: true, default: 864  },
-    HoursExecuted:{ type: Number, required: true, default: 0 }, 
-    HoursPending:{ type: Number, required: true, default: 864 },
+    HoursTotalPS: { type: Number, required: true, default: 864  },
+    HoursExecutedPS:{ type: Number, required: true, default: 0 }, 
+    HoursPendingPS:{ type: Number, required: true, default: 864 },
     
 }, { timestamps: true });
 

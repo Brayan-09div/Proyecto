@@ -13,21 +13,33 @@ const registerSchema = new mongoose.Schema({
     docAlternative: { type: String },
     certificationDoc: { type: String },
     judymentPhoto: { type: String },
-    hourFollowupExcuted: { type: Number, default: 0 },
-    businessProyectHourExcuted: { type: Number, default: 0 },
-    productiveProjectHourExcuted: { type: Number, default: 0 },
 
+    hourProductiveStageApprentice:{ type: Number},
+    
+    hourFollowupExcuted: [{ 
+        idInstructor: { type: mongoose.Schema.Types.ObjectId },
+        name: { type: String },
+        hour: { type: Number },
+    }],
+    businessProyectHourExcuted:[{
+        idInstructor: { type: mongoose.Schema.Types.ObjectId },
+        name: { type: String },
+        hour: { type: Number },
+    }],
+    productiveProjectHourExcuted:[{
+        idInstructor: { type: mongoose.Schema.Types.ObjectId },
+        name: { type: String },
+        hour: { type: Number },
+    }],
     technicalHourPending: [{
         idInstructor: { type: mongoose.Schema.Types.ObjectId },
         name: { type: String },
         hour: { type: Number },
-        status: { type: Number }
     }],
     ProyectHourPending: [{
         idInstructor: { type: mongoose.Schema.Types.ObjectId },
         name: { type: String },
         hour: { type: Number },
-        status: { type: Number }
     }],
     assignment: [{
         followUpInstructor: {

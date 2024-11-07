@@ -152,7 +152,6 @@ updateapprenticebyid: async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ message: 'ID de aprendiz inválido' });
         }
-
         // Construir el objeto de actualización
         const updateFields = {};
         for (const key in updateData) {
@@ -164,7 +163,6 @@ updateapprenticebyid: async (req, res) => {
                 updateFields[key] = updateData[key];
             }
         }
-
         const updatedApprentice = await Apprentice.findByIdAndUpdate(
             id,
             { $set: updateFields },
@@ -174,7 +172,6 @@ updateapprenticebyid: async (req, res) => {
         if (!updatedApprentice) {
             return res.status(404).json({ message: 'Aprendiz no encontrado' });
         }
-
         console.log("Aprendiz actualizado:", updatedApprentice);
         res.status(200).json(updatedApprentice);
     } catch (error) {
