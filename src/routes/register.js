@@ -80,28 +80,20 @@ router.post('/addregister', [
   check('hour', 'El campo hour es obligatorio').notEmpty().isNumeric().withMessage('El campo hour debe ser un número'),
   check('businessProyectHour', 'El campo businessProyectHour es obligatorio').notEmpty().isNumeric().withMessage('El campo businessProyectHour debe ser un número'),
   check('productiveProjectHour', 'El campo productiveProjectHour es obligatorio').notEmpty().isNumeric().withMessage('El campo productiveProjectHour debe ser un número'),
-
 check('assignment', 'El campo assignment es obligatorio').notEmpty(),
-  
 check('assignment.followUpInstructor.idInstructor').custom(async (idInstructor, { req }) => {
     await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
 }),
-  
 check('assignment.technicalInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
     await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
 }),
-  
 check('assignment.projectInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
     await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
 }),
-
   check('addressCompany').custom(registerHelper.existAddressCompany),
   check('phoneCompany').custom(registerHelper.existPhoneCompany),
   validarCampos
-
 ], controllerRegister.addRegister);
-
-
 
 
 // -------------------------------------------------------------------------
@@ -153,6 +145,7 @@ router.put('/disableregister/:id', [
 
 
 // rutas assignments
+
 router.get('/listallassignment', controllerRegister.listAllAssignments);
 
 router.get('/listassigmentbyfollowupinstructor/:idinstructor', controllerRegister.listRegisterByFollowUpInstructor);
