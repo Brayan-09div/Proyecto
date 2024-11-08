@@ -51,21 +51,18 @@ const registerSchema = new mongoose.Schema({
             idInstructor: { type: mongoose.Schema.Types.ObjectId },
             name: { type: String },
             email: { type: String },
-            hour: { type: Number },
             status: { type: Number }
         },
         technicalInstructor: {
             idInstructor: { type: mongoose.Schema.Types.ObjectId },
             name: { type: String },
             email: { type: String },
-            hour: { type: Number },
             status: { type: Number }
         },
         projectInstructor: {
             idInstructor: { type: mongoose.Schema.Types.ObjectId },
             name: { type: String },
             email: { type: String },
-            hour: { type: Number },
             status: { type: Number }
         },
         status: { type: Number }

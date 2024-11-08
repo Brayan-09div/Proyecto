@@ -77,20 +77,28 @@ router.post('/addregister', [
   check('phoneCompany', 'El campo phoneCompany es obligatorio').notEmpty(),
   check('addressCompany', 'El campo addressCompany es obligatorio').notEmpty(),
   check('owner', 'El campo owner es obligatorio').notEmpty(),
-  check('hour', 'El campo hour es obligatorio').notEmpty().isNumeric().withMessage('El campo hour debe ser un número'),
-  check('businessProyectHour', 'El campo businessProyectHour es obligatorio').notEmpty().isNumeric().withMessage('El campo businessProyectHour debe ser un número'),
-  check('productiveProjectHour', 'El campo productiveProjectHour es obligatorio').notEmpty().isNumeric().withMessage('El campo productiveProjectHour debe ser un número'),
-  check('assignment', 'El campo assignment es obligatorio').optional(),  
-
-  check('assignment.followUpInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
-    await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
-  }),
-  check('assignment.technicalInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
-    await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
-  }),
-  check('assignment.projectInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
-    await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
-  }),
+  check('assignment').optional(),
+  check('assignment.followUpInstructor.idInstructor')
+    .optional({ nullable: true })
+    .custom(async (idInstructor, { req }) => {
+      if (idInstructor) {
+        await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+      }
+    }),
+  check('assignment.technicalInstructor.idInstructor')
+    .optional({ nullable: true })
+    .custom(async (idInstructor, { req }) => {
+      if (idInstructor) {
+        await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+      }
+    }),
+  check('assignment.projectInstructor.idInstructor')
+    .optional({ nullable: true })
+    .custom(async (idInstructor, { req }) => {
+      if (idInstructor) {
+        await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+      }
+    }),
 
   check('addressCompany').custom(registerHelper.existAddressCompany),
   check('phoneCompany').custom(registerHelper.existPhoneCompany),
@@ -99,9 +107,12 @@ router.post('/addregister', [
 
 
 
+
 // -------------------------------------------------------------------------
 router.put('/updateregisterbyid/:id', [
   validateAdmin,
+  check('id', 'El id no es valido').isMongoId(),
+  check('id').custom(registerHelper.existResgister),
   check('apprentice').optional().custom(apprenticeHelper.existApprentice), 
   check('modality').optional().custom(modalityHelper.existsModalityID), 
   check('addressCompany').optional().custom(registerHelper.existAddressCompany), 
@@ -122,6 +133,8 @@ router.put('/updateregisterbyid/:id', [
 // ----------------------------------------------------------------------------
 router.put('/updatemodalityregister/:id', [
  validateAdmin,
+ check('id', 'El id no es valido').isMongoId(),
+ check('id').custom(registerHelper.existResgister),
   check('idModality', 'No es un ID válido').isMongoId().notEmpty(),
   check('idModality').custom(modalityHelper.existsModalityID),
   check('docAlternative', 'El documento alternativo es obligatorio').notEmpty(),
@@ -153,6 +166,25 @@ router.put('/disableregister/:id', [
 router.get('/listallassignment', controllerRegister.listAllAssignments);
 
 router.get('/listassigmentbyfollowupinstructor/:idinstructor', controllerRegister.listRegisterByFollowUpInstructor);
+
+
+// Ruta para agregar una asignación a un registro
+router.put('/addassignment/:id', [
+  validateAdmin,  
+  check('id', 'El id no es válido').isMongoId(),
+  check('id').custom(registerHelper.existResgister),
+  check('assignment', 'El campo assignment es obligatorio').notEmpty(),  
+  check('assignment.followUpInstructor.idInstructor', 'El campo followUpInstructor es obligatorio').notEmpty().custom(async (idInstructor, { req }) => {
+    await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+  }),
+  check('assignment.technicalInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
+    await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+  }),
+  check('assignment.projectInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
+    await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+  }),
+  validarCampos  
+], controllerRegister.addAssignment);
 
 
 export default router;
