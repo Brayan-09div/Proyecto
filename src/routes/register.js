@@ -151,4 +151,14 @@ router.get('/listallassignment', controllerRegister.listAllAssignments);
 router.get('/listassigmentbyfollowupinstructor/:idinstructor', controllerRegister.listRegisterByFollowUpInstructor);
 
 
+//------------------------------------------------------------------------
+router.get('/listassigmentbyfollowupinstructor/:id',[
+  validateAdmin,
+  // check('instructor').custom(),
+  validarCampos
+], controllerRegister.listassigmentbyfollowupinstructor)
+
+
+
+
 export default router;
