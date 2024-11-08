@@ -80,37 +80,43 @@ router.post('/addregister', [
   check('hour', 'El campo hour es obligatorio').notEmpty().isNumeric().withMessage('El campo hour debe ser un número'),
   check('businessProyectHour', 'El campo businessProyectHour es obligatorio').notEmpty().isNumeric().withMessage('El campo businessProyectHour debe ser un número'),
   check('productiveProjectHour', 'El campo productiveProjectHour es obligatorio').notEmpty().isNumeric().withMessage('El campo productiveProjectHour debe ser un número'),
-check('assignment', 'El campo assignment es obligatorio').notEmpty(),
-check('assignment.followUpInstructor.idInstructor').custom(async (idInstructor, { req }) => {
+  check('assignment', 'El campo assignment es obligatorio').optional(),  
+
+  check('assignment.followUpInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
     await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
-}),
-check('assignment.technicalInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
+  }),
+  check('assignment.technicalInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
     await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
-}),
-check('assignment.projectInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
+  }),
+  check('assignment.projectInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
     await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
-}),
+  }),
+
   check('addressCompany').custom(registerHelper.existAddressCompany),
   check('phoneCompany').custom(registerHelper.existPhoneCompany),
   validarCampos
 ], controllerRegister.addRegister);
 
 
+
 // -------------------------------------------------------------------------
 router.put('/updateregisterbyid/:id', [
- validateAdmin,
-  check('apprentice').optional().custom(apprenticeHelper.existApprentice),
-  check('modality').optional().custom(modalityHelper.existsModalityID),
-  check('addressCompany').optional().custom(registerHelper.existAddressCompany),
-  check('phoneCompany').optional().custom(registerHelper.existPhoneCompany),
-  check('startDate').optional().notEmpty().withMessage('El campo startDate es obligatorio si se proporciona'),
+  validateAdmin,
+  check('apprentice').optional().custom(apprenticeHelper.existApprentice), 
+  check('modality').optional().custom(modalityHelper.existsModalityID), 
+  check('addressCompany').optional().custom(registerHelper.existAddressCompany), 
+  check('phoneCompany').optional().custom(registerHelper.existPhoneCompany), 
+  check('startDate').optional().notEmpty().withMessage('El campo startDate es obligatorio si se proporciona'), 
   check('endDate').optional().notEmpty().withMessage('El campo endDate es obligatorio si se proporciona'),
-  check('company').optional().notEmpty().withMessage('El campo company es obligatorio si se proporciona'),
+  check('company').optional().notEmpty().withMessage('El campo company es obligatorio si se proporciona'), 
   check('owner').optional().notEmpty().withMessage('El campo owner es obligatorio si se proporciona'),
   check('docAlternative').optional().notEmpty().withMessage('El campo docAlternative es obligatorio si se proporciona'),
-  check('hour').optional().notEmpty().withMessage('El campo hour es obligatorio si se proporciona'),
-  validarCampos,
-], controllerRegister.updateRegisterById);
+  check('hour').optional().isNumeric().withMessage('El campo hour debe ser un número válido si se proporciona'), 
+  check('businessProyectHour').optional().isNumeric().withMessage('El campo businessProyectHour debe ser un número válido si se proporciona'), 
+  check('productiveProjectHour').optional().isNumeric().withMessage('El campo productiveProjectHour debe ser un número válido si se proporciona'), 
+  check('mailCompany').optional().isEmail().withMessage('El campo mailCompany debe ser un email válido si se proporciona'), 
+  validarCampos, 
+], controllerRegister.updateRegisterById); 
 
 
 // ----------------------------------------------------------------------------
@@ -130,8 +136,6 @@ router.put('/enableregister/:id', [
   check('id').custom(registerHelper.existResgister),
   validarCampos
 ], controllerRegister.enableregister);
-
-
 
 // -----------------------------------------------------------------------
 router.put('/disableregister/:id', [

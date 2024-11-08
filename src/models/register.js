@@ -31,6 +31,11 @@ const registerSchema = new mongoose.Schema({
         name: { type: String },
         hour: { type: Number },
     }],
+    hourFollowupPending: [{
+        idInstructor: { type: mongoose.Schema.Types.ObjectId },
+        name: { type: String },
+        hour: { type: Number },
+    }],
     technicalHourPending: [{
         idInstructor: { type: mongoose.Schema.Types.ObjectId },
         name: { type: String },
