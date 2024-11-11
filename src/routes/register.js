@@ -167,8 +167,7 @@ router.get('/listallassignment', controllerRegister.listAllAssignments);
 
 router.get('/listassigmentbyfollowupinstructor/:idinstructor', controllerRegister.listRegisterByFollowUpInstructor);
 
-
-// Ruta para agregar una asignación a un registro
+//----------------------------------------------------------------
 router.put('/addassignment/:id', [
   validateAdmin,  
   check('id', 'El id no es válido').isMongoId(),
@@ -186,5 +185,35 @@ router.put('/addassignment/:id', [
   validarCampos  
 ], controllerRegister.addAssignment);
 
+
+//----------------------------------------------------------------
+router.put('/updateassignment/:id', [
+  validateAdmin,
+  check('id', 'El id no es válido').isMongoId(),
+  check('id').custom(registerHelper.existResgister),
+  check('assignment', 'El campo assignment es obligatorio').notEmpty(),
+  check('assignment.followUpInstructor.idInstructor')
+    .optional()
+    .custom(async (idInstructor, { req }) => {
+      if (idInstructor) {
+        await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+      }
+    }),
+  check('assignment.technicalInstructor.idInstructor')
+    .optional()
+    .custom(async (idInstructor, { req }) => {
+      if (idInstructor) {
+        await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+      }
+    }),
+  check('assignment.projectInstructor.idInstructor')
+    .optional()
+    .custom(async (idInstructor, { req }) => {
+      if (idInstructor) {
+        await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+      }
+    }),
+  validarCampos
+], controllerRegister.updateAssignment);
 
 export default router;
