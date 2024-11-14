@@ -626,6 +626,13 @@ const controllerRegister = {
   }
 
 
+
+
+
+ // bucasr por id de instructor
+ // buscar por asigancion por id de registro
+
+
 };
 
 export default controllerRegister;

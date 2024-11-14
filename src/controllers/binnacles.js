@@ -117,21 +117,16 @@ const controllerBinnacles = {
     // Actuactulizar un El estado del 1,2,3,4
     updatestatus: async (req, res) => {
         const { id, status } = req.params
-
         try {
-
             const statusSelect = [1, 2, 3, 4];
             if (!statusSelect.includes(status)) {
                 return res.status(400).json({ error: 'Estado inválido' });
             }
-
             const updatedBinnacles = await Binnacles.findByIdAndUpdate(id, { status: status }, { new: true })
 
             if (!updatedBinnacles) {
                 return res.status(404).json({ error: 'Binnacles no encontrado' });
             }
-
-
             console.log("folloup encontrado", error)
             res.json(updatedBinnacles)
         } catch (error) {
