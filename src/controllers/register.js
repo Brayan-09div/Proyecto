@@ -629,6 +629,13 @@ updateAssignment: async (req, res) => {
 }
 
 
+
+
+
+ // bucasr por id de instructor
+ // buscar por asigancion por id de registro
+
+
 };
 
 export default controllerRegister;
