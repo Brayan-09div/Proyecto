@@ -38,11 +38,7 @@ const controllerAssignments = {
             res.status(500).json({ message: 'Error al listar asignaciones por instructor de proyecto' });
         }
     },
-
-    
-
 }
-
 export default controllerAssignments;
 
 

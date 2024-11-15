@@ -1,4 +1,5 @@
 import Binnacles from '../models/binnacles.js';
+import Register from '../models/register.js';
 
 const controllerBinnacles = {
 
@@ -56,24 +57,12 @@ const controllerBinnacles = {
         }
     },
 
-    // Insertar bitácoras---------------------------------------------------------------------
+    // Insertar bitácoras (solo para generar la bitácora sin observaciones)
     addbinnacles: async (req, res) => {
-        const { assignment, instructor, number, document, status, observation, users } = req.body;
-
-        // Validate the number field against the enum values
-        const validNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-        if (!validNumbers.includes(number)) {
-            return res.status(400).json({ error: 'Número inválido' });
-        }
-        let observations;
-        if (Array.isArray(observation)) {
-            observations = observation.map(obs => ({
-                observation: obs.observation || '',
-                observationOwner: obs.observationOwner || '',
-                observationDate: obs.observationDate || new Date()
-            }));
-        } else {
-            return res.status(400).json({ error: 'El campo observación debe ser un array de objetos' });
+        const { assignment, instructor, number, document } = req.body;
+        const existingBinnacle = await Binnacles.findOne({ number });
+        if (existingBinnacle) {
+            return res.status(400).json({ error: 'El número de bitácora ya existe' });
         }
         try {
             const binnacle = new Binnacles({
@@ -81,16 +70,25 @@ const controllerBinnacles = {
                 instructor,
                 number,
                 document,
-                status,
-                observation: observations,
-                users
+                status: 'programado', 
             });
+
             const result = await binnacle.save();
+            const updatedBinnacle = await Binnacles.findByIdAndUpdate(result._id, { status: 'ejecutado' }, { new: true });
 
-            console.log('Bitácora guardada', result);
-            res.status(201).json(result);
+            console.log('Bitácora guardada y actualizada a ejecutado', updatedBinnacle);
+            if (result.register) {  
+                const register = await Register.findById(result.register);
+                if (register) {
+                    register.pendingHours -= 1;  
+                    await register.save();
+                    console.log('Horas pendientes del registro actualizadas');
+                } else {
+                    console.error('No se encontró el registro asociado');
+                }
+            }
+            res.status(201).json(updatedBinnacle);
         } catch (error) {
-
             console.error('Error al insertar bitácora', error);
             res.status(500).json({ error: 'Error al insertar bitácora' });
         }
@@ -134,6 +132,40 @@ const controllerBinnacles = {
             res.status(500).json({ error: "Error al actualizar Binacles" })
         }
     },
+
+    updateCheckTechnicalInstructor: async (req, res) => {
+        const { id } = req.params;
+        try {
+            const binnacle = await Binnacles.findById(id);
+            if (!binnacle) {
+                return res.status(404).json({ error: 'Bitácora no encontrada' });
+            }
+            binnacle.checkTechnicalInstructor = true;
+            const updatedBinnacle = await binnacle.save();
+            console.log('checkTechnicalInstructor actualizado a true', updatedBinnacle);
+            res.json(updatedBinnacle);
+        } catch (error) {
+            console.error('Error al actualizar checkTechnicalInstructor', error);
+            res.status(500).json({ error: 'Error al actualizar checkTechnicalInstructor' });
+        }
+    },
+
+    updateCheckProjectInstructor: async (req, res) => {
+        const { id } = req.params;
+        try {
+            const binnacle = await Binnacles.findById(id);
+            if (!binnacle) {
+                return res.status(404).json({ error: 'Bitácora no encontrada' });
+            }
+            binnacle.checkProjectInstructor = true;
+            const updatedBinnacle = await binnacle.save();
+            console.log('checkProjectInstructor actualizado a true', updatedBinnacle);
+            res.json(updatedBinnacle);
+        } catch (error) {
+            console.error('Error al actualizar checkProjectInstructor', error);
+            res.status(500).json({ error: 'Error al actualizar checkProjectInstructor' });
+        }
+    }
 };
 
 export default controllerBinnacles;
