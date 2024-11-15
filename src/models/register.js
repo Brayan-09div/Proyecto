@@ -51,39 +51,34 @@ const registerSchema = new mongoose.Schema({
         hour: { type: Number },
         _id: false
     }],
+
     assignment: [{
         followUpInstructor: [{
-            idInstructor: { type: mongoose.Schema.Types.ObjectId },
-            name: { type: String },
-            email: { type: String },
-            status: { type: Number },
+            idInstructor: { type: mongoose.Schema.Types.ObjectId, required: true },
+            name: { type: String, required: true },
+            email: { type: String, required: true },
+            status: { type: Number, required: true },
             _id: false
         }],
-        technicalInstructor: {
-            type: [{
-                idInstructor: { type: mongoose.Schema.Types.ObjectId },
-                name: { type: String },
-                email: { type: String },
-                status: { type: Number },
-                _id: false
-            }],
-            default: undefined  
-        },
-        projectInstructor: {
-            type: [{
-                idInstructor: { type: mongoose.Schema.Types.ObjectId },
-                name: { type: String },
-                email: { type: String },
-                status: { type: Number },
-                _id: false
-            }],
-            default: undefined  
-        },
-        status: { type: Number },
+        technicalInstructor: [{
+            idInstructor: { type: mongoose.Schema.Types.ObjectId, required: true },
+            name: { type: String, required: true },
+            email: { type: String, required: true },
+            status: { type: Number, required: true },
+            _id: false
+        }],
+        projectInstructor: [{
+            idInstructor: { type: mongoose.Schema.Types.ObjectId, required: true },
+            name: { type: String, required: true },
+            email: { type: String, required: true },
+            status: { type: Number, required: true },
+            _id: false
+        }],
+        status: { type: Number, default: 1 },
         _id: false
     }],
     status: { type: Number, default: 1 }
-
 }, { timestamps: true });
 
 export default mongoose.model("Register", registerSchema);
+

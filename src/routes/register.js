@@ -4,7 +4,7 @@ import { validateAdmin } from '../middleware/valitate-admin.js';
 import { validarCampos } from '../middleware/validate-fields.js';
 import { Router } from 'express';
 import controllerRegister from '../controllers/register.js';
-import {registerHelper, } from '../helpers/register.js';
+import {registerHelper} from '../helpers/register.js';
 import { modalityHelper } from '../helpers/modality.js'
 import { apprenticeHelper } from '../helpers/apprentice.js'
 import { instructorHelper } from '../helpers/instructor.js';
