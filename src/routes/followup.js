@@ -16,7 +16,6 @@ router.get('/listallfollowup',[
 )
 
 
-
 //-------------------------------------------------------------
 router.get('/listfollowupbyid/:id',[
     validateAdmin,
@@ -28,21 +27,11 @@ router.get('/listfollowupbyid/:id',[
 
 
 //-------------------------------------------------------------
-router.get('/listfollowupbyassignment/:idassigment',[
-    validateAdmin,
-    validarCampos
-], controllerFollowup.listfollowupbyassignment)
-
-
-
-//-------------------------------------------------------------
 router.get('/listfollowupbyinstructor/:idinstructor',[
     validateAdmin,
     check('instructor').custom(instructorHelper.existsInstructorID),
     validarCampos
 ], controllerFollowup.listfollowupbyinstructor)
-
-
 
 //-------------------------------------------------------------
 router.post('/addfollowup',[
@@ -59,8 +48,6 @@ router.post('/addfollowup',[
     check('observations','El observations es obligatorio').notEmpty(),
     validarCampos
 ],controllerFollowup.addfollowup)
-
-
 
 //-------------------------------------------------------------
 router.put('/updatefollowupbyid/:id',[

@@ -164,58 +164,48 @@ const controllerBinnacles = {
     }
   },
 
-  updateCheckProjectInstructor: async (req, res) => {
+updateCheckProjectInstructor: async (req, res) => {
     const { id } = req.params;
-  
     try {
       const binnacle = await Binnacles.findById(id);
       if (!binnacle) {
         return res.status(404).json({ error: "Bitácora no encontrada" });
       }
-  
       if (binnacle.checkProjectInstructor) {
         return res.status(400).json({ error: "El check de proyecto ya está actualizado" });
       }
-  
-      // Actualizar el check de proyecto
       binnacle.checkProjectInstructor = true;
       await binnacle.save();
-  
       const register = await Register.findById(binnacle.register).populate("idModality");
       if (!register) {
         return res.status(404).json({ error: "Registro no encontrado" });
       }
-  
       const modality = register.idModality;
       if (!modality) {
         return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
       }
-  
       const hoursProject = modality.hourInstructorProject;
       if (!hoursProject) {
         return res.status(400).json({
           error: "No se definieron horas de proyecto para esta modalidad",
         });
       }
-  
-      // Calcular las horas por bitácora
       const hoursPerBinnacle = hoursProject / 6 / 2;
-  
-      // Asegurarse de que 'ProyectHourPending' sea un arreglo
-      if (!Array.isArray(register.ProyectHourPending)) {
-        register.ProyectHourPending = [];
+      const projectInstructors = register.assignment.flatMap(assign => assign.projectInstructor);
+      if (!projectInstructors || projectInstructors.length === 0) {
+        return res.status(400).json({ error: "No hay instructores de proyecto asignados" });
       }
-  
-      // Asignar las horas al 'ProyectHourPending'
-      register.ProyectHourPending.push({
-        idInstructor: req.user.id,  // Si el usuario ya está en req.user, entonces se puede usar
-        name: req.user.nombre,       // Nombre del usuario
-        hour: hoursPerBinnacle,      // Horas calculadas
+      projectInstructors.forEach(instructor => {
+        if (!Array.isArray(register.ProyectHourPending)) {
+          register.ProyectHourPending = [];
+        }
+        register.ProyectHourPending.push({
+          idInstructor: instructor.idInstructor,
+          name: instructor.name,
+          hour: hoursPerBinnacle,
+        });
       });
-  
-      // Guardar el registro actualizado
       await register.save();
-  
       res.json({
         message: "Horas de proyecto asignadas correctamente",
         register,
@@ -255,150 +245,182 @@ const controllerBinnacles = {
       }
       const hoursTechnical = modality.hourInstructorTechnical;
       if (!hoursTechnical) {
-        return res
-          .status(400)
-          .json({
-            error: "No se definieron horas técnicas para esta modalidad",
-          });
+        return res.status(400).json({
+          error: "No se definieron horas técnicas para esta modalidad",
+        });
       }
       const hoursPerBinnacle = hoursTechnical / 6 / 2;
-      register.technicalHourPending.push({
-        idInstructor: req.user._id,
-        name: req.user.nombre,
-        hour: hoursPerBinnacle,
+      const technicalInstructors = register.assignment.flatMap(
+        (assign) => assign.technicalInstructor
+      );
+      if (!technicalInstructors || technicalInstructors.length === 0) {
+        return res.status(400).json({
+          error: "No hay instructores técnicos asignados",
+        });
+      }
+      technicalInstructors.forEach((instructor) => {
+        if (!Array.isArray(register.technicalHourPending)) {
+          register.technicalHourPending = [];
+        }
+        register.technicalHourPending.push({
+          idInstructor: instructor.idInstructor,
+          name: instructor.name,
+          hour: hoursPerBinnacle,
+        });
       });
       await register.save();
-      res.json({ message: "Horas técnicas asignadas correctamente", register });
+      res.json({
+        message: "Horas técnicas asignadas correctamente",
+        register,
+      });
     } catch (error) {
       console.error("Error al asignar horas técnicas:", error);
       res.status(500).json({ error: "Error interno del servidor" });
     }
   },
-
+  
+  
   validateHoursTechnical: async (req, res) => {
-    const { id } = req.params;
+    const { id } = req.params; 
     try {
-        const binnacle = await Binnacles.findById(id);
-        if (!binnacle) {
-            return res.status(404).json({ error: "Bitácora no encontrada" });
+      const binnacle = await Binnacles.findById(id);
+      if (!binnacle) {
+        return res.status(404).json({ error: "Bitácora no encontrada" });
+      }
+      const register = await Register.findById(binnacle.register).populate("idModality");
+      if (!register) {
+        return res.status(404).json({ error: "Registro no encontrado" });
+      }
+      const modality = register.idModality;
+      if (!modality) {
+        return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
+      }
+      const hoursTechnical = modality.hourInstructorTechnical;
+      if (!hoursTechnical) {
+        return res.status(400).json({
+          error: "No se definieron horas técnicas para esta modalidad",
+        });
+      }
+      const hoursPerBinnacle = hoursTechnical / 6 / 2;
+      if (!Array.isArray(register.productiveTechnicalHourExcuted)) {
+        register.productiveTechnicalHourExcuted = [];
+      }
+      const technicalInstructors = register.assignment
+        .flatMap(assign => assign.technicalInstructor)
+        .filter(instructor => instructor.status !== 0); 
+      if (technicalInstructors.length === 0) {
+        return res.status(400).json({ error: "No hay instructores técnicos activos asignados" });
+      }
+      if (binnacle.checkTechnicalInstructor) {
+        if (!Array.isArray(register.technicalHourPending)) {
+          register.technicalHourPending = [];
         }
-        // Buscar el registro asociado a la bitácora
-        const register = await Register.findById(binnacle.register).populate("idModality");
-        if (!register) {
-            return res.status(404).json({ error: "Registro no encontrado" });
-        }
-        // Obtener la modalidad
-        const modality = register.idModality;
-        if (!modality) {
-            return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
-        }
-        // Verificar si las horas técnicas están definidas
-        const hoursTechnical = modality.hourInstructorTechnical;
-        if (!hoursTechnical) {
-            return res.status(400).json({ error: "No se definieron horas técnicas para esta modalidad" });
-        }
-        // Calcular las horas por bitácora
-        const hoursPerBinnacle = hoursTechnical / 6 / 2;
-        if (binnacle.checkTechnicalInstructor) {
-            // Si el check técnico ya está marcado:
-            const pendingHours = register.technicalHourPending.find(
-                (item) => item.idInstructor.toString() === req.user._id.toString()
-            );
-            if (!pendingHours || pendingHours.hour <= 0) {
-                return res.status(400).json({ error: "No hay horas pendientes para este instructor" });
-            }
-            // Pasar las horas pendientes a ejecutadas
-            register.technicalHourExecuted.push({
-                idInstructor: req.user._id,
-                name: req.user.nombre,
-                hour: pendingHours.hour,
+        technicalInstructors.forEach(instructor => {
+          const pendingHours = register.technicalHourPending.find(
+            item => item.idInstructor.toString() === instructor.idInstructor.toString()
+          );
+  
+          if (pendingHours && pendingHours.hour > 0) {
+            register.productiveTechnicalHourExcuted.push({
+              idInstructor: instructor.idInstructor,
+              name: instructor.name,
+              hour: pendingHours.hour,
             });
-            // Eliminar las horas pendientes del instructor
-            register.technicalHourPending = register.technicalHourPending.filter(
-                (item) => item.idInstructor.toString() !== req.user._id.toString()
-            );
-            await register.save();
-            return res.json({ message: "Horas pendientes pasadas a ejecutadas correctamente", register });
-        } else {
-            // Si el check técnico no está marcado:
-            binnacle.checkTechnicalInstructor = true; // Marcar el check como verdadero
-            await binnacle.save();
-            // Asignar las horas directamente a ejecutadas
-            register.technicalHourExecuted.push({
-                idInstructor: req.user._id,
-                name: req.user.nombre,
-                hour: hoursPerBinnacle,
-            });
-            await register.save();
-            return res.json({ message: "Horas técnicas ejecutadas correctamente", register });
-        }
+          }
+        });
+        register.technicalHourPending = [];
+      } else {
+        binnacle.checkTechnicalInstructor = true;
+        
+        technicalInstructors.forEach(instructor => {
+          register.productiveTechnicalHourExcuted.push({
+            idInstructor: instructor.idInstructor,
+            name: instructor.name,
+            hour: hoursPerBinnacle,
+          });
+        });
+      }
+      await binnacle.save();
+      await register.save();
+      return res.json({
+        message: "Horas técnicas procesadas correctamente",
+        register,
+      });
     } catch (error) {
-        console.error("Error al validar horas técnicas:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
+      console.error("Error al validar horas técnicas:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
     }
-},
-
-
-validateHoursProject: async (req, res) => {
+  },
+  
+  validateHoursProject: async (req, res) => {
     const { id } = req.params;
     try {
-        const binnacle = await Binnacles.findById(id);
-        if (!binnacle) {
-            return res.status(404).json({ error: "Bitácora no encontrada" });
+      const binnacle = await Binnacles.findById(id);
+      if (!binnacle) {
+        return res.status(404).json({ error: "Bitácora no encontrada" });
+      }
+      const register = await Register.findById(binnacle.register).populate("idModality");
+      if (!register) {
+        return res.status(404).json({ error: "Registro no encontrado" });
+      }
+      const modality = register.idModality;
+      if (!modality) {
+        return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
+      }
+      const hoursProject = modality.hourInstructorProject;
+      if (!hoursProject) {
+        return res.status(400).json({ error: "No se definieron horas de proyecto para esta modalidad" });
+      }
+      const hoursPerBinnacle = hoursProject / 6 / 2;
+      if (!Array.isArray(register.businessProyectHourExcuted)) {
+        register.businessProyectHourExcuted = [];
+      }
+      const projectInstructors = register.assignment
+        .flatMap(assign => assign.projectInstructor)
+        .filter(instructor => instructor.status !== 0);
+  
+      if (projectInstructors.length === 0) {
+        return res.status(400).json({ error: "No hay instructores de proyecto activos asignados" });
+      }
+      if (binnacle.checkProjectInstructor) {
+        if (!Array.isArray(register.ProyectHourPending)) {
+          register.ProyectHourPending = [];
         }
-        // Buscar el registro asociado a la bitácora
-        const register = await Register.findById(binnacle.register).populate("idModality");
-        if (!register) {
-            return res.status(404).json({ error: "Registro no encontrado" });
-        }
-        // Obtener la modalidad
-        const modality = register.idModality;
-        if (!modality) {
-            return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
-        }
-        // Verificar si las horas de proyecto están definidas
-        const hoursProject = modality.hourInstructorProject;
-        if (!hoursProject) {
-            return res.status(400).json({ error: "No se definieron horas de proyecto para esta modalidad" });
-        }
-        // Calcular las horas por bitácora
-        const hoursPerBinnacle = hoursProject / 6 / 2;
-        if (binnacle.checkProjectInstructor) {
-            // Si el check de proyecto ya está marcado:
-            const pendingHours = register.projectHourPending.find(
-                (item) => item.idInstructor.toString() === req.user._id.toString()
-            );
-            if (!pendingHours || pendingHours.hour <= 0) {
-                return res.status(400).json({ error: "No hay horas pendientes para este instructor" });
-            }
-            // Pasar las horas pendientes a ejecutadas
-            register.projectHourExecuted.push({
-                idInstructor: req.user._id,
-                name: req.user.nombre,
-                hour: pendingHours.hour,
+        projectInstructors.forEach(instructor => {
+          const pendingHours = register.ProyectHourPending.find(
+            item => item.idInstructor.toString() === instructor.idInstructor.toString()
+          );
+  
+          if (pendingHours && pendingHours.hour > 0) {
+            register.businessProyectHourExcuted.push({
+              idInstructor: instructor.idInstructor,
+              name: instructor.name,
+              hour: pendingHours.hour,
             });
-            // Eliminar las horas pendientes del instructor
-            register.projectHourPending = register.projectHourPending.filter(
-                (item) => item.idInstructor.toString() !== req.user._id.toString()
-            );
-            await register.save();
-            return res.json({ message: "Horas pendientes pasadas a ejecutadas correctamente", register });
-        } else {
-            // Si el check de proyecto no está marcado:
-            binnacle.checkProjectInstructor = true; // Marcar el check como verdadero
-            await binnacle.save();
-            // Asignar las horas directamente a ejecutadas
-            register.projectHourExecuted.push({
-                idInstructor: req.user._id,
-                name: req.user.nombre,
-                hour: hoursPerBinnacle,
-            });
-            await register.save();
-            return res.json({ message: "Horas de proyecto ejecutadas correctamente", register });
-        }
+          }
+        });
+  
+        register.ProyectHourPending = [];
+      } else {
+        binnacle.checkProjectInstructor = true;
+        projectInstructors.forEach(instructor => {
+          register.businessProyectHourExcuted.push({
+            idInstructor: instructor.idInstructor,
+            name: instructor.name,
+            hour: hoursPerBinnacle,
+          });
+        });
+      }
+      await binnacle.save();
+      await register.save();
+  
+      return res.json({
+        message: "Horas de proyecto procesadas correctamente",
+        register,
+      });
     } catch (error) {
-        console.error("Error al validar horas de proyecto:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
+      console.error("Error al validar horas de proyecto:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
     }
 },
 

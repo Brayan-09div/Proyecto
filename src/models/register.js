@@ -27,12 +27,13 @@ const registerSchema = new mongoose.Schema({
         hour: { type: Number },
         _id: false
     }],
-    productiveProjectHourExcuted: [{
+    productiveTechnicalHourExcuted:[{
         idInstructor: { type: mongoose.Schema.Types.ObjectId },
         name: { type: String },
         hour: { type: Number },
         _id: false
     }],
+    
     hourFollowupPending: [{
         idInstructor: { type: mongoose.Schema.Types.ObjectId },
         name: { type: String },
