@@ -1,4 +1,8 @@
+import { validate } from "node-cron";
 import Followup from "../models/followup.js";
+import Register from "../models/register.js";
+import modality from "../models/modality.js";
+import register from "../models/register.js";
 
 
 const followupController = {
@@ -55,43 +59,84 @@ const followupController = {
 
   // Insertar un nuevo followup----------------------------------------------
   addfollowup: async (req, res) => {
-    const { assignment, instructor, number, month, document, status, users, observation } = req.body;
-    const validNumbers = [1, 2, 3];
-    if (!validNumbers.includes(number)) {
-      return res.status(400).json({ error: 'Número inválido' });
-    }
-    let observations;
-    if (Array.isArray(observation)) {
-      observations = observation.map(obs => ({
-        observation: obs.observation || '', 
-        observationOwner: obs.observationOwner || '', 
-        observationDate: obs.observationDate || new Date()
-      }));
-    } else {
-      return res.status(400).json({ error: 'El campo observación debe ser un array de objetos' });
-    }
+    const { register, instructor, number, month, document } = req.body;
     try {
-      const newFollowup = new Followup({
-        assignment,
-        instructor,
+      const existsFollowup = await Followup.find({ number });
+      if (existsFollowup) {
+        return res.status(400).json({ error: "El numero de seguimiento ya existe" });
+      }
+      // Obtenemos el registro y lo poblamos con la modalidad
+      const registerRecord = await Register.findById(register).populate("idModality");
+      if (!registerRecord) {
+        return res.status(400).json({ error: "No se encontró registro asociado con la asignación" });
+      }
+      // Verificación de la modalidad y obtención de las horas de seguimiento
+      const modality = registerRecord.idModality;
+      if (!modality) {
+        return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
+      }
+      const hoursFollow = modality.hourInstructorFollow;
+      if (!hoursFollow) {
+        return res.status(400).json({
+          error: "No se definieron horas de seguimiento para esta modalidad",
+        });
+      }
+      // Calculamos las horas por bitácora de seguimiento
+      const hoursPerBinnacle = hoursFollow / 6 / 2;
+      // Aseguramos que las horas de seguimiento pendientes estén definidas
+      if (!Array.isArray(registerRecord.hourFollowupPending)) {
+        registerRecord.hourFollowupPending = [];
+      }
+      // Obtenemos los instructores de seguimiento (followUpInstructor) asignados
+      const followUpInstructors = registerRecord.assignment.flatMap(assign => assign.followUpInstructor);
+      if (!followUpInstructors || followUpInstructors.length === 0) {
+        return res.status(400).json({ error: "No hay instructores de seguimiento asignados" });
+      }
+      // Agregamos las horas de seguimiento a las horas pendientes
+      followUpInstructors.forEach(followUpInstructor => {
+        registerRecord.hourFollowupPending.push({
+          idInstructor: followUpInstructor.idInstructor,
+          name: followUpInstructor.name,
+          hour: hoursPerBinnacle,
+        });
+      });
+      // Verificamos que el instructor proporcionado esté activo en el registro
+      const activeFollowUpInstructor = registerRecord.assignment.some(a =>
+        a.followUpInstructor.some(f =>
+          f.idInstructor.toString() === instructor.idinstructor.toString() && f.status === 1
+        )
+      );
+      if (!activeFollowUpInstructor) {
+        return res.status(400).json({ error: "El instructor proporcionado no está activo como instructor de seguimiento en la asignación" });
+      }
+      // Crear el nuevo seguimiento
+      const followup = new Followup({
+        register,
+        instructor: {
+          idinstructor: instructor.idinstructor,
+          name: instructor.name
+        },
         number,
         month,
         document,
-        status,
-        users,
-        observation: observations 
+        status: 1,
       });
-      const result = await newFollowup.save();
-   
-      console.log("Followup saved:", result);
-      res.status(201).json(result);
+      const result = await followup.save();
+      // Actualizar el estado del seguimiento
+      const updatedFollowup = await Followup.findByIdAndUpdate(
+        result._id,
+        { status: '2' },
+        { new: true }
+      );
+      console.log("Seguimiento guardado y actualizado a ejecutado", updatedFollowup);
+      // Guardar los cambios en el registro
+      await registerRecord.save();
+      res.status(201).json(updatedFollowup);
     } catch (error) {
-      console.error("Error inserting followup:", error);
-      res.status(500).json({ error: "Error inserting followup" });
+      console.error("Error al insertar bitácora", error);
+      res.status(500).json({ error: "Error al insertar bitácora" });
     }
   },
-
-  
 
   // Actualizar un followup por su ID---------------------------------------------------
   updatefollowupbyid: async (req, res) => {
@@ -126,9 +171,37 @@ updatestatus: async (req, res) => {
     res.json(updatedFollowup)
   } catch (error) {
     console.error("Error al actualiar followup",error)
-    res.status(500).json({error:"Error al actualizar followup"})
+    res.status(500).json({error:"Error al actualizar followup"});
   }
 },
+
+validateHoursFollowup: async (req, res) =>{
+  const[id] = req.params
+  try {
+    const followup = await Followup.findById(id);
+    if(!followup){
+      return res.status(404).json({error:"Followup no encontrado"});
+    }
+    const register = await Register.findById(followup.register).populate("idModality")
+    if (!register) {
+      return res.status(404).json({ error: "Registro no encontrado" })
+    }
+    const modality = register.idModality;
+    if(!modality){
+      return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
+    }
+    const hourFollow = modality.hourInstructorFollow;
+    if (!hourFollow) {
+      return res.status(400).json({ error: "No se definieron horas de proyecto para esta modalidad" });
+    }
+  } catch (error) {
+    
+  }
+}
+
+
+
+
 }
   
 
