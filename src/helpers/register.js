@@ -4,15 +4,16 @@ const registerHelper = {
 
     existResgister: async (id) => {
         try {
-            const exist = await Register.findById(id)
-            if (!exist){
-                throw new Error(`Ya existe el ID:${id}`)
-            }
-            return exist
+          const exist = await Register.findById(id);
+          if (!exist) {
+            throw new Error(`No se encontró el registro con ID: ${id}`);
+          }
+          return true; 
         } catch (error) {
-            throw new Error(`Error al verificar el ID:${error.message}`)
+          throw new Error(`Error al verificar el ID: ${error.message}`);
         }
     },
+
     existAddressCompany: async (adressCompany) => {
         try {
             const existe = await Register.findOne({ adressCompany });
@@ -24,8 +25,6 @@ const registerHelper = {
         }0
     },
 
-
-    
     verifyAdressCompany: async (adressCompany)=>{
         try {
             const exist = await  Register.findOne({adressCompany})

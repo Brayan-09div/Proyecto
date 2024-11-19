@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const registerSchema = new mongoose.Schema({
-    idApprentice: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Apprentices' }],
+    idApprentice: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Apprentice' }],
     idModality: { type: mongoose.Schema.Types.ObjectId, ref: 'Modality' },
     startDate: { type: Date },
     endDate: { type: Date },

@@ -8,6 +8,7 @@ import {registerHelper} from '../helpers/register.js';
 import { modalityHelper } from '../helpers/modality.js'
 import { apprenticeHelper } from '../helpers/apprentice.js'
 import { instructorHelper } from '../helpers/instructor.js';
+import  ficheHelper  from '../helpers/fiches.js';
 
 
 const router = Router()
@@ -108,10 +109,9 @@ router.post('/addregister', [
 
 
 
-// -------------------------------------------------------------------------
 router.put('/updateregisterbyid/:id', [
   validateAdmin,
-  check('id', 'El id no es valido').isMongoId(),
+  check('id', 'El id no es válido').isMongoId(),
   check('id').custom(registerHelper.existResgister),
   check('apprentice').optional().custom(apprenticeHelper.existApprentice), 
   check('modality').optional().custom(modalityHelper.existsModalityID), 
@@ -127,7 +127,8 @@ router.put('/updateregisterbyid/:id', [
   check('productiveProjectHour').optional().isNumeric().withMessage('El campo productiveProjectHour debe ser un número válido si se proporciona'), 
   check('mailCompany').optional().isEmail().withMessage('El campo mailCompany debe ser un email válido si se proporciona'), 
   validarCampos, 
-], controllerRegister.updateRegisterById); 
+], controllerRegister.updateRegisterById);
+
 
 
 // ----------------------------------------------------------------------------
@@ -163,28 +164,58 @@ router.put('/disableregister/:id', [
 
 // rutas assignments
 
-router.get('/listallassignment', controllerRegister.listAllAssignments);
+router.get('/listallassignment', [
+  validateAdmin
+],controllerRegister.listAllAssignments);
 
-router.get('/listassigmentbyfollowupinstructor/:idinstructor', controllerRegister.listRegisterByFollowUpInstructor);
+//------------------------------------------------------------------
+router.get('/listassigmentbyfollowupinstructor/:idinstructor',[
+  validateAdmin
+], controllerRegister.listRegisterByFollowUpInstructor);
 
-//----------------------------------------------------------------
+
+//----------------------------------------------------------------------
+router.get('/listassigmentbytechnicalinstructor/:idinstructor',[
+  validateAdmin
+], controllerRegister.listRegisterByTechnicalInstructor);
+
+//------------------------------------------------------------------------
+router.get('/listassigmentbyprojectinstructor/:idinstructor',[
+  validateAdmin
+], controllerRegister.listRegisterByProjectInstructor);
+
+//------------------------------------------------------------------------
+router.get('/listRegisterByInstructorInAssignment/:idinstructor',[
+  validateAdmin
+], controllerRegister.listRegisterByInstructorInAssignment);
+
+//------------------------------------------------------------------------
+router.get('/listRegisterByAssignmentId/:id',[
+  validateAdmin
+], controllerRegister.listRegisterByAssignmentId);
+
+
+
+
 router.put('/addassignment/:id', [
   validateAdmin,  
   check('id', 'El id no es válido').isMongoId(),
   check('id').custom(registerHelper.existResgister),
-  check('assignment', 'El campo assignment es obligatorio').notEmpty(),  
-  check('assignment.followUpInstructor.idInstructor', 'El campo followUpInstructor es obligatorio').notEmpty().custom(async (idInstructor, { req }) => {
+  check('assignment', 'El campo assignment es obligatorio').isArray().notEmpty(),
+  check('assignment.*.followUpInstructor', 'El campo followUpInstructor es obligatorio').isArray().notEmpty(),
+  check('assignment.*.followUpInstructor.*.idInstructor', 'ID de instructor de seguimiento es obligatorio').notEmpty().custom(async (idInstructor, { req }) => {
     await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
   }),
-  check('assignment.technicalInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
+  check('assignment.*.technicalInstructor').optional().isArray(),
+  check('assignment.*.technicalInstructor.*.idInstructor').optional().custom(async (idInstructor, { req }) => {
     await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
   }),
-  check('assignment.projectInstructor.idInstructor').optional().custom(async (idInstructor, { req }) => {
+  check('assignment.*.projectInstructor').optional().isArray(),
+  check('assignment.*.projectInstructor.*.idInstructor').optional().custom(async (idInstructor, { req }) => {
     await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
   }),
   validarCampos  
 ], controllerRegister.addAssignment);
-
 
 //----------------------------------------------------------------
 router.put('/updateassignment/:id', [
