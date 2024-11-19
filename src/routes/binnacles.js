@@ -22,11 +22,25 @@ router.get('/listbinnaclesbyid/:id',[
     validarCampos
 ],controllerBinnacles.listbinnaclesbyid)
 
-router.get('listbinnaclesbyinstructor/:idinstructor',[
+router.get('/listBinnaclesByRegister/:register',[
    validateAdmin,
-    check('instructor').custom(instructorHelper.existsInstructorID),
+   check('register', "no es valido").isMongoId(),
+   check('register').custom(registerHelper.existResgister),
     validarCampos
-],controllerBinnacles.listbinnaclesbyinstructor)
+],controllerBinnacles.listBinnaclesByRegister)
+
+
+
+
+router.get('/listbinnaclesbyinstructor/:idinstructor', [
+   validateAdmin,
+   check('idinstructor').custom(async (idinstructor, { req }) => {
+      await instructorHelper.existsInstructorsID(idinstructor, req.headers.token);
+    }),
+   validarCampos
+], controllerBinnacles.listbinnaclesbyinstructor)
+
+
 
 
 router.post('/addbinnacles', [
@@ -46,17 +60,25 @@ router.post('/addbinnacles', [
 ], controllerBinnacles.addbinnacles);
 
 
-router.put('/updatebinnaclebyid/:id',[
+router.put('/updatebinnaclebyid/:id', [
    validateAdmin,
-    check('id','El id no es valido').isMongoId(),
-    check('id').custom(binnaclesHelper.existBinnacles),
-    check('number').custom(binnaclesHelper.existNumber),
-    check('document').custom(binnaclesHelper.existDocument),
-    check('number','El number es maximo de 10 caracteres').isLength({ max: 10 }),
-    check('document','El document es maximo de 50 caracteres').isLength({ max: 50 }),
-    check('observations','El observations es de maximo 50 caracteres').isLength({ max: 50 }),
-    validarCampos
-],controllerBinnacles.updatebinnaclebyid)
+   check('id', 'El id no es válido').isMongoId(), 
+   check('id').custom(binnaclesHelper.existBinnacles), 
+   check('number').optional().isNumeric(), 
+   check('number').optional().custom(async (number, { req }) => {
+       if (number) {
+           await binnaclesHelper.existNumber(number, req.params.id);
+       }
+   }),
+   check('document').optional().isLength({ max: 50 }),
+   check('document').optional().custom(async (document, { req }) => {
+       if (document) {
+           await binnaclesHelper.existDocument(document, req.params.id);
+       }
+   }),
+   validarCampos 
+], controllerBinnacles.updatebinnaclebyid);
+
 
 router.put('/updatestatus/:id/:status',[
    validateAdmin,
@@ -95,5 +117,21 @@ router.put('/validateHoursProject/:id', [
    check('id').custom(binnaclesHelper.existBinnacles),
    validarCampos
 ],controllerBinnacles.validateHoursProject);
+
+
+
+router.put('/addobservation/:id', [
+   validateAdmin,
+   check('id', 'El id de la bitácora no es válido').isMongoId(),
+   check('observation', 'La observación es obligatoria').not().isEmpty(), 
+   validarCampos, 
+], controllerBinnacles.addObservation);
+
+
+router.get('/getobservations/:id', [
+   check('id', 'El id de la bitácora no es válido').isMongoId(), 
+   validarCampos, 
+], controllerBinnacles.getObservations); 
+
 
 export default router;

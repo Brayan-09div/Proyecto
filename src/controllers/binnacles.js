@@ -30,51 +30,40 @@ const controllerBinnacles = {
     }
   },
 
-  // Listar asignaciones en bitácoras------------------------------------------------------------------------------
-  listbinnaclesbyassignment: async (req, res) => {
-    const { idassignment } = req.params;
+  listBinnaclesByRegister: async (req, res) => {
+    const { register } = req.params;
     try {
-      const binnacles = await Binnacles.find({ assignment: idassignment });
-      console.log(
-        `Lista de asignaciones en bitácoras ${idassignment}:`,
-        binnacles
-      );
-      res.json(binnacles);
+      const binnacles = await Binnacles.find({ register: register });
+      if (binnacles.length === 0) {
+        return res.status(404).json({ message: `No se encontraron bitácoras para el registro ${register}` });
+      }
+      console.log(`Bitácoras del registro ${register}:`, binnacles);
+      res.json({
+        message: `Bitácoras encontradas para el registro ${register}`,
+        totalBinnacles: binnacles.length,
+        binnacles, 
+      });
     } catch (error) {
-      console.error(
-        `Error al listar asignaciones en bitácoras ${idassignment}:`,
-        error
-      );
-      res
-        .status(500)
-        .json({
-          error: `Error al listar asignaciones de bitácoras ${idassignment}`,
-        });
+      console.error(`Error al listar bitácoras del registro ${register}:`, error);
+      res.status(500).json({ error: `Error al listar bitácoras del registro ${register}` });
     }
   },
-
+  
   // Listar instructores en bitácoras--------------------------------------------------------------
   listbinnaclesbyinstructor: async (req, res) => {
     const { idinstructor } = req.params;
     try {
-      const binnacles = await Binnacles.find({ instructor: idinstructor });
-      console.log(
-        `Lista de instructores en bitácoras ${idinstructor}:`,
-        binnacles
-      );
-      res.json(binnacles);
+        const binnacles = await Binnacles.find({ "instructor.idinstructor": idinstructor });
+        if (!binnacles || binnacles.length === 0) {
+            return res.status(404).json({ error: 'No se encontraron bitácoras para este instructor' });
+        }
+        console.log(`Lista de instructores en bitácoras ${idinstructor}:`, binnacles);
+        res.json(binnacles);
     } catch (error) {
-      console.error(
-        `Error al listar instructores en bitácoras ${idinstructor}:`,
-        error
-      );
-      res
-        .status(500)
-        .json({
-          error: `Error al listar instructores de bitácoras ${instructor}`,
-        });
+        console.error(`Error al listar instructores en bitácoras ${idinstructor}:`, error);
+        res.status(500).json({ error: `Error al listar instructores de bitácoras ${idinstructor}` });
     }
-  },
+},
 
   // Insertar bitácoras (solo para generar la bitácora sin observaciones)
   addbinnacles: async (req, res) => {
@@ -436,7 +425,7 @@ addObservation : async (req, res) => {
             return res.status(404).json({ error: "Bitácora no encontrada" });
         }
         const newObservation = {
-            user: req.user._id, 
+            user: req.user,
             observation,
         };
         binnacle.observation.push(newObservation); 
@@ -454,7 +443,6 @@ addObservation : async (req, res) => {
 
 getObservations : async (req, res) => {
     const { id } = req.params; 
-
     try {
         const binnacle = await Binnacles.findById(id);
         if (!binnacle) {
