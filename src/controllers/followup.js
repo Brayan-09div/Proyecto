@@ -56,6 +56,8 @@ const followupController = {
     }
   },
 
+  
+
 
   // Insertar un nuevo followup----------------------------------------------
   addfollowup: async (req, res) => {
@@ -175,34 +177,104 @@ updatestatus: async (req, res) => {
   }
 },
 
-validateHoursFollowup: async (req, res) =>{
-  const[id] = req.params
-  try {
-    const followup = await Followup.findById(id);
-    if(!followup){
-      return res.status(404).json({error:"Followup no encontrado"});
+  validateHoursFollowup: async (req, res) => {
+    const { id } = req.params;
+    try {
+      // Buscar el Followup por su id
+      const followup = await Followup.findById(id);
+      if (!followup) {
+        return res.status(404).json({ error: "Followup no encontrado" });
+      }
+      // Buscar el registro relacionado con este Followup
+      const register = await Register.findById(followup.register).populate("idModality");
+      if (!register) {
+        return res.status(404).json({ error: "Registro no encontrado" });
+      }
+      // Obtener la modalidad del registro
+      const modality = register.idModality;
+      if (!modality) {
+        return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
+      }
+      // Obtener las horas de seguimiento definidas en la modalidad
+      const hourFollow = modality.hourInstructorFollow;
+      if (!hourFollow) {
+        return res.status(400).json({ error: "No se definieron horas de seguimiento para esta modalidad" });
+      }
+      // Si `hourFollowupExcuted` no es un arreglo, lo inicializamos como un arreglo vacío
+      if (!Array.isArray(register.hourFollowupExcuted)) {
+        register.hourFollowupExcuted = [];
+      }
+      // Si `hourFollowupPending` no es un arreglo, lo inicializamos como un arreglo vacío
+      if (!Array.isArray(register.hourFollowupPending)) {
+        register.hourFollowupPending = [];
+      }
+      // Procesar las horas pendientes y moverlas a las horas ejecutadas
+      register.hourFollowupPending.forEach(pendingHour => {
+        // Solo movemos las horas que son mayores a 0
+        if (pendingHour.hour > 0) {
+          register.hourFollowupExcuted.push({
+            idInstructor: pendingHour.idInstructor,
+            name: pendingHour.name,
+            hour: pendingHour.hour,
+          });
+        }
+      });
+      // Limpiar las horas pendientes después de moverlas
+      register.hourFollowupPending = [];
+      // Guardar los cambios en el registro
+      await register.save();
+      return res.json({
+        message: "Horas de seguimiento procesadas correctamente",
+        register,
+      });
+    } catch (error) {
+      console.error("Error al validar horas de seguimiento:", error);
+      return res.status(500).json({ error: "Error interno del servidor" });
     }
-    const register = await Register.findById(followup.register).populate("idModality")
-    if (!register) {
-      return res.status(404).json({ error: "Registro no encontrado" })
+  },
+
+
+  addObservation : async (req, res) => {
+    const{ id } = req.params;
+    const { observation } = req.body;
+
+    try {
+      const followup = await Followup.find(id);
+      if(!followup){
+        return res.status(404).json({erro:  " Followup no encontrado"});
+      }
+      const newObservation = {
+        user: req.user,
+        observation,
+      };
+      followup.observation.push(newObservation)
+      await followup.save();
+      res.status(201).json({
+        message: "Observación agregada con éxito",
+        observation: newObservation,
+      });
+
+    }catch (error){
+      console.error("Error al agregar observación:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
     }
-    const modality = register.idModality;
-    if(!modality){
-      return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
+  },
+  getObservations: async (req, res)=>{
+    const{id} = req.params
+    try {
+      const followup = await Followup.findById(id)
+      if(!followup){
+        return res.status(404).json({ erro: " Followup no encontrado" });
+      }
+      res.status(200).json({
+        message: "Observaciones recuperadas con éxito",
+        observations: binnacle.observation,
+      });
+    }catch(error) {
+      console.error("Error al recuperar observaciones:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
     }
-    const hourFollow = modality.hourInstructorFollow;
-    if (!hourFollow) {
-      return res.status(400).json({ error: "No se definieron horas de proyecto para esta modalidad" });
-    }
-  } catch (error) {
-    
   }
-}
-
-
-
 
 }
-  
-
 export default followupController;

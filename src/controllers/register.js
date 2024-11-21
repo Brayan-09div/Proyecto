@@ -210,7 +210,6 @@ const controllerRegister = {
       hourProductiveStageApprentice,
       assignment, // Opcional
     } = req.body;
-  
     try {
       const start = new Date(startDate);
       if (isNaN(start)) {
@@ -277,7 +276,7 @@ const controllerRegister = {
         hourProductiveStageApprentice,
         assignment: assignment || [], // Si no se proporciona, será un arreglo vacío
       });
-  
+
       const createdRegister = await newRegister.save();
       res.status(201).json({ success: true, data: createdRegister });
     } catch (error) {

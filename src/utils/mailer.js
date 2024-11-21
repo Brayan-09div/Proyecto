@@ -15,8 +15,7 @@ export const sendEmail1 = async (correo, nombreInstructor, estudiantes) => {
             tls: {
                 ciphers: 'SSLv3'
             }
-        });
-
+        })
         // Obtener la fecha actual
         const fechaActual = new Date().toLocaleDateString('es-CO', {
             weekday: 'long',
@@ -24,12 +23,10 @@ export const sendEmail1 = async (correo, nombreInstructor, estudiantes) => {
             month: 'long',
             day: 'numeric'
         });
-
         // Crear la tabla de estudiantes
         const estudiantesTabla = estudiantes.map((estudiante, index) => 
             `${index + 1}\t${estudiante.programa}\t${estudiante.area}\t${estudiante.ficha}\t${estudiante.ccTi}\t${estudiante.apellidos}`
         ).join('\n');
-
         const mailOptions = {
             from: '"Etapas Productivas SENA" <etapasproductivascat@sena.edu.co>',
             to: correo,
@@ -84,7 +81,6 @@ Calle 22 N° 9 – 82, San Gil Centro Agroturístico
 Regional Santander
             `
         };
-
         const info = await transporter.sendMail(mailOptions);
         console.log("Mensaje enviado: %s", info.messageId);
         return info.response;
@@ -202,7 +198,6 @@ export const sendEmail2 = async (correo, nombreAprendiz, instructorNombre, instr
     }
 }
 
-
 // Notificaciones de vecimiento de ficha 
 export const sendEmail3 = async (correo, nombreAprendiz, mesesRestantes, mesesParaRegistro) => {
     try {
@@ -275,9 +270,8 @@ etapasproductivascat@sena.edu.co
 (+57) 7248113
 Calle 22 N° 9 – 82, San Gil Centro Agroturístico
 Regional Santander
-            `
+  `
         };
-
         const info = await transporter.sendMail(mailOptions);
         console.log("Mensaje enviado: %s", info.messageId);
         return info.response;

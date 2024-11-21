@@ -5,7 +5,6 @@ import { dbconnect } from "../../databases/config.js"
 
 
 import aprrenticeRoutes from '../routes/apprentice.js'
-import assignmentRoutes from '../routes/assignment.js'
 import binnaclesRoutes from '../routes/binnacles.js'
 import followupRoutes from '../routes/followup.js'
 import logsRoutes from '../routes/logs.js'
@@ -41,7 +40,6 @@ class Server {
     routes() {
         this.app.use('/api/Repfora', repfora);
         this.app.use('/api/apprendice', aprrenticeRoutes);
-        this.app.use('/api/assignments', assignmentRoutes);
         this.app.use('/api/binnacles', binnaclesRoutes);
         this.app.use('/api/followup', followupRoutes);
         this.app.use('/api/logs', logsRoutes);
