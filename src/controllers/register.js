@@ -7,7 +7,9 @@ const controllerRegister = {
   // Listar todos los registros
   listallregister: async (req, res) => {
     try {
-      const registers = await Register.find();
+      const registers = await Register.find()
+      .populate('idApprentice', 'firstName lastName fiche.name')
+      .populate('idModality', 'name');
       console.log("Lista de registros", registers);
       res.json({ success: true, data: registers });
     } catch (error) {
@@ -25,7 +27,9 @@ const controllerRegister = {
       return res.status(400).json({ success: false, error: "ID no válido" });
     }
     try {
-      const register = await Register.findById(id);
+      const register = await Register.findById(id)
+      .populate('idApprentice', 'firstName lastName fiche.name')
+      .populate('idModality', 'name');
       if (!register) {
         return res
           .status(404)
@@ -50,7 +54,9 @@ const controllerRegister = {
         .json({ success: false, error: "ID de aprendiz no válido" });
     }
     try {
-      const registers = await Register.find({ idApprentice });
+      const registers = await Register.find({ idApprentice })
+      .populate('idApprentice', 'firstName lastName fiche.name')
+      .populate('idModality', 'name');
       console.log(`Lista de idaprendices en registros: ${idApprentice}`);
       res.json({ success: true, data: registers });
     } catch (error) {
@@ -504,7 +510,9 @@ const controllerRegister = {
         .select("assignment status") // Incluye el campo de estado
         .populate("assignment.followUpInstructor.idInstructor", "name")
         .populate("assignment.technicalInstructor.idInstructor", "name")
-        .populate("assignment.projectInstructor.idInstructor", "name");
+        .populate("assignment.projectInstructor.idInstructor", "name")
+        .populate('idApprentice', 'firstName lastName fiche.name')
+        .populate('idModality', 'name');
 
       if (!registers.length) {
         return res
@@ -533,7 +541,9 @@ const controllerRegister = {
     try {
       const registers = await Register.find({
         "assignment.followUpInstructor.idInstructor": idinstructor,
-      });
+      })
+      .populate('idApprentice', 'firstName lastName fiche.name')
+      .populate('idModality', 'name');
 
       if (!registers.length) {
         return res
@@ -567,7 +577,9 @@ const controllerRegister = {
     if (!mongoose.isValidObjectId(idinstructor)) {
       return res
         .status(400)
-        .json({ success: false, error: "ID de instructor no válido" });
+        .json({ success: false, error: "ID de instructor no válido" })
+        .populate('idApprentice', 'firstName lastName fiche.name')
+        .populate('idModality', 'name');
     }
     try {
       const registers = await Register.find({
@@ -613,7 +625,9 @@ const controllerRegister = {
     try {
       const registers = await Register.find({
         "assignment.projectInstructor.idInstructor": idinstructor,
-      });
+      })
+      .populate('idApprentice', 'firstName lastName fiche.name')
+      .populate('idModality', 'name');
 
       if (!registers.length) {
         return res
