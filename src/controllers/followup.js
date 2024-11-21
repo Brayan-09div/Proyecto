@@ -1,13 +1,10 @@
-import { validate } from "node-cron";
 import Followup from "../models/followup.js";
 import Register from "../models/register.js";
-import modality from "../models/modality.js";
-import register from "../models/register.js";
+
 
 
 const followupController = {
   
-
   // Listar todos los followups----------------------------------------------------
   listallfollowup: async (req, res) => {
     try {
@@ -36,11 +33,15 @@ const followupController = {
     }
   },
 
-  // Listar followups instructor---------------------------------------------------------
-  listfollowupbyinstructor: async (req, res) => {
+
+// Listar followups instructor---------------------------------------------------------
+listfollowupbyinstructor: async (req, res) => {
     const { idinstructor } = req.params;
     try {
-      const followups = await Followup.find({ idinstructor });
+      const followups = await Followup.find({ "instructor.idinstructor": idinstructor });
+      if (!followups || followups.length === 0) {
+        return res.status(404).json({ error: "No se encontraron followups para este instructor" });
+      }
       console.log(`Followups for instructor ${idinstructor}:`, followups);
       res.json(followups);
     } catch (error) {
@@ -56,23 +57,21 @@ const followupController = {
     }
   },
 
-  
-
 
   // Insertar un nuevo followup----------------------------------------------
   addfollowup: async (req, res) => {
     const { register, instructor, number, month, document } = req.body;
     try {
-      const existsFollowup = await Followup.find({ number });
+      const existsFollowup = await Followup.findOne({ number });
       if (existsFollowup) {
-        return res.status(400).json({ error: "El numero de seguimiento ya existe" });
+        return res.status(400).json({ error: "El número de seguimiento ya existe" });
       }
-      // Obtenemos el registro y lo poblamos con la modalidad
+  
       const registerRecord = await Register.findById(register).populate("idModality");
       if (!registerRecord) {
         return res.status(400).json({ error: "No se encontró registro asociado con la asignación" });
       }
-      // Verificación de la modalidad y obtención de las horas de seguimiento
+ 
       const modality = registerRecord.idModality;
       if (!modality) {
         return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
@@ -83,18 +82,14 @@ const followupController = {
           error: "No se definieron horas de seguimiento para esta modalidad",
         });
       }
-      // Calculamos las horas por bitácora de seguimiento
-      const hoursPerBinnacle = hoursFollow / 6 / 2;
-      // Aseguramos que las horas de seguimiento pendientes estén definidas
+      const hoursPerBinnacle = hoursFollow / 3;
       if (!Array.isArray(registerRecord.hourFollowupPending)) {
         registerRecord.hourFollowupPending = [];
       }
-      // Obtenemos los instructores de seguimiento (followUpInstructor) asignados
       const followUpInstructors = registerRecord.assignment.flatMap(assign => assign.followUpInstructor);
       if (!followUpInstructors || followUpInstructors.length === 0) {
         return res.status(400).json({ error: "No hay instructores de seguimiento asignados" });
       }
-      // Agregamos las horas de seguimiento a las horas pendientes
       followUpInstructors.forEach(followUpInstructor => {
         registerRecord.hourFollowupPending.push({
           idInstructor: followUpInstructor.idInstructor,
@@ -102,7 +97,6 @@ const followupController = {
           hour: hoursPerBinnacle,
         });
       });
-      // Verificamos que el instructor proporcionado esté activo en el registro
       const activeFollowUpInstructor = registerRecord.assignment.some(a =>
         a.followUpInstructor.some(f =>
           f.idInstructor.toString() === instructor.idinstructor.toString() && f.status === 1
@@ -136,7 +130,7 @@ const followupController = {
       res.status(201).json(updatedFollowup);
     } catch (error) {
       console.error("Error al insertar bitácora", error);
-      res.status(500).json({ error: "Error al insertar bitácora" });
+      res.status(500).json({ error: "Error al insertar Segumineto" });
     }
   },
 

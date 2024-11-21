@@ -5,6 +5,8 @@ const registerHelper = {
     existResgister: async (id) => {
         try {
           const exist = await Register.findById(id);
+          console.log(exist);
+          
           if (!exist) {
             throw new Error(`No se encontró el registro con ID: ${id}`);
           }

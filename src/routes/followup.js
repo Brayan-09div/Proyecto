@@ -5,6 +5,7 @@ import { validarCampos } from '../middleware/validate-fields.js';
 import controllerFollowup from '../controllers/followup.js'
 import {followupHelper} from '../helpers/followup.js'
 import { instructorHelper } from '../helpers/instructor.js'
+import {registerHelper} from '../helpers/register.js';
  
 const router = express.Router();
 
@@ -24,28 +25,36 @@ router.get('/listfollowupbyid/:id',[
     validarCampos
 ], controllerFollowup.listfollowupbyid)
 
-
+// router.get('/listBinnaclesByRegister/:register',[
+//     validateAdmin,
+//     check('register', "no es valido").isMongoId(),
+//     check('register').custom(registerHelper.existResgister),
+//      validarCampos
+//  ],controllerBinnacles.listBinnaclesByRegister)
 
 //-------------------------------------------------------------
 router.get('/listfollowupbyinstructor/:idinstructor',[
     validateAdmin,
-    check('instructor').custom(instructorHelper.existsInstructorID),
+    check('idinstructor').custom(async (idinstructor, { req }) => {
+       await instructorHelper.existsInstructorsID(idinstructor, req.headers.token);
+     }),
     validarCampos
 ], controllerFollowup.listfollowupbyinstructor)
 
 //-------------------------------------------------------------
 router.post('/addfollowup',[
     validateAdmin,
-    check('assignment','La assignment es obligatoria').notEmpty(),
-    check('instructor','El instructor es obligatorio').notEmpty(),
-    check('number','El number es maximo de 10 caracteres').isLength({ max: 10 }),
+    check('register').custom(registerHelper.existResgister),
+    check('instructor', 'El instructor es obligatorio').notEmpty(),
+    check('instructor.idinstructor', 'El id no es válido').isMongoId(),
+    check('idinstructor').custom(async (idInstructor, { req }) => {
+      if (idInstructor) {
+        await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+      }
+    }),
     check('number','El number es obligatorio').notEmpty(),
     check('month','El month es obligatorio').notEmpty(),
-    check('document','El document es maximo de 50 caracteres').isLength({ max: 50 }),
     check('document','El document es obligatorio').notEmpty(),
-    check('users','El users es obligatorio').notEmpty(),
-    check('observations','El observations es de maximo 50 caracteres').isLength({ max: 50 }),
-    check('observations','El observations es obligatorio').notEmpty(),
     validarCampos
 ],controllerFollowup.addfollowup)
 
@@ -66,6 +75,15 @@ router.put('/updatestatus/:id/:status',[
     check('id').custom(followupHelper.existsFollowupID),
     validarCampos
 ],controllerFollowup.updatestatus)
+
+
+
+router.put('/validateHoursFollowup/:id', [
+    validateAdmin,
+    check('id', 'El id no es válido').isMongoId(),
+    check('id').custom(followupHelper.existsFollowupID),
+    validarCampos
+ ],controllerFollowup.validateHoursFollowup);
 
 
 export default router;
