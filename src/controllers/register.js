@@ -1,21 +1,20 @@
 import mongoose from "mongoose";
 import Register from "../models/register.js";
-import Apprentice from "../models/apprentice.js";
+import apprentices from "../models/apprentice.js";
 import Modality from "../models/modality.js";
 
 const controllerRegister = {
   // Listar todos los registros
   listallregister: async (req, res) => {
     try {
-      const registers = await Register.find()
-      .populate('idApprentice', 'firstName lastName fiche.name')
-      .populate('idModality', 'name');
-
+      const registers = await Register.find();
       console.log("Lista de registros", registers);
       res.json({ success: true, data: registers });
     } catch (error) {
       console.error("Error al listar registros", error);
-      res.status(500).json({ success: false, error: "Error al listar registros" });
+      res
+        .status(500)
+        .json({ success: false, error: "Error al listar registros" });
     }
   },
 
@@ -51,9 +50,7 @@ const controllerRegister = {
         .json({ success: false, error: "ID de aprendiz no válido" });
     }
     try {
-      const registers = await Register.find({ idApprentice })
-      .populate('idApprentice', 'firstName lastName fiche.name') 
-      .populate('idModality', 'name');
+      const registers = await Register.find({ idApprentice });
       console.log(`Lista de idaprendices en registros: ${idApprentice}`);
       res.json({ success: true, data: registers });
     } catch (error) {
@@ -507,9 +504,8 @@ const controllerRegister = {
         .select("assignment status") // Incluye el campo de estado
         .populate("assignment.followUpInstructor.idInstructor", "name")
         .populate("assignment.technicalInstructor.idInstructor", "name")
-        .populate("assignment.projectInstructor.idInstructor", "name")
-        .populate('idApprentice', 'firstName lastName fiche.name') 
-        .populate('idModality', 'name');
+        .populate("assignment.projectInstructor.idInstructor", "name");
+
       if (!registers.length) {
         return res
           .status(404)
@@ -537,9 +533,7 @@ const controllerRegister = {
     try {
       const registers = await Register.find({
         "assignment.followUpInstructor.idInstructor": idinstructor,
-      })
-      .populate('idApprentice', 'firstName lastName fiche.name') 
-      .populate('idModality', 'name')
+      });
 
       if (!registers.length) {
         return res
@@ -578,9 +572,7 @@ const controllerRegister = {
     try {
       const registers = await Register.find({
         "assignment.technicalInstructor.idInstructor": idinstructor,
-      })
-      .populate('idApprentice', 'firstName lastName fiche.name') 
-      .populate('idModality', 'name')
+      });
 
       if (!registers.length) {
         return res
@@ -621,9 +613,7 @@ const controllerRegister = {
     try {
       const registers = await Register.find({
         "assignment.projectInstructor.idInstructor": idinstructor,
-      })
-      .populate('idApprentice', 'firstName lastName fiche.name') 
-      .populate('idModality', 'name')
+      });
 
       if (!registers.length) {
         return res

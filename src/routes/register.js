@@ -8,6 +8,7 @@ import {registerHelper, } from '../helpers/register.js';
 import { modalityHelper } from '../helpers/modality.js'
 import { apprenticeHelper } from '../helpers/apprentice.js'
 import { instructorHelper } from '../helpers/instructor.js';
+// import { ficheHelper } from '../helpers/fiche.js';
 
 
 const router = Router()
@@ -44,7 +45,7 @@ router.get('/listregisterbymodality/:idModality', [
 
 // --------------------------------------------------------------------
 router.get('/listregisterbyfiche/:idFiche', [
- validateAdmin, 
+ validateAdmin,
   check('idFiche').custom(async (idFiche, { req }) => {
     await ficheHelper.validateFicheID(idFiche, req.headers.token);
   }),
