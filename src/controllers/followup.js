@@ -33,6 +33,25 @@ const followupController = {
     }
   },
 
+  listFollowupByRegister: async (req, res) => {
+    const { register } = req.params;
+    try {
+      const followup = await Followup.find({ register: register})
+      if(followup.length === 0){
+        return res.status(404).json({ error: `No se encontraron seguminetos para el registro ${register}`})
+      }
+      console.log(`segimientos del registro ${register}:`, followup);
+      res.json({
+        message: `Seguimientos encontradas para el registro ${register}`,
+        totalBinnacles: followup.length,
+        followup,
+      });
+      
+    } catch (error) {
+      console.error(`Error al listar seguimiento del registro ${register}:`, error);
+      res.status(500).json({ error: `Error al listar seguimiento del registro ${register}` });
+    }
+  },
 
 // Listar followups instructor---------------------------------------------------------
 listfollowupbyinstructor: async (req, res) => {
@@ -231,9 +250,8 @@ updatestatus: async (req, res) => {
   addObservation : async (req, res) => {
     const{ id } = req.params;
     const { observation } = req.body;
-
     try {
-      const followup = await Followup.find(id);
+      const followup = await Followup.findById(id);
       if(!followup){
         return res.status(404).json({erro:  " Followup no encontrado"});
       }
@@ -253,6 +271,7 @@ updatestatus: async (req, res) => {
       res.status(500).json({ error: "Error interno del servidor" });
     }
   },
+
   getObservations: async (req, res)=>{
     const{id} = req.params
     try {
@@ -262,7 +281,7 @@ updatestatus: async (req, res) => {
       }
       res.status(200).json({
         message: "Observaciones recuperadas con éxito",
-        observations: binnacle.observation,
+        observations: followup.observation,
       });
     }catch(error) {
       console.error("Error al recuperar observaciones:", error);

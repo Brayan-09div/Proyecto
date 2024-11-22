@@ -25,12 +25,12 @@ router.get('/listfollowupbyid/:id',[
     validarCampos
 ], controllerFollowup.listfollowupbyid)
 
-// router.get('/listBinnaclesByRegister/:register',[
-//     validateAdmin,
-//     check('register', "no es valido").isMongoId(),
-//     check('register').custom(registerHelper.existResgister),
-//      validarCampos
-//  ],controllerBinnacles.listBinnaclesByRegister)
+router.get('/listBinnaclesByRegister/:register',[
+    validateAdmin,
+    check('register', "no es valido").isMongoId(),
+    check('register').custom(registerHelper.existResgister),
+    validarCampos
+ ],controllerFollowup.listFollowupByRegister)
 
 //-------------------------------------------------------------
 router.get('/listfollowupbyinstructor/:idinstructor',[
@@ -77,13 +77,26 @@ router.put('/updatestatus/:id/:status',[
 ],controllerFollowup.updatestatus)
 
 
-
 router.put('/validateHoursFollowup/:id', [
     validateAdmin,
     check('id', 'El id no es válido').isMongoId(),
     check('id').custom(followupHelper.existsFollowupID),
     validarCampos
  ],controllerFollowup.validateHoursFollowup);
+
+
+router.put('/addobservation/:id', [
+    validateAdmin,
+    check('id', 'El id del seguimiento no es válido').isMongoId(),
+    check('observation', 'La observación es obligatoria').not().isEmpty(),
+    validarCampos,
+], controllerFollowup.addObservation);
+
+
+router.get('/getobservations/:id', [
+    check('id', 'El id de la seguimiento no es válido').isMongoId(),
+    validarCampos,
+], controllerFollowup.getObservations); 
 
 
 export default router;
