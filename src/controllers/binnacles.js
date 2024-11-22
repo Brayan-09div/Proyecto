@@ -5,7 +5,13 @@ const controllerBinnacles = {
   // Listar bitácoras-------------------------------------------------------------------
   listallbinnacles: async (req, res) => {
     try {
-      const binnacles = await Binnacles.find();
+      const binnacles = await Binnacles.find()
+        .populate({
+          path: 'register',
+          populate: {
+            path: 'idApprentice'
+          }
+        });
       console.log("Lista de bitácoras", binnacles);
       res.json(binnacles);
     } catch (error) {
@@ -33,7 +39,13 @@ const controllerBinnacles = {
   listBinnaclesByRegister: async (req, res) => {
     const { register } = req.params;
     try {
-      const binnacles = await Binnacles.find({ register: register });
+      const binnacles = await Binnacles.find({ register: register })
+      .populate({
+        path: 'register',
+        populate: {
+          path: 'idApprentice'
+        }
+      })
       if (binnacles.length === 0) {
         return res.status(404).json({ message: `No se encontraron bitácoras para el registro ${register}` });
       }
@@ -41,74 +53,74 @@ const controllerBinnacles = {
       res.json({
         message: `Bitácoras encontradas para el registro ${register}`,
         totalBinnacles: binnacles.length,
-        binnacles, 
+        binnacles,
       });
     } catch (error) {
       console.error(`Error al listar bitácoras del registro ${register}:`, error);
       res.status(500).json({ error: `Error al listar bitácoras del registro ${register}` });
     }
   },
-  
+
   // Listar instructores en bitácoras--------------------------------------------------------------
   listbinnaclesbyinstructor: async (req, res) => {
     const { idinstructor } = req.params;
     try {
-        const binnacles = await Binnacles.find({ "instructor.idinstructor": idinstructor });
-        if (!binnacles || binnacles.length === 0) {
-            return res.status(404).json({ error: 'No se encontraron bitácoras para este instructor' });
-        }
-        console.log(`Lista de instructores en bitácoras ${idinstructor}:`, binnacles);
-        res.json(binnacles);
+      const binnacles = await Binnacles.find({ "instructor.idinstructor": idinstructor });
+      if (!binnacles || binnacles.length === 0) {
+        return res.status(404).json({ error: 'No se encontraron bitácoras para este instructor' });
+      }
+      console.log(`Lista de instructores en bitácoras ${idinstructor}:`, binnacles);
+      res.json(binnacles);
     } catch (error) {
-        console.error(`Error al listar instructores en bitácoras ${idinstructor}:`, error);
-        res.status(500).json({ error: `Error al listar instructores de bitácoras ${idinstructor}` });
+      console.error(`Error al listar instructores en bitácoras ${idinstructor}:`, error);
+      res.status(500).json({ error: `Error al listar instructores de bitácoras ${idinstructor}` });
     }
-},
+  },
 
   // Insertar bitácoras (solo para generar la bitácora sin observaciones)
   addbinnacles: async (req, res) => {
     const { register, instructor, number, document } = req.body;
     try {
-        const existingBinnacle = await Binnacles.findOne({ number });
-        if (existingBinnacle) {
-            return res.status(400).json({ error: "El número de bitácora ya existe" });
-        }
-        const registerRecord = await Register.findById(register);
-        if (!registerRecord) {
-            return res.status(400).json({ error: "No se encontró el registro asociado a la asignación" });
-        }
-        const activeFollowUpInstructor = registerRecord.assignment.some(a =>
-            a.followUpInstructor.some(f =>
-                f.idInstructor.toString() === instructor.idinstructor.toString() && f.status === 1 
-            )
-        );
-        if (!activeFollowUpInstructor) {
-            return res.status(400).json({ error: "El instructor proporcionado no está activo como instructor de seguimiento en la asignación" });
-        }
-        const binnacle = new Binnacles({
-            register, 
-            instructor: {
-                idinstructor: instructor.idinstructor, 
-                name: instructor.name 
-            },
-            number,
-            document,
-            status: '1', 
-        });
-        const result = await binnacle.save();
-        const updatedBinnacle = await Binnacles.findByIdAndUpdate(
-            result._id,
-            { status: '2' },
-            { new: true }
-        );
-        console.log("Bitácora guardada y actualizada a ejecutado", updatedBinnacle);
-            await registerRecord.save();
-        res.status(201).json(updatedBinnacle);
+      const existingBinnacle = await Binnacles.findOne({ number });
+      if (existingBinnacle) {
+        return res.status(400).json({ error: "El número de bitácora ya existe" });
+      }
+      const registerRecord = await Register.findById(register);
+      if (!registerRecord) {
+        return res.status(400).json({ error: "No se encontró el registro asociado a la asignación" });
+      }
+      const activeFollowUpInstructor = registerRecord.assignment.some(a =>
+        a.followUpInstructor.some(f =>
+          f.idInstructor.toString() === instructor.idinstructor.toString() && f.status === 1
+        )
+      );
+      if (!activeFollowUpInstructor) {
+        return res.status(400).json({ error: "El instructor proporcionado no está activo como instructor de seguimiento en la asignación" });
+      }
+      const binnacle = new Binnacles({
+        register,
+        instructor: {
+          idinstructor: instructor.idinstructor,
+          name: instructor.name
+        },
+        number,
+        document,
+        status: '1',
+      });
+      const result = await binnacle.save();
+      const updatedBinnacle = await Binnacles.findByIdAndUpdate(
+        result._id,
+        { status: '2' },
+        { new: true }
+      );
+      console.log("Bitácora guardada y actualizada a ejecutado", updatedBinnacle);
+      await registerRecord.save();
+      res.status(201).json(updatedBinnacle);
     } catch (error) {
-        console.error("Error al insertar bitácora", error);
-        res.status(500).json({ error: "Error al insertar bitácora" });
+      console.error("Error al insertar bitácora", error);
+      res.status(500).json({ error: "Error al insertar bitácora" });
     }
-},
+  },
 
   // Actualizar bitácora---------------------------------------------------------
   updatebinnaclebyid: async (req, res) => {
@@ -153,7 +165,7 @@ const controllerBinnacles = {
     }
   },
 
-updateCheckProjectInstructor: async (req, res) => {
+  updateCheckProjectInstructor: async (req, res) => {
     const { id } = req.params;
     try {
       const binnacle = await Binnacles.findById(id);
@@ -204,7 +216,7 @@ updateCheckProjectInstructor: async (req, res) => {
       res.status(500).json({ error: "Error interno del servidor" });
     }
   },
-  
+
 
   updateCheckTechnicalInstructor: async (req, res) => {
     const { id } = req.params;
@@ -267,10 +279,10 @@ updateCheckProjectInstructor: async (req, res) => {
       res.status(500).json({ error: "Error interno del servidor" });
     }
   },
-  
-  
+
+
   validateHoursTechnical: async (req, res) => {
-    const { id } = req.params; 
+    const { id } = req.params;
     try {
       const binnacle = await Binnacles.findById(id);
       if (!binnacle) {
@@ -296,7 +308,7 @@ updateCheckProjectInstructor: async (req, res) => {
       }
       const technicalInstructors = register.assignment
         .flatMap(assign => assign.technicalInstructor)
-        .filter(instructor => instructor.status !== 0); 
+        .filter(instructor => instructor.status !== 0);
       if (technicalInstructors.length === 0) {
         return res.status(400).json({ error: "No hay instructores técnicos activos asignados" });
       }
@@ -308,7 +320,7 @@ updateCheckProjectInstructor: async (req, res) => {
           const pendingHours = register.technicalHourPending.find(
             item => item.idInstructor.toString() === instructor.idInstructor.toString()
           );
-  
+
           if (pendingHours && pendingHours.hour > 0) {
             register.productiveTechnicalHourExcuted.push({
               idInstructor: instructor.idInstructor,
@@ -320,7 +332,7 @@ updateCheckProjectInstructor: async (req, res) => {
         register.technicalHourPending = [];
       } else {
         binnacle.checkTechnicalInstructor = true;
-        
+
         technicalInstructors.forEach(instructor => {
           register.productiveTechnicalHourExcuted.push({
             idInstructor: instructor.idInstructor,
@@ -340,7 +352,7 @@ updateCheckProjectInstructor: async (req, res) => {
       res.status(500).json({ error: "Error interno del servidor" });
     }
   },
-  
+
   validateHoursProject: async (req, res) => {
     const { id } = req.params;
     try {
@@ -367,7 +379,7 @@ updateCheckProjectInstructor: async (req, res) => {
       const projectInstructors = register.assignment
         .flatMap(assign => assign.projectInstructor)
         .filter(instructor => instructor.status !== 0);
-  
+
       if (projectInstructors.length === 0) {
         return res.status(400).json({ error: "No hay instructores de proyecto activos asignados" });
       }
@@ -379,7 +391,7 @@ updateCheckProjectInstructor: async (req, res) => {
           const pendingHours = register.ProyectHourPending.find(
             item => item.idInstructor.toString() === instructor.idInstructor.toString()
           );
-  
+
           if (pendingHours && pendingHours.hour > 0) {
             register.businessProyectHourExcuted.push({
               idInstructor: instructor.idInstructor,
@@ -388,7 +400,7 @@ updateCheckProjectInstructor: async (req, res) => {
             });
           }
         });
-  
+
         register.ProyectHourPending = [];
       } else {
         binnacle.checkProjectInstructor = true;
@@ -402,7 +414,7 @@ updateCheckProjectInstructor: async (req, res) => {
       }
       await binnacle.save();
       await register.save();
-  
+
       return res.json({
         message: "Horas de proyecto procesadas correctamente",
         register,
@@ -411,52 +423,52 @@ updateCheckProjectInstructor: async (req, res) => {
       console.error("Error al validar horas de proyecto:", error);
       res.status(500).json({ error: "Error interno del servidor" });
     }
-},
+  },
 
 
-addObservation : async (req, res) => {
-    const { id } = req.params; 
-    const { observation } = req.body; 
+  addObservation: async (req, res) => {
+    const { id } = req.params;
+    const { observation } = req.body;
 
     try {
-        const binnacle = await Binnacles.findById(id);
+      const binnacle = await Binnacles.findById(id);
 
-        if (!binnacle) {
-            return res.status(404).json({ error: "Bitácora no encontrada" });
-        }
-        const newObservation = {
-            user: req.user,
-            observation,
-        };
-        binnacle.observation.push(newObservation); 
-        await binnacle.save();
+      if (!binnacle) {
+        return res.status(404).json({ error: "Bitácora no encontrada" });
+      }
+      const newObservation = {
+        user: req.user,
+        observation,
+      };
+      binnacle.observation.push(newObservation);
+      await binnacle.save();
 
-        res.status(201).json({
-            message: "Observación agregada con éxito",
-            observation: newObservation,
-        });
+      res.status(201).json({
+        message: "Observación agregada con éxito",
+        observation: newObservation,
+      });
     } catch (error) {
-        console.error("Error al agregar observación:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
+      console.error("Error al agregar observación:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
     }
-},
+  },
 
-getObservations : async (req, res) => {
-    const { id } = req.params; 
+  getObservations: async (req, res) => {
+    const { id } = req.params;
     try {
-        const binnacle = await Binnacles.findById(id);
-        if (!binnacle) {
-            return res.status(404).json({ error: "Bitácora no encontrada" });
-        }
-        res.status(200).json({
-            message: "Observaciones recuperadas con éxito",
-            observations: binnacle.observation,
-        });
+      const binnacle = await Binnacles.findById(id);
+      if (!binnacle) {
+        return res.status(404).json({ error: "Bitácora no encontrada" });
+      }
+      res.status(200).json({
+        message: "Observaciones recuperadas con éxito",
+        observations: binnacle.observation,
+      });
     } catch (error) {
-        console.error("Error al recuperar observaciones:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
+      console.error("Error al recuperar observaciones:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
     }
-}
+  }
 
 };
 
