@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { dbconnect } from "../../databases/config.js"
+import { registerLogs } from "../middleware/logsRegister.js";
 
 
 import aprrenticeRoutes from '../routes/apprentice.js'
@@ -34,6 +35,13 @@ class Server {
         this.app.use(cors());
         this.app.use(express.json());
         this.app.use(express.static('public'));
+        this.app.use((req, res, next) => {
+            if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+                registerLogs(req, res, next);
+            } else {
+                next();
+            }
+        });
     }
 
 

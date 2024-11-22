@@ -52,7 +52,6 @@ const registerSchema = new mongoose.Schema({
         hour: { type: Number },
         _id: false
     }],
-
     assignment: [{
         followUpInstructor: [{
             idInstructor: { type: mongoose.Schema.Types.ObjectId, required: true },

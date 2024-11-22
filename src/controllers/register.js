@@ -216,7 +216,7 @@ const controllerRegister = {
       mailCompany,
       judymentPhoto,
       hourProductiveStageApprentice,
-      assignment, // Opcional
+      assignment, 
     } = req.body;
     try {
       const start = new Date(startDate);
@@ -282,9 +282,12 @@ const controllerRegister = {
         certificationDoc,
         judymentPhoto,
         hourProductiveStageApprentice,
-        assignment: assignment || [], // Si no se proporciona, será un arreglo vacío
+        assignment: assignment || [], 
       });
 
+
+
+      
       const createdRegister = await newRegister.save();
       res.status(201).json({ success: true, data: createdRegister });
     } catch (error) {

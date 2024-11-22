@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer"
 
-
 export const sendEmail1 = async (correo, nombreInstructor, estudiantes) => {
     try {
         let pass = process.env.EMAIL_PASS;
