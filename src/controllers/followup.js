@@ -7,7 +7,13 @@ const followupController = {
   // Listar todos los followups----------------------------------------------------
   listallfollowup: async (req, res) => {
     try {
-      const followups = await Followup.find();
+      const followups = await Followup.find()
+      .populate({
+        path:'register',
+        populate:{
+          path: 'idApprentice'
+        }
+      })
       console.log("Followup list:", followups);
       res.json(followups);
     } catch (error) {
