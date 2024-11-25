@@ -1,6 +1,7 @@
 import express from 'express';
 import { check } from 'express-validator';
 import mongoose from 'mongoose';
+import multer from 'multer';
 
 import { validateAdmin } from '../middleware/valitate-admin.js';
 import { authenticateUser } from '../middleware/validateall.js';
@@ -11,7 +12,18 @@ import  ficheHelper  from '../helpers/fiches.js';
 import { apprenticeHelper } from '../helpers/apprentice.js';
 import {modalityHelper} from '../helpers/modality.js'
 
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
 const router = express.Router();
+
+
+router.post('/upload-apprentices',[
+    validateAdmin,
+     upload.single('file'),
+     validarCampos
+],controllerApprentice.uploadApprentices);
 
 //---------------------------------------------------------
 router.post('/loginApprentice', [

@@ -2,6 +2,7 @@ import Apprentice from '../models/apprentice.js'
 import Register from "../models/register.js";
 import { generarJWT } from "../middleware/validate-apprentice.js";
 import mongoose from 'mongoose';
+import xlsx from 'xlsx';
 
 
 const  controllerApprentice ={
@@ -266,7 +267,68 @@ disableapprentice: async (req, res) => {
         console.log("Error al desactivar aprendiz:", error);
         res.status(500).json({ error: 'Error al desactivar aprendiz' });
     }
+},
+
+
+uploadApprentices: async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No se ha enviado ningún archivo' });
+        }
+        const workbook = xlsx.read(req.file.buffer);
+        const sheetName = workbook.SheetNames[0]; 
+        const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]); 
+        const errors = [];
+        for (const row of sheetData) {
+            const cleanedRow = Object.fromEntries(
+                Object.entries(row).map(([key, value]) => [key.trim(), value])
+            );
+            const fiche = {
+                idFiche: cleanedRow.fiche, 
+                name: cleanedRow['Fiche Name'],
+                number: cleanedRow['Fiche Number']
+            };
+            const {
+                tpDocument,
+                numDocument,
+                firstName,
+                lastName,
+                phone,
+                institutionalEmail,
+                personalEmail
+            } = cleanedRow;
+            // Verificación de los datos
+            console.log('Row data:', cleanedRow);
+            try {
+                await Apprentice.create({
+                    fiche,
+                    idModality: cleanedRow['Modality ID'],
+                    tpDocument,
+                    numDocument,
+                    firstName,
+                    lastName,
+                    phone,
+                    institutionalEmail,
+                    personalEmail,
+                    status: 1, 
+                });
+            } catch (err) {
+                errors.push({ row: cleanedRow, error: err.message });
+            }
+        }
+        if (errors.length > 0) {
+            return res.status(207).json({
+                message: 'Algunos registros no pudieron ser procesados',
+                errors,
+            });
+        }
+        res.status(201).json({ message: 'Aprendices creados exitosamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error al procesar el archivo', error: error.message });
+    }
 }
+
 
 }
 export default controllerApprentice;
