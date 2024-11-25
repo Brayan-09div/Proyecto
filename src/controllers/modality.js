@@ -53,7 +53,7 @@ const modalityController = {
   // Editar una modalidad por su ID
   updatemodalitybyid: async (req, res) => {
     const { id } = req.params;
-    const { name, hourinstructorfollow, hourinstructortechnical, hourinstructorproyect,  } = req.body;
+    const { name, hourinstructorfollow, hourinstructortechnical, hourinstructorproyect  } = req.body;
     try {
       const result = await Modality.findByIdAndUpdate(
         id,

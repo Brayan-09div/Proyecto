@@ -26,7 +26,13 @@ const followupController = {
   listfollowupbyid: async (req, res) => {
     const { id } = req.params;
     try {
-      const followup = await Followup.findById(id);
+      const followup = await Followup.findById(id)
+      .populate({
+        path:'register',
+        populate:{
+          path: 'idApprentice'
+        }
+      })
       if (!followup)
         return res.status(404).json({ error: "Followup not found" });
 
