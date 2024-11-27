@@ -442,13 +442,13 @@ const controllerRegister = {
     const { idinstructor } = req.params;
     if (!mongoose.isValidObjectId(idinstructor)) {
       return res.status(400).json({ success: false, error: "ID de instructor no válido" })
-        .populate('idApprentice', 'firstName lastName fiche')
-        .populate('idModality', 'name')
     }
     try {
       const registers = await Register.find({
         'assignment.followUpInstructor.idInstructor': idinstructor,
-      });
+      })
+        .populate('idApprentice', 'firstName lastName fiche')
+        .populate('idModality', 'name')
 
       if (!registers.length) {
         return res.status(404).json({ success: false, message: "No se encontraron registros para este instructor" });
@@ -492,13 +492,13 @@ const controllerRegister = {
     const { idinstructor } = req.params;
     if (!mongoose.isValidObjectId(idinstructor)) {
       return res.status(400).json({ success: false, error: "ID de instructor no válido" })
-        .populate('idApprentice', 'firstName lastName fiche')
-        .populate('idModality', 'name')
     }
     try {
       const registers = await Register.find({
         'assignment.projectInstructor.idInstructor': idinstructor,
-      });
+      })
+      .populate('idApprentice', 'firstName lastName fiche')
+      .populate('idModality', 'name')
 
       if (!registers.length) {
         return res.status(404).json({ success: false, message: "No se encontraron registros para este instructor de Proyecto" });
