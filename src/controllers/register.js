@@ -20,7 +20,8 @@ const controllerRegister = {
     }
   },
 
-  // Listar por id
+
+  // Listar por id y mas
   listregisterbyid: async (req, res) => {
     const { id } = req.params;
     if (!mongoose.isValidObjectId(id)) {
