@@ -65,7 +65,13 @@ const controllerBinnacles = {
   listbinnaclesbyinstructor: async (req, res) => {
     const { idinstructor } = req.params;
     try {
-      const binnacles = await Binnacles.find({ "instructor.idinstructor": idinstructor });
+      const binnacles = await Binnacles.find({ "instructor.idinstructor": idinstructor })
+      .populate({
+        path: 'register',
+        populate:{
+          path: 'idApprentice'
+        }
+      })
       if (!binnacles || binnacles.length === 0) {
         return res.status(404).json({ error: 'No se encontraron bitácoras para este instructor' });
       }
