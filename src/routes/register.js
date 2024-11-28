@@ -202,18 +202,23 @@ router.put('/addassignment/:id', [
   check('id', 'El id no es válido').isMongoId(),
   check('id').custom(registerHelper.existResgister),
   check('assignment', 'El campo assignment es obligatorio').isArray().notEmpty(),
-  check('assignment.*.followUpInstructor', 'El campo followUpInstructor es obligatorio').isArray().notEmpty(),
-  check('assignment.*.followUpInstructor.*.idInstructor', 'ID de instructor de seguimiento es obligatorio').notEmpty().custom(async (idInstructor, { req }) => {
+  
+
+  check('assignment.*.followUpInstructor', 'El campo followUpInstructor es obligatorio').optional().isArray().notEmpty(),
+  check('assignment.*.followUpInstructor.*.idInstructor', 'ID de instructor de seguimiento es obligatorio').optional().custom(async (idInstructor, { req }) => {
     await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
   }),
+
   check('assignment.*.technicalInstructor').optional().isArray(),
   check('assignment.*.technicalInstructor.*.idInstructor').optional().custom(async (idInstructor, { req }) => {
     await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
   }),
+
   check('assignment.*.projectInstructor').optional().isArray(),
   check('assignment.*.projectInstructor.*.idInstructor').optional().custom(async (idInstructor, { req }) => {
     await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
   }),
+
   validarCampos  
 ], controllerRegister.addAssignment);
 
