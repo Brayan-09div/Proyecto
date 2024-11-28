@@ -584,15 +584,13 @@ const controllerRegister = {
   listRegisterByFollowUpInstructor: async (req, res) => {
     const { idinstructor } = req.params;
     if (!mongoose.isValidObjectId(idinstructor)) {
-      return res
-        .status(400)
-        .json({ success: false, error: "ID de instructor no válido" })
-        .populate("idApprentice", "firstName lastName fiche")
-        .populate("idModality", "name");
+      return res.status(400).json({ success: false, error: "ID de instructor no válido" })
+        .populate('idApprentice', 'firstName lastName fiche')
+        .populate('idModality', 'name')
     }
     try {
       const registers = await Register.find({
-        "assignment.followUpInstructor.idInstructor": idinstructor,
+        'assignment.followUpInstructor.idInstructor': idinstructor,
       });
 
       if (!registers.length) {
@@ -668,15 +666,13 @@ const controllerRegister = {
   listRegisterByProjectInstructor: async (req, res) => {
     const { idinstructor } = req.params;
     if (!mongoose.isValidObjectId(idinstructor)) {
-      return res
-        .status(400)
-        .json({ success: false, error: "ID de instructor no válido" })
-        .populate("idApprentice", "firstName lastName fiche")
-        .populate("idModality", "name");
+      return res.status(400).json({ success: false, error: "ID de instructor no válido" })
+        .populate('idApprentice', 'firstName lastName fiche')
+        .populate('idModality', 'name')
     }
     try {
       const registers = await Register.find({
-        "assignment.projectInstructor.idInstructor": idinstructor,
+        'assignment.projectInstructor.idInstructor': idinstructor,
       });
 
       if (!registers.length) {

@@ -8,7 +8,13 @@ const followupController = {
   // Listar todos los followups----------------------------------------------------
   listallfollowup: async (req, res) => {
     try {
-      const followups = await Followup.find();
+      const followups = await Followup.find()
+      .populate({
+        path:'register',
+        populate:{
+          path: 'idApprentice'
+        }
+      })
       console.log("Followup list:", followups);
       res.json(followups);
     } catch (error) {
@@ -21,7 +27,9 @@ const followupController = {
   listfollowupbyid: async (req, res) => {
     const { id } = req.params;
     try {
-      const followup = await Followup.findById(id);
+      const followup = await Followup.findById(id)
+    .populate('idApprentice', 'firstName lastName fiche')
+    .populate('idModality', 'name')
       if (!followup)
         return res.status(404).json({ error: "Followup not found" });
 
@@ -57,7 +65,13 @@ const followupController = {
 listfollowupbyinstructor: async (req, res) => {
     const { idinstructor } = req.params;
     try {
-      const followups = await Followup.find({ "instructor.idinstructor": idinstructor });
+      const followups = await Followup.find({ "instructor.idinstructor": idinstructor })
+      .populate({
+        path: 'register',
+        populate:{
+          path: 'idApprentice'
+        }
+      })
       if (!followups || followups.length === 0) {
         return res.status(404).json({ error: "No se encontraron followups para este instructor" });
       }
