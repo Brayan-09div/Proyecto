@@ -19,9 +19,9 @@ const controllerRegister = {
         .json({ success: false, error: "Error al listar registros" });
     }
   },
+  
 
-
-  // Listar por id y mas
+  // Listar por id
   listregisterbyid: async (req, res) => {
     const { id } = req.params;
     if (!mongoose.isValidObjectId(id)) {
@@ -994,7 +994,6 @@ const controllerRegister = {
               return res.status(400).json({ message: "Este tipo de modalidad no permite un instructor de proyecto" });
           }
       }
-
         // Inicializar asignaciones si no existen
         if (!register.assignment || register.assignment.length === 0) {
             register.assignment = [{}];
@@ -1004,7 +1003,6 @@ const controllerRegister = {
                 register.assignment[0][field] = [];
             }
         });
-
         // Cambiar estado de instructores previos a inactivos
         ["followUpInstructor", "technicalInstructor", "projectInstructor"].forEach(field => {
             if (Array.isArray(register.assignment[0][field])) {
@@ -1023,7 +1021,6 @@ const controllerRegister = {
             ...assignment[0]?.technicalInstructor || [],
             ...assignment[0]?.projectInstructor || [],
         ];
-
         for (let instructor of instructors) {
           const { idInstructor, name, email } = instructor;
           const fields = ["followUpInstructor", "technicalInstructor", "projectInstructor"];
