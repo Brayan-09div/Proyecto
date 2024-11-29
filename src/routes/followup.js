@@ -25,7 +25,7 @@ router.get('/listfollowupbyid/:id',[
     validarCampos
 ], controllerFollowup.listfollowupbyid)
 
-router.get('/listBinnaclesByRegister/:register',[
+router.get('/listFollowupByRegister/:register',[
     validateAdmin,
     check('register', "no es valido").isMongoId(),
     check('register').custom(registerHelper.existResgister),

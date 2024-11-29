@@ -25,6 +25,10 @@ router.post('/upload-apprentices',[
      validarCampos
 ],controllerApprentice.uploadApprentices);
 
+
+
+
+
 //---------------------------------------------------------
 router.post('/loginApprentice', [
     check('email')
