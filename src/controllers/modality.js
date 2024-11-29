@@ -53,23 +53,22 @@ const modalityController = {
   // Editar una modalidad por su ID
   updatemodalitybyid: async (req, res) => {
     const { id } = req.params;
-    const { name, hourinstructorfollow, hourinstructortechnical, hourinstructorproyect,  } = req.body;
+    const { name, hourInstructorFollow, hourInstructorTechnical, hourInstructorProject } = req.body;
     try {
-      const result = await Modality.findByIdAndUpdate(
-        id,
-        { name, hourinstructorfollow, hourinstructortechnical, hourinstructorproyect },
-        { new: true }
-      );
-
-      if (!result) {
-        throw new Error("Modality not found");
+      const modality = await Modality.findById(id);
+      if (modality) {
+        modality.name = name;
+        modality.hourInstructorFollow = hourInstructorFollow;
+        modality.hourInstructorTechnical = hourInstructorTechnical;
+        modality.hourInstructorProject = hourInstructorProject;
+        await modality.save();
+        console.log("Modalidad editada:", modality);
+        res.json(modality);
+      } else {
+        res.status(404).json({ msg: "modalidad no encontrado" });
       }
-
-      console.log("Modality edited:", result);
-      res.json(result);
     } catch (error) {
-      console.error("Error editing modality:", error);
-      res.status(500).json({ error: "Error editing modality" });
+      res.status(500).json({ error: error.message });
     }
   },
    // activar------------------------------------------------------------------------------------

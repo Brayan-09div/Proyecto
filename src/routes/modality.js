@@ -41,14 +41,16 @@ router.post('/addmodality', [
 
 //-----------------------------------------------------------
 router.put('/updatemodalitybyid/:id', [
-validateAdmin,
-check('id', 'El id es invalido').isMongoId(),
-check('name', ' El campo name es obligatorio').notEmpty(),
-check('hourInstructorFollow','El campo hourInstructorFollow es obligatorio').notEmpty(),
-check('hourInstructorTechnical','El campo hourInstructorTechnical es obligatorio').notEmpty(),
-check('hourInstructorProject', 'El campo hourInstructorProject es obligatorio').notEmpty(),
-validarCampos
+  validateAdmin,
+  check('id', 'El id es invalido').isMongoId(),
+  check('id').custom(modalityHelper.existsModalityID),
+  check('name', 'El campo name es obligatorio').optional().notEmpty(),
+  check('hourInstructorFollow', 'El campo hourInstructorFollow es obligatorio').optional().notEmpty(),
+  check('hourInstructorTechnical', 'El campo hourInstructorTechnical es obligatorio').optional().notEmpty(),
+  check('hourInstructorProject', 'El campo hourInstructorProject es obligatorio').optional().notEmpty(),
+  validarCampos
 ], modalityController.updatemodalitybyid);
+
 
 //-----------------------------------------------------------
 router.put('/enablemodalitybyid/:id', [

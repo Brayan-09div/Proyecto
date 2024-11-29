@@ -86,6 +86,23 @@ listapprenticebymodality: async (req, res) => {
   }
 },
 
+//listar historial del aprendiz
+ listHistoryApprentice: async (req, res) => {
+    const { numDocument } = req.params;
+     try {
+      console.log("Número de documento recibido", numDocument);
+        const apprentices = await Apprentice.find({ numDocument });
+        if (!apprentices) {
+                return res.status(404).json({ message: 'No se encontraron aprendices para este número de documento' });
+         }
+        console.log('Historial del aprendiz', apprentices);
+        res.status(200).json(apprentices);
+
+        } catch (error) {
+         console.error('Error al listar el historial del Aprendiz', error);
+         res.status(500).json({ message: 'Error interno del servidor', error: error.message });
+    }
+},
 
 
 // Login para aprendices -----------------------------------------------------

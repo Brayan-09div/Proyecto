@@ -11,6 +11,7 @@ import controllerApprentice from '../controllers/apprentice.js';
 import  ficheHelper  from '../helpers/fiches.js';
 import { apprenticeHelper } from '../helpers/apprentice.js';
 import {modalityHelper} from '../helpers/modality.js'
+import { validateApprentice } from '../middleware/validate-apprentice.js';
 
 
 const storage = multer.memoryStorage();
@@ -99,6 +100,11 @@ router.get('/listapprenticebymodality/:idModality', [
 ], controllerApprentice.listapprenticebymodality);
 
 
+router.get('/listHistoryApprentice/:numDocument', [
+    validateApprentice,
+    check('numDocument', 'El número de documento es obligatorio').notEmpty(),
+    validarCampos
+], controllerApprentice.listHistoryApprentice);
 
 //------------------------------------------------------------- 
 router.post('/addapprentice', [
