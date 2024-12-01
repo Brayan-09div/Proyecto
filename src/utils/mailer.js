@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer"
 
-export const sendEmail1 = async (correo, nombreInstructor, estudiantes) => {
+export const sendEmail1 = async (correo, nombreInstructor, tipoInstrucotor, estudiantes) => {
     try {
         let pass = process.env.EMAIL_PASS;
         const transporter = nodemailer.createTransport({
@@ -24,20 +24,20 @@ export const sendEmail1 = async (correo, nombreInstructor, estudiantes) => {
         });
         // Crear la tabla de estudiantes
         const estudiantesTabla = estudiantes.map((estudiante, index) => 
-            `${index + 1}\t${estudiante.programa}\t${estudiante.area}\t${estudiante.ficha}\t${estudiante.ccTi}\t${estudiante.apellidos}`
+            `${index + 1}\t${estudiante.nombreFicha}\t${estudiante.Numeroficha}\t${estudiante.cc}\t${estudiante.nombre}/t${estudiante.apellido}`
         ).join('\n');
         const mailOptions = {
             from: '"Etapas Productivas SENA" <etapasproductivascat@sena.edu.co>',
             to: correo,
-            subject: "NOTIFICACIÓN ASIGNACIÓN COMO INSTRUCTOR DE SEGUIMIENTO",
+            subject: `NOTIFICACIÓN ASIGNACIÓN COMO INSTRUCTOR DE ${tipoInstrucotor}`,
             text: `
 Fecha: ${fechaActual}
 
 Cordial saludo estimado instructor ${nombreInstructor},
 
-Adjunto listado con asignaciones de seguimientos de etapa productiva para su gestión y apoyo.
+Adjunto listado con asignaciones de ${tipoInstrucotor} de etapa productiva para su gestión y apoyo.
 
-No\tPROGRAMA DE FORMACIÓN\tAREA\tFICHA\tCC-TI\tAPELLIDOS
+No\tPROGRAMA DE FORMACIÓN\tFICHA\tCC-TI\tAPELLIDOS
 ${estudiantesTabla}
 
 La base de datos en el Excel está en su drive con los datos totales.

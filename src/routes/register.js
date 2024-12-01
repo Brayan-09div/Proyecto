@@ -102,7 +102,6 @@ router.post('/addregister', [
     }),
 
   check('addressCompany').custom(registerHelper.existAddressCompany),
-  check('phoneCompany').custom(registerHelper.existPhoneCompany),
   validarCampos
 ], controllerRegister.addRegister);
 

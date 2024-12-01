@@ -1049,11 +1049,74 @@ const controllerRegister = {
               }
           }
       }      
-        await register.save();
-        console.log("Instructores actualizados y activados correctamente");
+await register.save();
 
-        return res.status(200).json({ message: "Asignación actualizada correctamente" });
+const populatedRegister = await register.populate({
+  path: 'idApprentice',  
+  populate: {
+    path: 'fiche.idFiche', 
+    select: 'name number'  
+  }
+});
+const estudiantes = populatedRegister.idApprentice.map((estudiante, index) => {
+    if (estudiante && estudiante.fiche && estudiante.fiche.name && estudiante.fiche.number && estudiante.numDocument && estudiante.firstName && estudiante.lastName) {
+        return {
+            index: index + 1,
+            nombreFicha: estudiante.fiche.name,
+            numeroFicha: estudiante.fiche.number,
+            cc: estudiante.numDocument,
+            nombre: estudiante.firstName,
+            apellido: estudiante.lastName
+        };
+    }})
+console.log('Estudiantes:', estudiantes);
 
+        let followUpInstructors = [];
+        let technicalInstructors = [];
+        let projectInstructors = [];
+        
+        if (assignment[0]?.followUpInstructor?.length > 0) {
+            followUpInstructors = assignment[0]?.followUpInstructor.map(instructor => ({
+                name: instructor.name,
+                email: instructor.email,
+                type: 'Instructor de seguimiento'
+            }));
+        }
+        if (assignment[0]?.technicalInstructor?.length > 0) {
+            technicalInstructors = assignment[0]?.technicalInstructor.map(instructor => ({
+                name: instructor.name,
+                email: instructor.email,
+                type: 'Instructor técnico'
+            }));
+        }
+        if (assignment[0]?.projectInstructor?.length > 0) {
+            projectInstructors = assignment[0]?.projectInstructor.map(instructor => ({
+                name: instructor.name,
+                email: instructor.email,
+                type: 'Instructor de proyecto'
+            }));
+        }
+        
+        if (followUpInstructors.length > 0) {
+            followUpInstructors.forEach(instructor => {
+                const { name, email, type } = instructor; 
+                console.log(`Enviando correo a: ${name} (${type}) con email: ${email}`);
+            });
+        }
+        if (technicalInstructors.length > 0) {
+            technicalInstructors.forEach(instructor => {
+                const { name, email, type } = instructor; 
+                console.log(`Enviando correo a: ${name} (${type}) con email: ${email}`);
+            });
+        }
+        if (projectInstructors.length > 0) {
+            projectInstructors.forEach(instructor => {
+                const { name, email, type } = instructor; 
+                console.log(`Enviando correo a: ${name} (${type}) con email: ${email}`);
+           });}
+        
+console.log("Instructores actualizados y activados correctamente");
+return res.status(200).json({ message: "Asignación actualizada correctamente" });
     } catch (error) {
         console.error("Error al actualizar la asignación:", error);
         res.status(500).json({ message: error.message || "Error al actualizar la asignación" });
