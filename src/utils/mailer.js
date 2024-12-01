@@ -1,20 +1,19 @@
-import nodemailer from "nodemailer"
+import nodemailer from "nodemailer";
 
 export const sendEmail1 = async (correo, nombreInstructor, tipoInstrucotor, estudiantes) => {
     try {
         let pass = process.env.EMAIL_PASS;
         const transporter = nodemailer.createTransport({
-            host: "smtp-mail.outlook.com",
-            port: 587,
-            secure: false,
+            service: 'gmail',
             auth: {
                 user: process.env.EMAIL_USER,
-                pass
+                pass: process.env.EMAIL_PASS
             },
             tls: {
-                ciphers: 'SSLv3'
+                rejectUnauthorized: false
             }
-        })
+        });
+
         // Obtener la fecha actual
         const fechaActual = new Date().toLocaleDateString('es-CO', {
             weekday: 'long',
@@ -22,78 +21,96 @@ export const sendEmail1 = async (correo, nombreInstructor, tipoInstrucotor, estu
             month: 'long',
             day: 'numeric'
         });
-        // Crear la tabla de estudiantes
-        const estudiantesTabla = estudiantes.map((estudiante, index) => 
-            `${index + 1}\t${estudiante.nombreFicha}\t${estudiante.Numeroficha}\t${estudiante.cc}\t${estudiante.nombre}/t${estudiante.apellido}`
-        ).join('\n');
+
+        // Crear la tabla de estudiantes en formato HTML
+        const estudiantesTabla = estudiantes.map((estudiante, index) => {
+            return `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${estudiante.nombreFicha}</td>
+                    <td>${estudiante.numeroficha}</td>
+                    <td>${estudiante.cc}</td>
+                    <td>${estudiante.nombre}</td>
+                    <td>${estudiante.apellido}</td>
+                </tr>
+            `;
+        }).join("");
+
         const mailOptions = {
             from: '"Etapas Productivas SENA" <etapasproductivascat@sena.edu.co>',
             to: correo,
             subject: `NOTIFICACIÓN ASIGNACIÓN COMO INSTRUCTOR DE ${tipoInstrucotor}`,
-            text: `
-Fecha: ${fechaActual}
+            html: `
+                <html>
+                    <body>
+                        <h2>NOTIFICACIÓN DE ASIGNACIÓN COMO INSTRUCTOR DE ${tipoInstrucotor}</h2>
+                        <p>Fecha: ${fechaActual}</p>
+                        <p>Cordial saludo estimado instructor ${nombreInstructor},</p>
+                        <p>Adjunto listado con asignaciones de ${tipoInstrucotor} de etapa productiva para su gestión y apoyo.</p>
+                        
+                        <h3>Lista de Estudiantes Asignados:</h3>
+                        <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>PROGRAMA DE FORMACIÓN</th>
+                                    <th>FICHA</th>
+                                    <th>CC-TI</th>
+                                    <th>APELLIDOS</th>
+                                    <th>NOMBRES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${estudiantesTabla} <!-- Aquí se insertan las filas generadas -->
+                            </tbody>
+                        </table>
+                        
+                        <p>La base de datos en el Excel está en su drive con los datos totales.</p>
 
-Cordial saludo estimado instructor ${nombreInstructor},
+                        <p>Es muy importante contactar los aprendices cuanto antes, ya que según reglamento del aprendiz debemos realizar el 1er seguimiento los 15 primeros días para establecer las actividades a realizar y orientarlo sobre el proceso. Aunque en algunos casos pasamos ya esta fecha por demoras en la asignación lo invitamos a gestionar cuanto antes la comunicación.</p>
 
-Adjunto listado con asignaciones de ${tipoInstrucotor} de etapa productiva para su gestión y apoyo.
+                        <p><b>Recuerde la importancia de llevar un correcto seguimiento tomando y seguir las siguientes recomendaciones:</b></p>
+                        <ol>
+                            <li>El primer seguimiento debe hacerse cuanto antes para acordar las actividades con su coformador(jefe) (15 días al iniciar en lo posible si dan los tiempos una vez asignados)</li>
+                            <li>Son en total 3 seguimientos (iniciando, a mitad y finalizando), es nuestro deber cumplir con los tiempos.</li>
+                            <li>Asegúrese de recibir cada 15 días la bitácora que corresponde en la fecha asignada, de lo contrario citar a comité académico por incumplimiento del aprendiz.</li>
+                            <li>Maneje el correo y el drive que compartir desde etapas productivas para el seguimiento suyo, en el cual debe guardar la información con los seguimientos, bitácoras y documentos de certificación al día.</li>
+                            <li>Las firmas de los documentos son muy importantes ya que convalidan la autenticidad del documento cargue todos los documentos firmados.</li>
+                            <li>Revise las fechas recuerde que las fichas se vencen por tiempo y hay unos tiempos máximos (2 años al finalizar su lectiva) para realizar su etapa productiva y el trámite de certificación.</li>
+                            <li>Cite a comités cuando el aprendiz incumpla los tiempos, las entregas y haya novedades disciplinarias y académicas, es su responsabilidad como instructor de seguimiento.</li>
+                            <li>Deje evidencias por correo electrónico, no por WhatsApp de su gestión con los aprendices.</li>
+                            <li>Registre una vez terminado los 3 seguimientos la calificación en Sofia, es su responsabilidad cargarla.</li>
+                            <li>Apoye al aprendiz con los documentos de certificación una vez se evalúa al final su etapa productiva y notifíquenos de la entrega de los mismos.</li>
+                        </ol>
 
-No\tPROGRAMA DE FORMACIÓN\tFICHA\tCC-TI\tAPELLIDOS
-${estudiantesTabla}
+                        <p>Agradecemos su apoyo, ya que para este proceso y certificación de los aprendices es demasiado importante. Recuerde llevar los documentos en su carpeta asignada en el ONEDRIVE.</p>
+                        <p>Cualquier duda estamos para apoyarle.</p>
 
-La base de datos en el Excel está en su drive con los datos totales.
-
-Es muy importante contactar los aprendices cuanto antes, ya que según reglamento del aprendiz debemos realizar el 1er seguimiento los 15 primeros días para
-establecer las actividades a realizar y orientarlo sobre el proceso. Aunque en algunos casos pasamos ya esta fecha por demoras en la asignación lo invitamos a 
-gestionar cuanto antes la comunicación.
-
-Recuerde la importancia de llevar un correcto seguimiento tomando y seguir las siguientes recomendaciones:
-1. El primer seguimiento debe hacerse cuanto antes para acordar las actividades con su coformador(jefe) (15 días al iniciar en lo posible si dan los tiempos una vez
- asignados)
-2. Son en total 3 seguimientos (iniciando, a mitad y finalizando), es nuestro deber cumplir con los tiempos.
-3. Asegúrese de recibir cada 15 días la bitácora que corresponde en la fecha asignada, de lo contrario citar a comité académico por incumplimiento del aprendiz. No
- dejemos que el aprendiz se acumule bitácoras sin entregar.
-4. Maneje el correo y el drive que compartir desde etapas productivas para el seguimiento suyo, en el cual debe guardar la información con los seguimientos, 
-bitácoras y documentos de certificación al día, es decir es su deber alimentarla constantemente y tenerla actualizada.
-5. Las firmas de los documentos son muy importantes ya que convalidan la autenticidad del documento cargue todos los documentos firmados. (La firma no puede 
-ser letras escritas en word)
-6. Revise las fechas recuerde que las fichas se vencen por tiempo y hay unos tiempos máximos (2 años al finalizar su lectiva) para realizar su etapa productiva y el 
-trámite de certificación, trabajemos para avisar a los aprendices que no deje pasar estos tiempos ya que puede ser declarado en deserción. Si hay alguna 
-situación en la que estemos justos de tiempos notificar al equipo de etapas productivas para apoyar con un trámite ágil.
-7. Cite a comités cuando el aprendiz incumpla los tiempos, las entregas y haya novedades disciplinarias y académicas, es su responsabilidad como instructor de seguimiento.
-8. Dejemos evidencias por correo electrónico, no por WhatsApp de su gestión con los aprendices
-9. Registre una vez terminado los 3 seguimientos la calificación en Sofia, es su responsabilidad cargarla, ya que si la ficha llega a estar sobre tiempo de vencimiento, 
-se puede cerrar. Por favor guarde el pantallazo y cárguelo en el último seguimiento adjunto. NO dejemos pasar el tiempo.
-10. Apoye al aprendiz con los documentos de certificación una vez se evalúa al final su etapa productiva y notifíquenos de la entrega de los mismos, en caso de no 
-recibir respuesta por parte del aprendiz, cargue en la carpeta certificados la evidencia de su solicitud y gestión. Y notifíquenos mediante correo electrónico de 
-que el aprendiz no entregó los documentos. (recordemos que a los dos años la ficha se vence por tiempo y luego no se pueden adelantar gestiones)
-
-Agradecemos su apoyo que para este proceso y certificación de los aprendices es demasiado importante
-Recuerde llevar los documentos en su carpeta asignada en el ONEDRIVE
-
-Cualquier duda estamos para apoyarle
-
-Cordialmente,
-Equipo Etapas Productivas
-etapasproductivascat@sena.edu.co
-(+57) 7248113
-Calle 22 N° 9 – 82, San Gil Centro Agroturístico
-Regional Santander
+                        <p>Cordialmente,</p>
+                        <p>Equipo Etapas Productivas</p>
+                        <p>etapasproductivascat@sena.edu.co</p>
+                        <p>(+57) 7248113</p>
+                        <p>Calle 22 N° 9 – 82, San Gil Centro Agroturístico</p>
+                        <p>Regional Santander</p>
+                    </body>
+                </html>
             `
         };
+
         const info = await transporter.sendMail(mailOptions);
         console.log("Mensaje enviado: %s", info.messageId);
         return info.response;
+
     } catch (error) {
         console.error("Error en la función sendEmail:", error);
         return error;
     }
-}
+};
+
 
 
 
 // correo de asignación al aprendiz
-
-import nodemailer from 'nodemailer';
 
 export const sendEmail2 = async (correo, nombreAprendiz, instructorNombre, instructorEmail, instructorTelefono) => {
     try {
