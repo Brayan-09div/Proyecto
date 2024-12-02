@@ -1057,107 +1057,109 @@ const controllerRegister = {
 
         await register.save();
 
-        // const populatedRegister = await register.populate({
-        //     path: 'idApprentice',
-        //     populate: {
-        //         path: 'fiche.idFiche',
-        //         select: 'name number' 
-        //     }
-        // });
+        const populatedRegister = await register.populate({
+            path: 'idApprentice',
+            populate: {
+                path: 'fiche.idFiche',
+                select: 'name number' 
+            }
+        });
 
-        // const estudiantes = populatedRegister.idApprentice
-        //     .filter(estudiante =>
-        //         estudiante &&
-        //         estudiante.fiche &&
-        //         estudiante.fiche.name &&
-        //         estudiante.fiche.number &&
-        //         estudiante.numDocument &&
-        //         estudiante.firstName &&
-        //         estudiante.lastName
-        //     )
-        //     .map((estudiante, index) => ({
-        //         index: index + 1,
-        //         nombreFicha: estudiante.fiche.name,
-        //         numeroFicha: estudiante.fiche.number,
-        //         cc: estudiante.numDocument,
-        //         nombre: estudiante.firstName,
-        //         apellido: estudiante.lastName
-        //     }));
+        const estudiantes = populatedRegister.idApprentice
+            .filter(estudiante =>
+                estudiante &&
+                estudiante.fiche &&
+                estudiante.fiche.name &&
+                estudiante.fiche.number &&
+                estudiante.numDocument &&
+                estudiante.firstName &&
+                estudiante.lastName
+            )
+            .map((estudiante, index) => ({
+                index: index + 1,
+                nombreFicha: estudiante.fiche.name,
+                numeroFicha: estudiante.fiche.number,
+                cc: estudiante.numDocument,
+                nombre: estudiante.firstName,
+                apellido: estudiante.lastName
+            }));
 
-        // console.log('Estudiantes:', estudiantes);
+        console.log('Estudiantes:', estudiantes);
 
-        // let followUpInstructors = [];
-        // let technicalInstructors = [];
-        // let projectInstructors = [];
+        let followUpInstructors = [];
+        let technicalInstructors = [];
+        let projectInstructors = [];
 
-        // if (assignment[0]?.followUpInstructor?.length > 0) {
-        //     followUpInstructors = assignment[0]?.followUpInstructor.map(instructor => ({
-        //         name: instructor.name,
-        //         email: instructor.email,
-        //         type: 'Instructor de seguimiento'
-        //     }));
-        // }
-        // if (assignment[0]?.technicalInstructor?.length > 0) {
-        //     technicalInstructors = assignment[0]?.technicalInstructor.map(instructor => ({
-        //         name: instructor.name,
-        //         email: instructor.email,
-        //         type: 'Instructor técnico'
-        //     }));
-        // }
-        // if (assignment[0]?.projectInstructor?.length > 0) {
-        //     projectInstructors = assignment[0]?.projectInstructor.map(instructor => ({
-        //         name: instructor.name,
-        //         email: instructor.email,
-        //         type: 'Instructor de proyecto'
-        //     }));
-        // }
+        if (assignment[0]?.followUpInstructor?.length > 0) {
+            followUpInstructors = assignment[0]?.followUpInstructor.map(instructor => ({
+                name: instructor.name,
+                email: instructor.email,
+                type: 'Instructor de seguimiento'
+            }));
+        }
+        if (assignment[0]?.technicalInstructor?.length > 0) {
+            technicalInstructors = assignment[0]?.technicalInstructor.map(instructor => ({
+                name: instructor.name,
+                email: instructor.email,
+                type: 'Instructor técnico'
+            }));
+        }
+        if (assignment[0]?.projectInstructor?.length > 0) {
+            projectInstructors = assignment[0]?.projectInstructor.map(instructor => ({
+                name: instructor.name,
+                email: instructor.email,
+                type: 'Instructor de proyecto'
+            }));
+        }
 
-        // const enviarCorreoInstructor = async (instructor, processedInstructors, estudiantes) => {
-        //     const { name, email, type, idInstructor } = instructor;
+        const enviarCorreoInstructor = async (instructor, processedInstructors, estudiantes) => {
+            const { name, email, type, idInstructor } = instructor;
 
-        //     // Verificamos si el instructor ya ha sido procesado, en cuyo caso no enviamos el correo
-        //     if (processedInstructors.includes(idInstructor)) {
-        //         console.log(`El instructor con ID ${idInstructor} ya fue procesado. No se enviará correo.`);
-        //         return; // Ignoramos este instructor
-        //     }
+            // Verificamos si el instructor ya ha sido procesado, en cuyo caso no enviamos el correo
+            if (processedInstructors.includes(idInstructor)) {
+                console.log(`El instructor con ID ${idInstructor} ya fue procesado. No se enviará correo.`);
+                return; // Ignoramos este instructor
+            }
 
-        //     // Verificamos que los datos del instructor sean válidos
-        //     if (!email || !name || !type) {
-        //         console.error(`Datos incompletos para el instructor con ID ${idInstructor}: ${name}, ${email}, ${type}`);
-        //         return; // Salimos si faltan datos clave
-        //     }
+            // Verificamos que los datos del instructor sean válidos
+            if (!email || !name || !type) {
+                console.error(`Datos incompletos para el instructor con ID ${idInstructor}: ${name}, ${email}, ${type}`);
+                return; // Salimos si faltan datos clave
+            }
 
-        //     try {
-        //         // Enviamos el correo al instructor
-        //         await sendEmail1(email, name, type, estudiantes); // Función asíncrona que envía el correo
-        //         console.log(`Correo enviado a: ${name} (${type}) con email: ${email}`);
+            try {
+                // Enviamos el correo al instructor
+                await sendEmail1(email, name, type, estudiantes); // Función asíncrona que envía el correo
+                console.log(`Correo enviado a: ${name} (${type}) con email: ${email}`);
 
-        //         // Añadimos al instructor al array de instructores procesados
-        //         processedInstructors.push(idInstructor);
-        //     } catch (error) {
-        //         console.error(`Error al enviar correo a: ${name} (${type}) con email: ${email}`, error);
-        //     }
-        // };
+                // Añadimos al instructor al array de instructores procesados
+                processedInstructors.push(idInstructor);
+            } catch (error) {
+                console.error(`Error al enviar correo a: ${name} (${type}) con email: ${email}`, error);
+            }
+        };
 
-        // let processedInstructors = [];
+        let processedInstructors = [];
 
-        // if (Array.isArray(followUpInstructors) && followUpInstructors.length > 0) {
-        //     for (let instructor of followUpInstructors) {
-        //         await enviarCorreoInstructor(instructor, processedInstructors, estudiantes);
-        //     }
-        // }
+        if (Array.isArray(followUpInstructors) && followUpInstructors.length > 0) {
+            for (let instructor of followUpInstructors) {
+                await enviarCorreoInstructor(instructor, processedInstructors, estudiantes);
+            }
+        }
 
-        // if (Array.isArray(technicalInstructors) && technicalInstructors.length > 0) {
-        //     for (let instructor of technicalInstructors) {
-        //         await enviarCorreoInstructor(instructor, processedInstructors, estudiantes);
-        //     }
-        // }
+        if (Array.isArray(technicalInstructors) && technicalInstructors.length > 0) {
+            for (let instructor of technicalInstructors) {
+                await enviarCorreoInstructor(instructor, processedInstructors, estudiantes);
+            }
+        }
 
-        // if (Array.isArray(projectInstructors) && projectInstructors.length > 0) {
-        //     for (let instructor of projectInstructors) {
-        //         await enviarCorreoInstructor(instructor, processedInstructors, estudiantes);
-        //     }
-        // }
+        if (Array.isArray(projectInstructors) && projectInstructors.length > 0) {
+            for (let instructor of projectInstructors) {
+                await enviarCorreoInstructor(instructor, processedInstructors, estudiantes);
+            }
+        }
+
+        
 
         res.status(200).json({ message: "Asignación de instructores realizada con éxito." });
     } catch (error) {
