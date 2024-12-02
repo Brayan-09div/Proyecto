@@ -31,24 +31,24 @@ const modalityController = {
       res.status(500).json({ error: "Error listing modality by ID" });
     }
   },
-    // Crear nueva modalidad
-    addmodality: async (req, res) => {
-      const { name, hourInstructorFollow, hourInstructorTechnical, hourInstructorProject,  } = req.body;
-      try {
-        const newModality = new Modality({
-          name,
-          hourInstructorFollow,
-          hourInstructorTechnical,
-          hourInstructorProject,
-        }); 
-        const result = await newModality.save();
-        console.log("Modality created:", result);
-        res.json(result);
-      } catch (error) {
-        console.error("Error creating modality:", error);
-        res.status(500).json({ error: "Error creating modality" });
-      }
-    },
+  // Crear nueva modalidad
+  addmodality: async (req, res) => {
+    const { name, hourInstructorFollow, hourInstructorTechnical, hourInstructorProject, } = req.body;
+    try {
+      const newModality = new Modality({
+        name,
+        hourInstructorFollow,
+        hourInstructorTechnical,
+        hourInstructorProject,
+      });
+      const result = await newModality.save();
+      console.log("Modality created:", result);
+      res.json(result);
+    } catch (error) {
+      console.error("Error creating modality:", error);
+      res.status(500).json({ error: "Error creating modality" });
+    }
+  },
 
   // Editar una modalidad por su ID
   updatemodalitybyid: async (req, res) => {
@@ -71,37 +71,61 @@ const modalityController = {
       res.status(500).json({ error: error.message });
     }
   },
-   // activar------------------------------------------------------------------------------------
-   enablemodalitybyid: async (req, res) => {
+  // activar------------------------------------------------------------------------------------
+  enablemodalitybyid: async (req, res) => {
     const { id } = req.params;
-    try {
-        const  modality = await Modality.findByIdAndUpdate(id,{status:1},{new:true});
 
-        if (!modality) {
-            return res.status(404).json({ error: 'Modality no encontrada' });
-        }
-        res.json({ message });
+    try {
+      const modality = await Modality.findById(id);
+
+      if (!modality) {
+        return res.status(404).json({ error: 'Modality no encontrada' });
+      }
+
+      if (modality.status === 1) {
+        return res.status(400).json({ message: 'Esta modalidad ya está activa' });
+      }
+
+      const updatedModality = await Modality.findByIdAndUpdate(
+        id,
+        { status: 1 },
+        { new: true }
+      );
+
+      res.json({ message: 'Modality activada con éxito', modality: updatedModality });
     } catch (error) {
-        console.error('Error al activar:', error);
-        res.status(500).json({ error: 'Error al activar' });
+      console.error('Error al activar la modalidad:', error);
+      res.status(500).json({ error: 'Error interno al activar la modalidad' });
     }
-},
+  },
 
-// desactivar una asignación---------------------------------------------------------------------
-disablemodalitybyid: async (req, res) => {
+  // desactivar una asignación---------------------------------------------------------------------
+  disablemodalitybyid: async (req, res) => {
     const { id } = req.params;
+
     try {
-        const  modality = await Modality.findByIdAndUpdate(id,{status:0}, {new:true});
+        const modality = await Modality.findById(id);
 
         if (!modality) {
             return res.status(404).json({ error: 'Modality no encontrada' });
         }
-        res.json({ message });
+
+        if (modality.status === 0) {
+            return res.status(400).json({ message: 'Esta modalidad ya está desactivada' });
+        }
+
+        const updatedModality = await Modality.findByIdAndUpdate(
+            id,
+            { status: 0 },
+            { new: true }
+        );
+
+        res.json({ message: 'Modality desactivada con éxito', modality: updatedModality });
     } catch (error) {
         console.error('Error al desactivar Modality:', error);
-        res.status(500).json({ error: 'Error al desactivar Modality' });
+        res.status(500).json({ error: 'Error interno al desactivar Modality' });
     }
-}
+  }
 };
 
 
