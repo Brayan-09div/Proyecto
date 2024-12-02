@@ -14,7 +14,6 @@ const binnaclesSchema = new mongoose.Schema({
     document: {
         type: String,
         required: true,
-        unique: true,
         max: 50
     },
     status: {

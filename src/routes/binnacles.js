@@ -44,20 +44,25 @@ router.get('/listbinnaclesbyinstructor/:idinstructor', [
 
 
 router.post('/addbinnacles', [
-   check('register').custom(registerHelper.existResgister),
-   check('instructor', 'El instructor es obligatorio').notEmpty(),
-   check('instructor.idinstructor', 'El id no es válido').isMongoId(),
-   check('idinstructor').custom(async (idInstructor, { req }) => {
-     if (idInstructor) {
-       await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
-     }
-   }),
-   check('number', 'El number es obligatorio').notEmpty(),
-   check('document', 'El document es obligatorio').notEmpty(),
-   check('number').custom(binnaclesHelper.existNumber),
-   check('document').custom(binnaclesHelper.existDocument),
+   check('register', 'El registro es obligatorio').isMongoId(),
+   check('instructor.idinstructor', 'El id del instructor es obligatorio y debe ser un ID válido').isMongoId(),
+   check('number', 'El número es obligatorio y debe estar entre 1 y 12').isIn([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]),
+   check('document', 'El documento es obligatorio').notEmpty(),
    validarCampos
-], controllerBinnacles.addbinnacles);
+ ], (req, res) => {
+     // Reestructurar el campo `idinstructor` al subdocumento `instructor` si llega al nivel raíz
+     if (req.body.idinstructor) {
+         req.body.instructor = {
+             idinstructor: req.body.idinstructor,
+             name: req.body.name || '' // Si no envían el nombre del instructor, dejarlo vacío
+         };
+         delete req.body.idinstructor;
+         delete req.body.name;
+     }
+ 
+     controllerBinnacles.addbinnacles(req, res);
+ });
+ 
 
 
 router.put('/updatebinnaclebyid/:id', [
