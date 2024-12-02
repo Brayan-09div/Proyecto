@@ -28,7 +28,7 @@ export const sendEmail1 = async (correo, nombreInstructor, tipoInstrucotor, estu
                 <tr>
                     <td>${index + 1}</td>
                     <td>${estudiante.nombreFicha}</td>
-                    <td>${estudiante.numeroficha}</td>
+                    <td>${estudiante.numeroFicha}</td>
                     <td>${estudiante.cc}</td>
                     <td>${estudiante.nombre}</td>
                     <td>${estudiante.apellido}</td>

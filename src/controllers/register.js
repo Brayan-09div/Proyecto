@@ -1090,27 +1090,29 @@ const controllerRegister = {
         let technicalInstructors = [];
         let projectInstructors = [];
 
-        if (assignment[0]?.followUpInstructor?.length > 0) {
-            followUpInstructors = assignment[0]?.followUpInstructor.map(instructor => ({
-                name: instructor.name,
-                email: instructor.email,
-                type: 'Instructor de seguimiento'
-            }));
-        }
-        if (assignment[0]?.technicalInstructor?.length > 0) {
-            technicalInstructors = assignment[0]?.technicalInstructor.map(instructor => ({
-                name: instructor.name,
-                email: instructor.email,
-                type: 'Instructor técnico'
-            }));
-        }
-        if (assignment[0]?.projectInstructor?.length > 0) {
-            projectInstructors = assignment[0]?.projectInstructor.map(instructor => ({
-                name: instructor.name,
-                email: instructor.email,
-                type: 'Instructor de proyecto'
-            }));
-        }
+        // if (assignment[0]?.followUpInstructor?.length > 0) {
+        //     followUpInstructors = assignment[0]?.followUpInstructor.map(instructor => ({
+        //         name: instructor.name,
+        //         email: instructor.email,
+        //         type: 'Instructor de seguimiento'
+        //     }));
+        // }
+        // if (assignment[0]?.technicalInstructor?.length > 0) {
+        //     technicalInstructors = assignment[0]?.technicalInstructor.map(instructor => ({
+        //         name: instructor.name,
+        //         email: instructor.email,
+        //         type: 'Instructor técnico'
+        //     }));
+        // }
+        // if (assignment[0]?.projectInstructor?.length > 0) {
+        //     projectInstructors = assignment[0]?.projectInstructor.map(instructor => ({
+        //         name: instructor.name,
+        //         email: instructor.email,
+        //         type: 'Instructor de proyecto'
+        //     }));
+        // }
+
+        // let processedInstructors = [];
 
         const enviarCorreoInstructor = async (instructor, processedInstructors, estudiantes) => {
             const { name, email, type, idInstructor } = instructor;
@@ -1139,7 +1141,7 @@ const controllerRegister = {
             }
         };
 
-        let processedInstructors = [];
+        // let processedInstructors = [];
 
         if (Array.isArray(followUpInstructors) && followUpInstructors.length > 0) {
             for (let instructor of followUpInstructors) {
