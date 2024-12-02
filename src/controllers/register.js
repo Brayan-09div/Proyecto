@@ -1112,6 +1112,8 @@ const controllerRegister = {
         //     }));
         // }
 
+        // let processedInstructors = [];
+
         // const enviarCorreoInstructor = async (instructor, processedInstructors, estudiantes) => {
         //     const { name, email, type, idInstructor } = instructor;
 
@@ -1139,7 +1141,7 @@ const controllerRegister = {
         //     }
         // };
 
-        // let processedInstructors = [];
+        
 
         // if (Array.isArray(followUpInstructors) && followUpInstructors.length > 0) {
         //     for (let instructor of followUpInstructors) {
