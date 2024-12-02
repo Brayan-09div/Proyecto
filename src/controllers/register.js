@@ -6,21 +6,25 @@ import { sendEmail1 } from "../utils/mailer.js"
 import { sendEmail2 } from "../utils/mailer.js"
 
 const controllerRegister = {
-  // Listar todos los registros
-  listallregister: async (req, res) => {
-    try {
-      const registers = await Register.find()
-        .populate("idApprentice", "firstName lastName fiche")
-        .populate("idModality", "name");
-      console.log("Lista de registros", registers);
-      res.json({ success: true, data: registers });
-    } catch (error) {
-      console.error("Error al listar registros", error);
-      res
-        .status(500)
-        .json({ success: false, error: "Error al listar registros" });
-    }
-  },
+// Listar todos los registros
+listallregister: async (req, res) => {
+  try {
+    const registers = await Register.find()
+      .populate({
+        path: "idApprentice",
+        select: "-__v -createdAt -updatedAt", 
+      })
+      .populate("idModality", "name"); 
+      
+    console.log("Lista de registros", registers);
+    res.json({ success: true, data: registers });
+  } catch (error) {
+    console.error("Error al listar registros", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Error al listar registros" });
+  }
+},
 
 
   // Listar por id
