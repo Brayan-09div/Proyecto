@@ -625,6 +625,7 @@ listallregister: async (req, res) => {
     }
   },
 
+  
   // Listar registros por ID del instructor técnico
   listRegisterByTechnicalInstructor: async (req, res) => {
     const { idinstructor } = req.params;
