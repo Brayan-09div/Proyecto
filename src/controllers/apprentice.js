@@ -7,16 +7,16 @@ import xlsx from 'xlsx';
 
 const  controllerApprentice ={
  // listar todos los aprendices ---------------------------------------------------
-listallapprentice : async (req , res) => {
-try {
-    const apprentice = await Apprentice.find();
-    console.log('lista de appenteci', apprentice)
-    res.json(apprentice)
-} catch (error) {
-    console.log('Error al listar apprentice')
-    res.status(500).json({error: 'Error al listar apprentice'})   
-}
-},
+    listallapprentice: async (req, res) => {
+        try {
+            const apprentice = await Apprentice.find().sort({ createdAt: -1 });
+            console.log('Lista de apprentices', apprentice);
+            res.json(apprentice);
+        } catch (error) {
+            console.log('Error al listar apprentice');
+            res.status(500).json({ error: 'Error al listar apprentice' });
+        }
+    },
 
 // listar id del aprendiz-------------------------------------------------------------
 listapprenticebyid: async (req, res) => {
