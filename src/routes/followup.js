@@ -41,6 +41,14 @@ router.get('/listfollowupbyinstructor/:idinstructor',[
     validarCampos
 ], controllerFollowup.listfollowupbyinstructor)
 
+
+
+router.get('/listfollowupbyinstructoremail/:email', [
+    validateAdmin,
+    check('email').isEmail().withMessage('Debe ser un correo electrónico válido'),
+    validarCampos 
+  ], controllerFollowup.listFollowupByInstructorEmail);
+
 //-------------------------------------------------------------
 router.post('/addfollowup',[
     validateAdmin,

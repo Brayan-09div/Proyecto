@@ -90,6 +90,42 @@ listfollowupbyinstructor: async (req, res) => {
     }
   },
 
+  listFollowupByInstructorEmail: async (req, res) => {
+    const { email } = req.params;
+    try {
+      const register = await Register.findOne({
+        'assignment.followUpInstructor.email': email
+      });
+      if (!register) {
+        return res.status(404).json({ error: 'No se encontró el instructor con este correo en las asignaciones' });
+      }
+      const instructor = register.assignment
+        .flatMap(a => a.followUpInstructor)
+        .find(f => f.email === email); 
+      if (!instructor) {
+        return res.status(404).json({ error: 'El correo no está asociado a un instructor válido' });
+      }
+      const idInstructor = instructor.idInstructor;
+      const followup = await Followup.find({ 'instructor.idinstructor': idInstructor })
+        .populate({
+          path: 'register',
+          populate: {
+            path: 'idApprentice'
+          }
+        });
+        console.log('Número de seguimientos encontrados:', followup.length);  
+      if (!followup || followup.length === 0) {
+        return res.status(404).json({ error: 'No se encontraron seguimientos para este instructor' });
+      }
+  
+  
+      res.json(followup);
+  
+    } catch (error) {
+      console.error(`Error al listar seguimientos por correo del instructor ${email}:`, error);
+      res.status(500).json({ error: 'Error al listar los seguimientos del instructor' });
+    }
+  },
 
   // Insertar un nuevo followup----------------------------------------------
   addfollowup: async (req, res) => {

@@ -1,20 +1,19 @@
 import mongoose from 'mongoose';
 
 const binnaclesSchema = new mongoose.Schema({
-    register: { type: mongoose.Schema.Types.ObjectId, ref: 'Register' },
+    register: { type: mongoose.Schema.Types.ObjectId, ref: 'Register', required: true },
     instructor: {
-        idinstructor: mongoose.Schema.Types.ObjectId,
-        name: String
+        idinstructor: { type: mongoose.Schema.Types.ObjectId },
+        name: { type: String }
     },
     number: {
         type: Number,
-        required: true,
-        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        required: true
     },
     document: {
         type: String,
         required: true,
-        max: 50
+        maxlength: 50
     },
     status: {
         type: String,
@@ -23,7 +22,7 @@ const binnaclesSchema = new mongoose.Schema({
     },
     observation: [{
         user: { type: mongoose.Schema.Types.ObjectId },
-        observation: String,
+        observation: { type: String },
         observationDate: { type: Date, default: Date.now }
     }],
     checkTechnicalInstructor: {
@@ -35,6 +34,7 @@ const binnaclesSchema = new mongoose.Schema({
         default: false
     }
 }, { timestamps: true });
+
 export default mongoose.model('Binnacles', binnaclesSchema);
 
 

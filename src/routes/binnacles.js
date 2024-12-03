@@ -41,27 +41,23 @@ router.get('/listbinnaclesbyinstructor/:idinstructor', [
 ], controllerBinnacles.listbinnaclesbyinstructor)
 
 
+router.get('/listbinnaclesbyinstructoremail/:email', [
+   validateAdmin,
+   check('email').isEmail().withMessage('Debe ser un correo electrónico válido'),
+   validarCampos 
+ ], controllerBinnacles.listBinnaclesByInstructorEmail);
+ 
 
 
-router.post('/addbinnacles', [
-   check('register', 'El registro es obligatorio').isMongoId(),
+
+ router.post('/addbinnacles', [
+   check('register', 'El registro es obligatorio y debe ser un ID válido').isMongoId(),
    check('instructor.idinstructor', 'El id del instructor es obligatorio y debe ser un ID válido').isMongoId(),
-   check('number', 'El número es obligatorio y debe estar entre 1 y 12').isIn([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]),
+   check('instructor.name', 'El nombre del instructor es obligatorio').notEmpty(),
+   check('number', 'El número es obligatorio').isInt({ min: 1 }),
    check('document', 'El documento es obligatorio').notEmpty(),
    validarCampos
- ], (req, res) => {
-     // Reestructurar el campo `idinstructor` al subdocumento `instructor` si llega al nivel raíz
-     if (req.body.idinstructor) {
-         req.body.instructor = {
-             idinstructor: req.body.idinstructor,
-             name: req.body.name || '' // Si no envían el nombre del instructor, dejarlo vacío
-         };
-         delete req.body.idinstructor;
-         delete req.body.name;
-     }
- 
-     controllerBinnacles.addbinnacles(req, res);
- });
+ ], controllerBinnacles.addbinnacles);
  
 
 
