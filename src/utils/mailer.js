@@ -111,22 +111,20 @@ export const sendEmail1 = async (correo, nombreInstructor, tipoInstrucotor, estu
 
 
 // correo de asignación al aprendiz
-
 export const sendEmail2 = async (correo, nombreAprendiz, instructorNombre, instructorEmail, instructorTelefono) => {
     try {
         let pass = process.env.EMAIL_PASS;
         const transporter = nodemailer.createTransport({
-            host: "smtp-mail.outlook.com",
-            port: 587,
-            secure: false,
+            service: 'gmail',
             auth: {
                 user: process.env.EMAIL_USER,
-                pass
+                pass: process.env.EMAIL_PASS
             },
             tls: {
-                ciphers: 'SSLv3'
+                rejectUnauthorized: false
             }
         });
+
 
         // Obtener la fecha actual
         const fechaActual = new Date().toLocaleDateString('es-CO', {
@@ -140,71 +138,59 @@ export const sendEmail2 = async (correo, nombreAprendiz, instructorNombre, instr
             from: '"Etapas Productivas SENA" <etapasproductivascat@sena.edu.co>',
             to: correo,
             subject: "ASIGNACIÓN DE INSTRUCTOR PARA REALIZACIÓN SEGUIMIENTO",
-            text: `
-    Fecha: ${fechaActual}
-    
-    Cordial saludo apreciado aprendiz ${nombreAprendiz},
-    
-    De manera atenta me permito informar que, de acuerdo con lo establecido en el reglamento del
-     aprendiz se asigna como instructor de seguimiento al instructor:
-    
-    ${instructorNombre}
-    ${instructorEmail}
-    ${instructorTelefono}
-    
-    para que realice la gestión de contacto e inicie los seguimientos lo más pronto posible.
-    
-    ARTÍCULO 14. SEGUIMIENTO Y EVALUACIÓN DE LA ETAPA PRODUCTIVA. El seguimiento a 
-    la etapa productiva es obligatorio y se realizará de manera virtual y presencial. El Aprendiz 
-    elaborará una bitácora quincenal, en la que señalará las actividades adelantadas en
-    desarrollo de su etapa productiva en cualesquiera de las alternativas, para que 
-    el Instructor asignado como responsable pueda hacer seguimiento de acuerdo a los 
-    indicadores establecidos en el procedimiento de ejecución de la formación, garantizando 
-    una interacción continua entre el Aprendiz y el Instructor; esta actividad se debe 
-    complementar con visitas o comunicación directa que realice el Instructor.
+            html: `
+                <html>
+                    <body>
+                        <h2>Asignación de Instructor para Seguimiento - Etapas Productivas</h2>
+                        <p><strong>Fecha:</strong> ${fechaActual}</p>
+                        <p>Cordial saludo apreciado aprendiz <strong>${nombreAprendiz}</strong>,</p>
+                        <p>De manera atenta me permito informarle que, de acuerdo con lo establecido en el reglamento del aprendiz, se asigna como instructor de seguimiento al siguiente instructor:</p>
+                        
+                        <h3>Detalles del Instructor:</h3>
+                        <ul>
+                            <li><strong>Nombre:</strong> ${instructorNombre}</li>
+                            <li><strong>Email:</strong> <a href="mailto:${instructorEmail}">${instructorEmail}</a></li>
+                            <li><strong>Teléfono:</strong> ${instructorTelefono}</li>
+                        </ul>
 
-    PARÁGRAFO: Si el Aprendiz no alcanza los resultados de aprendizaje de la etapa
-    productiva se procederá a realizar comité de evaluación quien analizará el caso para emitir 
-    los juicios evaluativos finales, si los juicios no alcanzan los resultados de aprendizaje de la 
-    etapa productiva se procederá a cancelar la matrícula, previo agotamiento del debido proceso.
-    
-    Recuerde la importancia de llevar un correcto seguimiento tomando como base:
-    1. El primer seguimiento debe hacerse cuanto antes para acordar las actividades con su coformador(jefe)
-    2. Son en total 3 seguimientos (iniciando, a mitad y finalizando)
-    3. Asegúrese de guardar las evidencias ya que cada 15 días debe presentar una bitácora (es su actividad 
-    quincenal, no deje acumular ya que de lo contrario puede ser citado a comité por falta académica de su 
-    deber), estas evidencias pueden ser informes, fotografías, documentos, registros, facturas, documentos, 
-    correos etc... En total son 12 bitácoras y debe estarlas realizando desde el día que inició su etapa 
-    productiva.
-    4. Maneje el correo y el drive que compartirá su instructor de seguimiento
-    5. Las firmas de los documentos son muy importantes ya que convalidan la autenticidad del documento
-    6. Revise sus fechas, recuerde que las fichas se vencen por tiempo y hay unos tiempos máximos (2 años 
-    al finalizar su lectiva) para realizar su etapa productiva y el trámite de certificación, no deje pasar estos 
-    tiempos ya que puede ser declarado en deserción.
-    
-    Agradezco estar atentos al correo electrónico, medio en donde la instructora se estará presentando.
-    
-    Adjunto documentos. puede consultarlos en el siguiente enlace:
-    https://drive.google.com/drive/folders/1e3naiLl-e6kRF6_rfKp_rwDt2BTUEXXc?usp=sharing
-    
-    Cualquier duda o problema comuníquese con nosotros
-    NOTA: Si se presenta alguna inconsistencia como problemas de comunicación con el instructor e 
-    incumplimiento de los seguimientos, notificar a este correo para apoyar con la búsqueda de soluciones 
-    mantengamos el contacto por cualquier novedad. Al igual recuerde el reglamento del aprendiz y que en 
-    este momento usted aun hace parte del SENA, Es trabajo conjunto para culminar con éxito y lograr la 
-    certificación.
-    
-    Quedamos atentos
-    
-    Cordialmente,
-    Equipo Etapas Productivas
-    etapasproductivascat@sena.edu.co
-    (+57) 7248113
-    Calle 22 N° 9 – 82, San Gil Centro Agroturístico
-    Regional Santander
-                `
+                        <h3>Reglamento de Seguimiento:</h3>
+                        <p><strong>ARTÍCULO 14. SEGUIMIENTO Y EVALUACIÓN DE LA ETAPA PRODUCTIVA:</strong></p>
+                        <p>El seguimiento a la etapa productiva es obligatorio y se realizará de manera virtual y presencial. El aprendiz elaborará una bitácora quincenal, en la que señalará las actividades adelantadas en desarrollo de su etapa productiva. Esta actividad debe complementarse con visitas o comunicación directa realizada por el instructor.</p>
+
+                        <p><strong>Parágrafo:</strong> Si el aprendiz no alcanza los resultados de aprendizaje de la etapa productiva, se procederá a realizar un comité de evaluación para emitir juicios evaluativos finales. Si los juicios no alcanzan los resultados, se procederá a cancelar la matrícula, tras el debido proceso.</p>
+
+                        <h3>Recomendaciones Importantes:</h3>
+                        <ol>
+                            <li>El primer seguimiento debe hacerse cuanto antes para acordar las actividades con su coformador (jefe).</li>
+                            <li>Son en total 3 seguimientos: inicial, a mitad, y finalizando la etapa.</li>
+                            <li>Guarde las evidencias que debe presentar cada 15 días en su bitácora, como informes, fotografías, documentos, correos, entre otros.</li>
+                            <li>Use el correo y el drive proporcionados por su instructor para realizar el seguimiento.</li>
+                            <li>Las firmas de los documentos son esenciales para validar la autenticidad de los mismos.</li>
+                            <li>Revise las fechas, ya que las fichas se vencen por tiempo. Recuerde que debe completar la etapa productiva dentro de los dos años a partir de finalizar la lectiva.</li>
+                        </ol>
+
+                        <h3>Documentos y Enlace de Google Drive:</h3>
+                        <p>Adjunto documentos importantes. Puede consultarlos en el siguiente enlace:</p>
+                        <p><a href="https://drive.google.com/drive/folders/1e3naiLl-e6kRF6_rfKp_rwDt2BTUEXXc?usp=sharing" target="_blank">Documentos y Bitácoras en Google Drive</a></p>
+
+                        <p>Recuerde que si tiene problemas de comunicación o incumplimiento de seguimientos con el instructor, debe notificar a este correo para apoyar con la búsqueda de soluciones.</p>
+
+                        <h3>Contacto:</h3>
+                        <p>Cualquier duda o inconveniente, no dude en contactarnos:</p>
+                        <ul>
+                            <li><strong>Email:</strong> <a href="mailto:etapasproductivascat@sena.edu.co">etapasproductivascat@sena.edu.co</a></li>
+                            <li><strong>Teléfono:</strong> (+57) 7248113</li>
+                            <li><strong>Dirección:</strong> Calle 22 N° 9 – 82, San Gil Centro Agroturístico, Regional Santander</li>
+                        </ul>
+
+                        <p>Quedamos atentos a cualquier novedad.</p>
+
+                        <p>Cordialmente,</p>
+                        <p><strong>Equipo Etapas Productivas</strong></p>
+                    </body>
+                </html>
+            `
         };
-
         const info = await transporter.sendMail(mailOptions);
         console.log("Mensaje enviado: %s", info.messageId);
         return info.response;
@@ -213,6 +199,7 @@ export const sendEmail2 = async (correo, nombreAprendiz, instructorNombre, instr
         return error;
     }
 }
+
 
 // Notificaciones de vecimiento de ficha 
 export const sendEmail3 = async (correo, nombreAprendiz, mesesRestantes, mesesParaRegistro) => {
