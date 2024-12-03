@@ -52,8 +52,13 @@ router.get('/listbinnaclesbyinstructoremail/:email', [
 
  router.post('/addbinnacles', [
    check('register', 'El registro es obligatorio y debe ser un ID válido').isMongoId(),
-   check('instructor.idinstructor', 'El id del instructor es obligatorio y debe ser un ID válido').isMongoId(),
-   check('instructor.name', 'El nombre del instructor es obligatorio').notEmpty(),
+   check('instructor', 'El instructor es obligatorio').notEmpty(),
+   check('instructor.idinstructor', 'El id no es válido').isMongoId(),
+   check('idinstructor').custom(async (idInstructor, { req }) => {
+     if (idInstructor) {
+       await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+     }
+   }),
    check('number', 'El número es obligatorio').isInt({ min: 1 }),
    check('document', 'El documento es obligatorio').notEmpty(),
    validarCampos
@@ -61,24 +66,14 @@ router.get('/listbinnaclesbyinstructoremail/:email', [
  
 
 
-router.put('/updatebinnaclebyid/:id', [
-   validateAdmin,
+ router.put('/updatebinnaclebyid/:id', [
+   validateAdmin, 
    check('id', 'El id no es válido').isMongoId(), 
-   check('id').custom(binnaclesHelper.existBinnacles), 
    check('number').optional().isNumeric(), 
-   check('number').optional().custom(async (number, { req }) => {
-       if (number) {
-           await binnaclesHelper.existNumber(number, req.params.id);
-       }
-   }),
-   check('document').optional().isLength({ max: 50 }),
-   check('document').optional().custom(async (document, { req }) => {
-       if (document) {
-           await binnaclesHelper.existDocument(document, req.params.id);
-       }
-   }),
+   check('document').optional().isLength({ max: 50 }), 
    validarCampos 
 ], controllerBinnacles.updatebinnaclebyid);
+
 
 
 router.put('/updatestatus/:id/:status',[

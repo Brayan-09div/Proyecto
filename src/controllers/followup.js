@@ -127,20 +127,21 @@ listfollowupbyinstructor: async (req, res) => {
     }
   },
 
-  // Insertar un nuevo followup----------------------------------------------
   addfollowup: async (req, res) => {
     const { register, instructor, number, month, document } = req.body;
     try {
-      const existsFollowup = await Followup.findOne({ number });
-      if (existsFollowup) {
-        return res.status(400).json({ error: "El número de seguimiento ya existe" });
+      const followupsForRegister = await Followup.find({ register }).countDocuments(); // Cambiado count() por countDocuments()
+      if (followupsForRegister >= 3) {
+        return res.status(400).json({ error: "Ya hay 3 seguimientos para este registro" });
       }
-  
+      const existsFollowup = await Followup.findOne({ register, number });
+      if (existsFollowup) {
+        return res.status(400).json({ error: "El número de seguimiento ya existe para este registro" });
+      }
       const registerRecord = await Register.findById(register).populate("idModality");
       if (!registerRecord) {
         return res.status(400).json({ error: "No se encontró registro asociado con la asignación" });
       }
- 
       const modality = registerRecord.idModality;
       if (!modality) {
         return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
@@ -151,7 +152,7 @@ listfollowupbyinstructor: async (req, res) => {
           error: "No se definieron horas de seguimiento para esta modalidad",
         });
       }
-      const hoursPerBinnacle = hoursFollow / 3;
+      const hoursPerBinnacle = hoursFollow / 4;
       if (!Array.isArray(registerRecord.hourFollowupPending)) {
         registerRecord.hourFollowupPending = [];
       }
@@ -174,7 +175,6 @@ listfollowupbyinstructor: async (req, res) => {
       if (!activeFollowUpInstructor) {
         return res.status(400).json({ error: "El instructor proporcionado no está activo como instructor de seguimiento en la asignación" });
       }
-      // Crear el nuevo seguimiento
       const followup = new Followup({
         register,
         instructor: {
@@ -187,21 +187,21 @@ listfollowupbyinstructor: async (req, res) => {
         status: 1,
       });
       const result = await followup.save();
-      // Actualizar el estado del seguimiento
       const updatedFollowup = await Followup.findByIdAndUpdate(
         result._id,
         { status: '2' },
         { new: true }
       );
       console.log("Seguimiento guardado y actualizado a ejecutado", updatedFollowup);
-      // Guardar los cambios en el registro
       await registerRecord.save();
       res.status(201).json(updatedFollowup);
     } catch (error) {
-      console.error("Error al insertar bitácora", error);
-      res.status(500).json({ error: "Error al insertar Segumineto" });
+      console.error("Error al insertar seguimiento", error);
+      res.status(500).json({ error: "Error al insertar Seguimiento" });
     }
   },
+
+  
 
   // Actualizar un followup por su ID---------------------------------------------------
   updatefollowupbyid: async (req, res) => {
