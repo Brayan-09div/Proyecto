@@ -245,9 +245,9 @@ listallregister: async (req, res) => {
       mailCompany,
       judymentPhoto,
       hourProductiveStageApprentice,
-      assignment,  // Este campo es opcional
+      assignment,
     } = req.body;
-
+  
     try {
       const start = new Date(startDate);
       if (isNaN(start)) {
@@ -255,47 +255,47 @@ listallregister: async (req, res) => {
           .status(400)
           .json({ message: "startDate no es una fecha válida" });
       }
-
+  
       const modalityData = await Modality.findById(idModality);
       if (!modalityData) {
         return res.status(400).json({ message: "Modalidad no encontrada" });
       }
-
+  
       const { name } = modalityData;
-
+  
       // Función para validar instructores obligatorios
       const validateInstructors = (requiredInstructors) => {
         if (!assignment || assignment.length === 0) {
-          return null;  // No hay asignaciones, no hay errores de instructores obligatorios
+          return null;
         }
-
+  
         const missingInstructors = requiredInstructors.filter(
           (instructor) =>
             !assignment.some(
               (element) => element[instructor] && element[instructor].length > 0
             )
         );
-
+  
         if (missingInstructors.length > 0) {
           return `Se requieren los instructores: ${missingInstructors.join(", ")}`;
         }
-
+  
         return null;
       };
-
+  
       // Función para validar instructores prohibidos
       const validateForbiddenInstructors = (forbiddenInstructors) => {
         if (!assignment || assignment.length === 0) {
-          return null;  // No hay asignaciones, no hay errores de instructores prohibidos
+          return null;
         }
-
+  
         const forbiddenInstructorsAssigned = forbiddenInstructors.filter(
           (instructor) =>
             assignment.some(
               (element) => element[instructor] && element[instructor].length > 0
             )
         );
-
+  
         if (forbiddenInstructorsAssigned.length > 0) {
           return `No se deben asignar los instructores: ${forbiddenInstructorsAssigned.join(
             ", "
@@ -303,10 +303,10 @@ listallregister: async (req, res) => {
         }
         return null;
       };
-
+  
       let instructorError = null;
       let forbiddenInstructorError = null;
-
+  
       // Validación de instructores según la modalidad
       if (["PROYECTO EMPRESARIAL", "PROYECTO PRODUCTIVO I+D"].includes(name)) {
         instructorError = validateInstructors([
@@ -337,15 +337,15 @@ listallregister: async (req, res) => {
           "technicalInstructor",
         ]);
       }
-
+  
       if (instructorError) {
         return res.status(400).json({ message: instructorError });
       }
-
+  
       if (forbiddenInstructorError) {
         return res.status(400).json({ message: forbiddenInstructorError });
       }
-
+  
       const apprenticeCount = Array.isArray(idApprentice)
         ? idApprentice.length
         : 1;
@@ -356,7 +356,7 @@ listallregister: async (req, res) => {
         "UNIDAD PRODUCTIVA FAMILIAR",
         "CONTRATO DE APRENDIZAJE",
       ];
-
+  
       // Validación de cantidad de aprendices según la modalidad
       if (singleApprenticeModalities.includes(name) && apprenticeCount !== 1) {
         return res
@@ -372,12 +372,12 @@ listallregister: async (req, res) => {
             message: "Se requiere al menos 1 aprendiz para esta modalidad",
           });
       }
-
+  
       // Establecer la fecha de finalización, sumando 6 meses
       const endDate = new Date(start);
       endDate.setMonth(endDate.getMonth() + 6);
       endDate.setDate(endDate.getDate() - 1);
-
+  
       // Crear un nuevo registro con los datos recibidos
       const newRegister = new Register({
         idApprentice,
@@ -393,10 +393,115 @@ listallregister: async (req, res) => {
         certificationDoc,
         judymentPhoto,
         hourProductiveStageApprentice,
-        assignment: assignment || [],  // Si no hay asignaciones, se asigna un array vacío
+        assignment: assignment || [],
       });
-
+  
       const createdRegister = await newRegister.save();
+  
+      // Lógica para poblar y filtrar estudiantes
+      const populatedRegister = await Register.populate(createdRegister, {
+        path: 'idApprentice',
+        populate: {
+          path: 'fiche.idFiche',
+          select: 'name number'
+        }
+      });
+  
+      const estudiantes = populatedRegister.idApprentice
+        .filter(estudiante =>
+          estudiante &&
+          estudiante.fiche &&
+          estudiante.fiche.name &&
+          estudiante.fiche.number &&
+          estudiante.numDocument &&
+          estudiante.firstName &&
+          estudiante.lastName
+        )
+        .map((estudiante, index) => ({
+          index: index + 1,
+          nombreFicha: estudiante.fiche.name,
+          numeroFicha: estudiante.fiche.number,
+          cc: estudiante.numDocument,
+          nombre: estudiante.firstName,
+          apellido: estudiante.lastName
+        }));
+  
+      console.log('Estudiantes:', estudiantes);
+  
+      let allInstructors = [
+        ...(Array.isArray(assignment?.[0]?.followUpInstructor)
+          ? assignment[0].followUpInstructor.map(instructor => ({
+              ...instructor,
+              type: 'Instructor de seguimiento'
+            }))
+          : []),
+        ...(Array.isArray(assignment?.[0]?.technicalInstructor)
+          ? assignment[0].technicalInstructor.map(instructor => ({
+              ...instructor,
+              type: 'Instructor técnico'
+            }))
+          : []),
+        ...(Array.isArray(assignment?.[0]?.projectInstructor)
+          ? assignment[0].projectInstructor.map(instructor => ({
+              ...instructor,
+              type: 'Instructor de proyecto'
+            }))
+          : [])
+      ];
+      let processedInstructors = [];
+      const enviarCorreoInstructor = async (instructor, estudiantes) => {
+        const { name, email, type, idInstructor } = instructor;
+        if (!idInstructor) {
+          console.error(`Instructor sin ID: ${name} (${type})`);
+          return;
+        }
+        if (!email || !name || !type) {
+          console.error(`Datos incompletos para el instructor: ${JSON.stringify(instructor)}`);
+          return;
+        }
+        if (processedInstructors.includes(idInstructor)) {
+          console.log(`El instructor con ID ${idInstructor} ya fue procesado. No se enviará correo.`);
+          return;
+        }
+        try {
+          await sendEmail1(email, name, type, estudiantes);
+          console.log(`Correo enviado a: ${name} (${type}) con email: ${email}`);
+          processedInstructors.push(idInstructor);
+        } catch (error) {
+          console.error(`Error al enviar correo a: ${name} (${type}) con email: ${email}`, error);
+        }
+      };
+      const procesarInstructores = async (assignment, instructores, estudiantes) => {
+        for (let instructor of instructores) {
+          const { idInstructor, status, name } = instructor;
+          let instructorEnAsignacion = false;
+          if (assignment[0]?.followUpInstructor.some(i => i.idInstructor === idInstructor)) {
+            instructorEnAsignacion = true;
+            console.log(`El instructor ${name} con ID ${idInstructor} está en la asignación (seguimiento).`);
+          } else if (assignment[0]?.technicalInstructor.some(i => i.idInstructor === idInstructor)) {
+            instructorEnAsignacion = true;
+            console.log(`El instructor ${name} con ID ${idInstructor} está en la asignación (técnico).`);
+          } else if (assignment[0]?.projectInstructor.some(i => i.idInstructor === idInstructor)) {
+            instructorEnAsignacion = true;
+            console.log(`El instructor ${name} con ID ${idInstructor} está en la asignación (proyecto).`);
+          }
+          if (!instructorEnAsignacion) {
+            console.log(`El instructor ${name} con ID ${idInstructor} no está en la asignación, no se enviará correo.`);
+            continue;
+          }
+          if (status !== 1) {
+            console.log(`El instructor ${name} con ID ${idInstructor} está inactivo en la asignación, no se enviará correo.`);
+            continue;
+          }
+          await enviarCorreoInstructor(instructor, estudiantes);
+        }
+      };
+      if (allInstructors.length > 0) {
+        console.log('Iniciando el procesamiento de instructores...');
+        await procesarInstructores(assignment, allInstructors, estudiantes);
+      } else {
+        console.log('No hay instructores en la asignación.');
+      }
       res.status(201).json({ success: true, data: createdRegister });
     } catch (error) {
       console.error("Error al crear registro:", error);
@@ -935,103 +1040,79 @@ listallregister: async (req, res) => {
 
         console.log('Estudiantes:', estudiantes);
 
-        let followUpInstructors = [];
-        let technicalInstructors = [];
-        let projectInstructors = [];
-        
-        // Obtener los instructores de cada tipo desde las asignaciones
-        if (assignment[0]?.followUpInstructor?.length > 0) {
-            followUpInstructors = assignment[0]?.followUpInstructor.map(instructor => ({
-                name: instructor.name,
-                email: instructor.email,
-                type: 'Instructor de seguimiento',
-                idInstructor: instructor.idInstructor,
-                status: instructor.status // Asumimos que también tiene un campo de status
-            }));
-        }
-        
-        if (assignment[0]?.technicalInstructor?.length > 0) {
-            technicalInstructors = assignment[0]?.technicalInstructor.map(instructor => ({
-                name: instructor.name,
-                email: instructor.email,
-                type: 'Instructor técnico',
-                idInstructor: instructor.idInstructor,
-                status: instructor.status
-            }));
-        }
-        
-        if (assignment[0]?.projectInstructor?.length > 0) {
-            projectInstructors = assignment[0]?.projectInstructor.map(instructor => ({
-                name: instructor.name,
-                email: instructor.email,
-                type: 'Instructor de proyecto',
-                idInstructor: instructor.idInstructor,
-                status: instructor.status
-            }));
-        }
-        
-        // Array de instructores procesados (para evitar enviar el correo dos veces)
-        let processedInstructors = []; 
-  
-        const enviarCorreoInstructor = async (instructor, processedInstructors, estudiantes) => {
-            const { name, email, type, idInstructor } = instructor;
-            if (!idInstructor) {
-                console.error(`Instructor sin ID: ${name} (${type})`);
-                return;
-            }
-            if (processedInstructors.includes(idInstructor)) {
-                console.log(`El instructor con ID ${idInstructor} ya fue procesado. No se enviará correo.`);
-                return;
-            }
-            if (!email || !name || !type) {
-                console.error(`Datos incompletos para el instructor: ${JSON.stringify(instructor)}`);
-                return;
-            }
-            try {
-                await sendEmail1(email, name, type, estudiantes);
-                console.log(`Correo enviado a: ${name} (${type}) con email: ${email}`);
-                processedInstructors.push(idInstructor);
-            } catch (error) {
-                console.error(`Error al enviar correo a: ${name} (${type}) con email: ${email}`, error);
-            }
-        };
 
-        // Función para procesar los instructores
-      const procesarInstructores = async (instructores, estudiantes) => {
-            for (let instructor of instructores) {
-                const { idInstructor, status } = instructor;
-                const asignacionActual = assignment[0];
-                const instructorAsignado = asignacionActual.followUpInstructor?.find(
-                    (i) => i.idInstructor === idInstructor
-                ) || asignacionActual.technicalInstructor?.find(
-                    (i) => i.idInstructor === idInstructor
-                ) || asignacionActual.projectInstructor?.find(
-                    (i) => i.idInstructor === idInstructor
-                );
-                if (!instructorAsignado || (status !== 1 && instructorAsignado.status !== 1)) {
-                    await enviarCorreoInstructor(instructor, processedInstructors, estudiantes);
-                } else {
-                    console.log(`El instructor ${instructor.name} está activo o permanece desactivado. No se enviará correo.`);
-                }
-            }
-        };
-        
+let allInstructors = [
+  ...(assignment[0]?.followUpInstructor.map(instructor => ({
+      ...instructor,
+      type: 'Instructor de seguimiento'
+  })) || []),
+  ...(assignment[0]?.technicalInstructor.map(instructor => ({
+      ...instructor,
+      type: 'Instructor técnico'
+  })) || []),
+  ...(assignment[0]?.projectInstructor.map(instructor => ({
+      ...instructor,
+      type: 'Instructor de proyecto'
+  })) || [])
+];
 
-        if (Array.isArray(followUpInstructors) && followUpInstructors.length > 0) {
-            await procesarInstructores(followUpInstructors, estudiantes);
-        }
-        
-        if (Array.isArray(technicalInstructors) && technicalInstructors.length > 0) {
-            await procesarInstructores(technicalInstructors, estudiantes);
-        }
-        
-        if (Array.isArray(projectInstructors) && projectInstructors.length > 0) {
-            await procesarInstructores(projectInstructors, estudiantes);
-        }
-        
+let processedInstructors = [];
+const enviarCorreoInstructor = async (instructor, estudiantes) => {
+  const { name, email, type, idInstructor } = instructor;
+  if (!idInstructor) {
+      console.error(`Instructor sin ID: ${name} (${type})`);
+      return;
+  }
+  if (!email || !name || !type) {
+      console.error(`Datos incompletos para el instructor: ${JSON.stringify(instructor)}`);
+      return;
+  }
+  if (processedInstructors.includes(idInstructor)) {
+      console.log(`El instructor con ID ${idInstructor} ya fue procesado. No se enviará correo.`);
+      return;
+  }
+  try {
+      await sendEmail1(email, name, type, estudiantes);
+      console.log(`Correo enviado a: ${name} (${type}) con email: ${email}`);
+      processedInstructors.push(idInstructor);
+  } catch (error) {
+      console.error(`Error al enviar correo a: ${name} (${type}) con email: ${email}`, error);
+  }
+};
+const procesarInstructores = async (assignment, instructores, estudiantes) => {
+  for (let instructor of instructores) {
+      const { idInstructor, status, name } = instructor;
+      let instructorEnAsignacion = false;
+      if (assignment[0]?.followUpInstructor.some(i => i.idInstructor === idInstructor)) {
+          instructorEnAsignacion = true;
+          console.log(`El instructor ${name} con ID ${idInstructor} está en la asignación (seguimiento).`);
+      } else if (assignment[0]?.technicalInstructor.some(i => i.idInstructor === idInstructor)) {
+          instructorEnAsignacion = true;
+          console.log(`El instructor ${name} con ID ${idInstructor} está en la asignación (técnico).`);
+      } else if (assignment[0]?.projectInstructor.some(i => i.idInstructor === idInstructor)) {
+          instructorEnAsignacion = true;
+          console.log(`El instructor ${name} con ID ${idInstructor} está en la asignación (proyecto).`);
+      }
+      if (!instructorEnAsignacion) {
+          console.log(`El instructor ${name} con ID ${idInstructor} no está en la asignación, no se enviará correo.`);
+          continue;
+      }
+      if (status !== 1) {
+          console.log(`El instructor ${name} con ID ${idInstructor} está inactivo en la asignación, no se enviará correo.`);
+          continue; 
+      }
+      await enviarCorreoInstructor(instructor, estudiantes);
+  }
+};
+if (allInstructors.length > 0) {
+  console.log('Iniciando el procesamiento de instructores...');
+  await procesarInstructores(assignment, allInstructors, estudiantes);
+} else {
+  console.log('No hay instructores en la asignación.');
+}
 
-        res.status(200).json({ message: "Asignación de instructores realizada con éxito." });
-    } catch (error) {
+res.status(200).json({ message: "Asignación de instructores realizada con éxito." });
+} catch (error) {
         console.error('Error en addAssignment:', error);
         res.status(500).json({ message: "Error interno del servidor." });
     }
