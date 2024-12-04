@@ -7,11 +7,11 @@ const apprenticeHelper = {
     try {
       const exist = await Apprentice.findById(id);
       if (!exist) {
-        throw new Error(`No existe el ID: ${id}`);
+        throw new Error(`No existe el Aprendiz con ID: ${id}`);
       }
       return exist;
     } catch (error) {
-      throw new Error(`Error al verificar el ID: ${error.message}`);
+      throw new Error(`Error al verificar el Aprendiz con ID: ${error.message}`);
     }
   },
 

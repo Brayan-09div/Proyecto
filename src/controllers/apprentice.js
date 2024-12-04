@@ -13,7 +13,6 @@ const  controllerApprentice ={
             console.log('Lista de apprentices', apprentice);
             res.json(apprentice);
         } catch (error) {
-            console.log('Error al listar apprentice');
             res.status(500).json({ error: 'Error al listar apprentice' });
         }
     },
