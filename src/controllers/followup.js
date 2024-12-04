@@ -87,8 +87,8 @@ listfollowupbyinstructor: async (req, res) => {
         .json({
           error: `Error listing followups for instructor ${idinstructor}`,
         });
-    }
-  },
+      }
+    },
 
   listFollowupByInstructorEmail: async (req, res) => {
     const { email } = req.params;

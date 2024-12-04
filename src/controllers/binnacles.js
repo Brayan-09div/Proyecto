@@ -116,9 +116,7 @@ const controllerBinnacles = {
       console.error(`Error al listar bitácoras por correo del instructor ${email}:`, error);
       res.status(500).json({ error: 'Error al listar las bitácoras del instructor' });
 }},
-  
 
-  
 
 // Insertar bitácoras (solo para generar la bitácora sin observaciones)
 addbinnacles: async (req, res) => {
