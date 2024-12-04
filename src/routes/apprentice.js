@@ -32,16 +32,16 @@ router.post('/upload-apprentices',[
 
 //---------------------------------------------------------
 router.post('/loginApprentice', [
-    check('email')
-        .isEmail().withMessage('El email es obligatorio y debe ser un email válido')
-        .custom(async (email) => {
+    check('email', 'El email es obligatorio.').notEmpty(),
+    check('email').custom(async (email) => {
             const exists = await apprenticeHelper.notExistEmail(email);
             if (exists) {
-                throw new Error('No existe un aprendiz con ese email');
+                throw new Error('No existe un aprendiz con el email ingresado.');
             }
             return true;
         }),
-    check('numDocument', 'El documento es obligatorio').notEmpty()
+    check('email', 'El email no es valido.').isEmail(),
+    check('numDocument', 'El documento es obligatorio.').notEmpty()
         .custom(apprenticeHelper.notExistNumDocument),
 
     validarCampos,
@@ -63,7 +63,7 @@ router.get('/listallapprenticeBy', [
 //-------------------------------------------------------------
 router.get('/listapprenticebyid/:id', [
     validateAdmin,
-    check('id', 'El id no es valido').isMongoId(),
+    check('id', 'El ID ingresado no es valido.').isMongoId(),
     check('id').custom(apprenticeHelper.existApprentice),
     validarCampos
 ], controllerApprentice.listapprenticebyid);
