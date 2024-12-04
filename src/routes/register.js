@@ -1,6 +1,7 @@
 import express from 'express';
 import { check } from 'express-validator';
 import { validateAdmin } from '../middleware/valitate-admin.js';
+import { validateInstructors } from '../middleware/validate-instructor.js';
 import { validarCampos } from '../middleware/validate-fields.js';
 import { Router } from 'express';
 import controllerRegister from '../controllers/register.js';

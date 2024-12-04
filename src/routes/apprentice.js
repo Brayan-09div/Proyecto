@@ -106,6 +106,16 @@ router.get('/listHistoryApprentice/:numDocument', [
     validarCampos
 ], controllerApprentice.listHistoryApprentice);
 
+
+
+router.get('/listBitacoasAndFollowup/:id', [
+    validateAdmin,
+    check('id', 'El ID ingresado no es valido.').isMongoId(),
+    check('id').custom(apprenticeHelper.existApprentice),
+    validarCampos
+], controllerApprentice.listBitacorasAndFollowup);
+
+
 //------------------------------------------------------------- 
 router.post('/addapprentice', [
     validateAdmin,

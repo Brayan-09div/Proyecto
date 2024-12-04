@@ -1,5 +1,8 @@
 import Apprentice from '../models/apprentice.js'
 import Register from "../models/register.js";
+import Binnacles from "../models/binnacles.js";
+import Followup from "../models/followup.js";
+
 import { generarJWT } from "../middleware/validate-apprentice.js";
 import mongoose from 'mongoose';
 import xlsx from 'xlsx';
@@ -103,6 +106,34 @@ listapprenticebymodality: async (req, res) => {
     }
 },
 
+
+listBitacorasAndFollowup : async (req, res) => {
+    const { id } = req.params; 
+    try {
+        const register = await Register.findOne({ idApprentice: new mongoose.Types.ObjectId(id) });
+
+        if (!register) {
+            return res.status(404).json({ message: 'No se encontró el registro para este aprendiz.' });
+        }
+        const registerId = register._id;
+        const binnacles = await Binnacles.find({ register: registerId });
+        const followups = await Followup.find({ register: registerId });
+        return res.status(200).json({
+            message: 'Consulta exitosa.',
+            data: {
+                binnacles,
+                followups,
+            },
+            counts: {
+                binnacles: binnacles.length,
+                followups: followups.length,
+            },
+        });
+    } catch (error) {
+        console.error('Error al consultar bitácoras y seguimientos:', error);
+        return res.status(500).json({ message: 'Error al consultar los datos.', error });
+    }
+},
 
 // Login para aprendices -----------------------------------------------------
 loginApprentice: async (req, res) => {
