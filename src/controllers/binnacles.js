@@ -103,7 +103,8 @@ const controllerBinnacles = {
         .populate({
           path: 'register',
           populate: {
-            path: 'idApprentice' 
+            path: 'idApprentice' ,
+            path: 'idModality'
           }
         });
         console.log('Número de seguimientos encontrados:', binnacles.length); 

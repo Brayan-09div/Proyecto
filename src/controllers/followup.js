@@ -110,7 +110,8 @@ listfollowupbyinstructor: async (req, res) => {
         .populate({
           path: 'register',
           populate: {
-            path: 'idApprentice'
+            path: 'idApprentice',
+            path: 'idModality'
           }
         });
         console.log('Número de seguimientos encontrados:', followup.length);  

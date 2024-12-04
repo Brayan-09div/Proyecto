@@ -107,20 +107,24 @@ listapprenticebymodality: async (req, res) => {
 },
 
 
-listBitacorasAndFollowup : async (req, res) => {
-    const { id } = req.params; 
+listBitacorasAndFollowup: async (req, res) => {
+    const { id } = req.params;
     try {
-        const register = await Register.findOne({ idApprentice: new mongoose.Types.ObjectId(id) });
-
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: 'El ID proporcionado no es válido.' });
+        }
+        const register = await Register.findOne({ idApprentice: new mongoose.Types.ObjectId(id) })
+            .populate('idModality');
         if (!register) {
             return res.status(404).json({ message: 'No se encontró el registro para este aprendiz.' });
         }
         const registerId = register._id;
-        const binnacles = await Binnacles.find({ register: registerId });
-        const followups = await Followup.find({ register: registerId });
+        const binnacles = await Binnacles.find({ register: registerId }).sort({ createdAt: -1 });
+        const followups = await Followup.find({ register: registerId }).sort({ createdAt: -1 });
         return res.status(200).json({
             message: 'Consulta exitosa.',
             data: {
+                register,
                 binnacles,
                 followups,
             },
@@ -134,6 +138,7 @@ listBitacorasAndFollowup : async (req, res) => {
         return res.status(500).json({ message: 'Error al consultar los datos.', error });
     }
 },
+
 
 // Login para aprendices -----------------------------------------------------
 loginApprentice: async (req, res) => {
