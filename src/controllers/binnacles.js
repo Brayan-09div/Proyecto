@@ -100,14 +100,17 @@ const controllerBinnacles = {
       }
       const idInstructor = instructor.idInstructor;
       const binnacles = await Binnacles.find({ 'instructor.idinstructor': idInstructor })
-        .populate({
-          path: 'register',
-          populate: {
-            path: 'idApprentice' ,
-            path: 'idModality'
-          }
-        });
+      .populate({
+        path: 'register',
+        populate: [
+          { path: 'idApprentice' },
+          { path: 'idModality' }
+        ]
+      });
+      
         console.log('Número de seguimientos encontrados:', binnacles.length); 
+        console.log(binnacles);
+        
       if (!binnacles || binnacles.length === 0) {
         return res.status(404).json({ error: 'No se encontraron bitácoras para este instructor' });
       }
