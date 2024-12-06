@@ -1,7 +1,10 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { validateAdmin } from '../middleware/valitate-admin.js';
+
+
 import { validateInstructors } from '../middleware/validate-instructor.js';
+import { authenticateUser } from '../middleware/validateall.js';
+
 import { validarCampos } from '../middleware/validate-fields.js';
 import { Router } from 'express';
 import controllerRegister from '../controllers/register.js';
@@ -17,12 +20,12 @@ const router = Router()
 
 // --------------------------------------------------------------------
 router.get('/listallregister', [
- validateAdmin
+ authenticateUser
 ], controllerRegister.listallregister)
 
 // --------------------------------------------------------------------
 router.get('/listregisterbyid/:id', [
- validateAdmin,
+ authenticateUser,
   check('id', 'El id no es valido').isMongoId(),
   check('id').custom(registerHelper.existResgister),
  validarCampos
@@ -30,7 +33,7 @@ router.get('/listregisterbyid/:id', [
 
 // --------------------------------------------------------------------
 router.get('/listregisterbyapprentice/:idApprentice', [
- validateAdmin,
+ authenticateUser,
   check('idApprentice').custom(apprenticeHelper.existApprentice),
   validarCampos
 ], controllerRegister.listtheapprenticebyid)
@@ -38,7 +41,7 @@ router.get('/listregisterbyapprentice/:idApprentice', [
 
 // --------------------------------------------------------------------
 router.get('/listregisterbymodality/:idModality', [
- validateAdmin, 
+ authenticateUser, 
   check('idModality').custom(modalityHelper.existsModalityID),
   check('idModality', 'El campo modality es obigatorio').notEmpty(),
   validarCampos
@@ -46,7 +49,7 @@ router.get('/listregisterbymodality/:idModality', [
 
 // --------------------------------------------------------------------
 router.get('/listregisterbyfiche/:idFiche', [
- validateAdmin, 
+ authenticateUser, 
   check('idFiche').custom(async (idFiche, { req }) => {
     await ficheHelper.validateFicheID(idFiche, req.headers.token);
   }),
@@ -56,20 +59,20 @@ router.get('/listregisterbyfiche/:idFiche', [
 
 // --------------------------------------------------------------------
 router.get('/listregisterbystartdate/:startDate', [
- validateAdmin,
+ authenticateUser,
   check('startDate', 'El campo StartDate es obigatorio').notEmpty(),
   validarCampos
 ], controllerRegister.listregisterbystartdate)
 
 // --------------------------------------------------------------------
 router.get('/listregisterbyenddate/:endDate', [
- validateAdmin,
+ authenticateUser,
   check('endDate', 'El campo endDate es obigatorio').notEmpty(),
   validarCampos
 ], controllerRegister.listregisterbyenddate)
 
 router.post('/addregister', [
-  validateAdmin,
+  authenticateUser,
   check('idApprentice', 'El campo es obligatorio').notEmpty(),
   check('idApprentice').custom(apprenticeHelper.existApprentice),
   check('idModality', 'El campo es obligatorio').notEmpty(),
@@ -110,7 +113,7 @@ router.post('/addregister', [
 
 
 router.put('/updateregisterbyid/:id', [
-  validateAdmin,
+  authenticateUser,
   check('id', 'El id no es válido').isMongoId(),
   check('id').custom(registerHelper.existResgister),
   check('apprentice').optional().custom(apprenticeHelper.existApprentice), 
@@ -133,7 +136,7 @@ router.put('/updateregisterbyid/:id', [
 
 // ----------------------------------------------------------------------------
 router.put('/updatemodalityregister/:id', [
- validateAdmin,
+ authenticateUser,
  check('id', 'El id no es valido').isMongoId(),
  check('id').custom(registerHelper.existResgister),
   check('idModality', 'No es un ID válido').isMongoId().notEmpty(),
@@ -145,7 +148,7 @@ router.put('/updatemodalityregister/:id', [
 
 // ---------------------------------------------------------------------------
 router.put('/enableregister/:id', [
- validateAdmin,
+ authenticateUser,
   check('id', 'El id no es valido').isMongoId(),
   check('id').custom(registerHelper.existResgister),
   validarCampos
@@ -153,7 +156,7 @@ router.put('/enableregister/:id', [
 
 // -----------------------------------------------------------------------
 router.put('/disableregister/:id', [
- validateAdmin,
+ authenticateUser,
   check('id', 'El id no es valido').isMongoId(),
   check('id').custom(registerHelper.existResgister),
   validarCampos
@@ -165,40 +168,40 @@ router.put('/disableregister/:id', [
 // rutas assignments
 
 router.get('/listallassignment', [
-  validateAdmin
+  authenticateUser
 ],controllerRegister.listAllAssignments);
 
 //------------------------------------------------------------------
 router.get('/listassigmentbyfollowupinstructor/:idinstructor',[
-  validateAdmin
+  authenticateUser
 ], controllerRegister.listRegisterByFollowUpInstructor);
 
 
 //----------------------------------------------------------------------
 router.get('/listassigmentbytechnicalinstructor/:idinstructor',[
-  validateAdmin
+  authenticateUser
 ], controllerRegister.listRegisterByTechnicalInstructor);
 
 //------------------------------------------------------------------------
 router.get('/listassigmentbyprojectinstructor/:idinstructor',[
-  validateAdmin
+  authenticateUser
 ], controllerRegister.listRegisterByProjectInstructor);
 
 //------------------------------------------------------------------------
 router.get('/listRegisterByInstructorInAssignment/:idinstructor',[
-  validateAdmin
+  authenticateUser
 ], controllerRegister.listRegisterByInstructorInAssignment);
 
 //------------------------------------------------------------------------
 router.get('/listRegisterByAssignmentId/:id',[
-  validateAdmin
+  authenticateUser
 ], controllerRegister.listRegisterByAssignmentId);
 
 
 
 
 router.put('/addassignment/:id', [
-  validateAdmin,  
+  authenticateUser,  
   check('id', 'El id no es válido').isMongoId(),
   check('id').custom(registerHelper.existResgister),
   check('assignment', 'El campo assignment es obligatorio').isArray().notEmpty(),
@@ -224,7 +227,7 @@ router.put('/addassignment/:id', [
 
 //----------------------------------------------------------------
 router.put('/updateassignment/:id', [
-  validateAdmin,
+  authenticateUser,
   check('id', 'El id no es válido').isMongoId(),
   check('id').custom(registerHelper.existResgister),
   check('assignment', 'El campo assignment es obligatorio').notEmpty(),

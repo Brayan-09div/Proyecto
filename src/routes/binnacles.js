@@ -1,6 +1,9 @@
 import express from 'express';
 import { check } from 'express-validator';
+
 import { validateAdmin } from '../middleware/valitate-admin.js';
+import { authenticateUser } from '../middleware/validateall.js';
+
 import { validarCampos } from '../middleware/validate-fields.js';
 import controllerBinnacles from '../controllers/binnacles.js';
 import {binnaclesHelper} from '../helpers/binnacles.js';
@@ -11,19 +14,19 @@ import { instructorHelper } from '../helpers/instructor.js'
 const router = express.Router();
 
 router.get('/listallbinnacles',[
-   validateAdmin,
+   authenticateUser,
 ],controllerBinnacles.listallbinnacles)
 
 
 router.get('/listbinnaclesbyid/:id',[
-   validateAdmin,
+   authenticateUser,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(binnaclesHelper.existBinnacles),
     validarCampos
 ],controllerBinnacles.listbinnaclesbyid)
 
 router.get('/listBinnaclesByRegister/:register',[
-   validateAdmin,
+   authenticateUser,
    check('register', "no es valido").isMongoId(),
    check('register').custom(registerHelper.existResgister),
     validarCampos
@@ -33,7 +36,7 @@ router.get('/listBinnaclesByRegister/:register',[
 
 
 router.get('/listbinnaclesbyinstructor/:idinstructor', [
-   validateAdmin,
+   authenticateUser,
    check('idinstructor').custom(async (idinstructor, { req }) => {
       await instructorHelper.existsInstructorsID(idinstructor, req.headers.token);
     }),
@@ -42,7 +45,7 @@ router.get('/listbinnaclesbyinstructor/:idinstructor', [
 
 
 router.get('/listbinnaclesbyinstructoremail/:email', [
-   validateAdmin,
+   authenticateUser,
    check('email').isEmail().withMessage('Debe ser un correo electrónico válido'),
    validarCampos 
  ], controllerBinnacles.listBinnaclesByInstructorEmail);
@@ -67,7 +70,7 @@ router.get('/listbinnaclesbyinstructoremail/:email', [
 
 
  router.put('/updatebinnaclebyid/:id', [
-   validateAdmin, 
+   authenticateUser, 
    check('id', 'El id no es válido').isMongoId(), 
    check('number').optional().isNumeric(), 
    check('document').optional().isLength({ max: 50 }), 
@@ -77,7 +80,7 @@ router.get('/listbinnaclesbyinstructoremail/:email', [
 
 
 router.put('/updatestatus/:id/:status',[
-   validateAdmin,
+   authenticateUser,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(binnaclesHelper.existBinnacles),
     validarCampos
@@ -85,7 +88,7 @@ router.put('/updatestatus/:id/:status',[
 
 
 router.put('/updateCheckProjectInstructor/:id', [
-   validateAdmin,
+   authenticateUser,
    check('id', 'El id no es válido').isMongoId(),
    check('id').custom(binnaclesHelper.existBinnacles),
    validarCampos
@@ -93,7 +96,7 @@ router.put('/updateCheckProjectInstructor/:id', [
 
 
 router.put('/updateCheckTechnicalInstructor/:id', [
-   validateAdmin,
+   authenticateUser,
    check('id', 'El id no es válido').isMongoId(),
    check('id').custom(binnaclesHelper.existBinnacles),
    validarCampos
@@ -101,14 +104,14 @@ router.put('/updateCheckTechnicalInstructor/:id', [
 
 
 router.put('/validateHoursTechnical/:id', [
-   validateAdmin,
+   authenticateUser,
    check('id', 'El id no es válido').isMongoId(),
    check('id').custom(binnaclesHelper.existBinnacles),
    validarCampos
 ],controllerBinnacles.validateHoursTechnical);
 
 router.put('/validateHoursProject/:id', [
-   validateAdmin,
+   authenticateUser,
    check('id', 'El id no es válido').isMongoId(),
    check('id').custom(binnaclesHelper.existBinnacles),
    validarCampos
@@ -117,7 +120,7 @@ router.put('/validateHoursProject/:id', [
 
 
 router.put('/addobservation/:id', [
-   validateAdmin,
+   authenticateUser,
    check('id', 'El id de la bitácora no es válido').isMongoId(),
    check('observation', 'La observación es obligatoria').not().isEmpty(), 
    validarCampos, 
@@ -125,6 +128,7 @@ router.put('/addobservation/:id', [
 
 
 router.get('/getobservations/:id', [
+   authenticateUser,
    check('id', 'El id de la bitácora no es válido').isMongoId(), 
    validarCampos, 
 ], controllerBinnacles.getObservations); 

@@ -1,6 +1,9 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { validateAdmin } from '../middleware/valitate-admin.js';
+
+
+import { authenticateUser } from '../middleware/validateall.js';
+
 import { validarCampos } from '../middleware/validate-fields.js';
 import controllerFollowup from '../controllers/followup.js'
 import {followupHelper} from '../helpers/followup.js'
@@ -8,28 +11,29 @@ import { instructorHelper } from '../helpers/instructor.js'
 import {registerHelper} from '../helpers/register.js';
 
 
-import { authenticateUser } from '../middleware/validateall.js';
+
+
  
 const router = express.Router();
 
 
 //-------------------------------------------------------------
 router.get('/listallfollowup',[
-    validateAdmin,
+    authenticateUser,
 ], controllerFollowup.listallfollowup
 )
 
 
 //-------------------------------------------------------------
 router.get('/listfollowupbyid/:id',[
-    validateAdmin,
+    authenticateUser,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(followupHelper.existsFollowupID),
     validarCampos
 ], controllerFollowup.listfollowupbyid)
 
 router.get('/listFollowupByRegister/:register',[
-    validateAdmin,
+    authenticateUser,
     check('register', "no es valido").isMongoId(),
     check('register').custom(registerHelper.existResgister),
     validarCampos
@@ -37,7 +41,7 @@ router.get('/listFollowupByRegister/:register',[
 
 //-------------------------------------------------------------
 router.get('/listfollowupbyinstructor/:idinstructor',[
-    validateAdmin,
+    authenticateUser,
     check('idinstructor').custom(async (idinstructor, { req }) => {
        await instructorHelper.existsInstructorsID(idinstructor, req.headers.token);
      }),
@@ -47,14 +51,14 @@ router.get('/listfollowupbyinstructor/:idinstructor',[
 
 
 router.get('/listfollowupbyinstructoremail/:email', [
-    validateAdmin,
+    authenticateUser,
     check('email').isEmail().withMessage('Debe ser un correo electrónico válido'),
     validarCampos 
   ], controllerFollowup.listFollowupByInstructorEmail);
 
 //-------------------------------------------------------------
 router.post('/addfollowup',[
-    validateAdmin,
+    authenticateUser,
     check('register').custom(registerHelper.existResgister),
     check('instructor', 'El instructor es obligatorio').notEmpty(),
     check('instructor.idinstructor', 'El id no es válido').isMongoId(),
@@ -71,7 +75,7 @@ router.post('/addfollowup',[
 
 //-------------------------------------------------------------
 router.put('/updatefollowupbyid/:id',[
-    validateAdmin,
+    authenticateUser,
     check('id','El id no es valido').isMongoId(),
     check('number','El number es maximo de 10 caracteres').isLength({ max: 10 }),
     check('document','El document es maximo de 50 caracteres').isLength({ max: 50 }),
@@ -89,7 +93,7 @@ router.put('/updatestatus/:id/:status',[
 
 
 router.put('/validateHoursFollowup/:id', [
-    validateAdmin,
+    authenticateUser,
     check('id', 'El id no es válido').isMongoId(),
     check('id').custom(followupHelper.existsFollowupID),
     validarCampos
@@ -97,7 +101,7 @@ router.put('/validateHoursFollowup/:id', [
 
 
 router.put('/addobservation/:id', [
-    validateAdmin,
+    authenticateUser,
     check('id', 'El id del seguimiento no es válido').isMongoId(),
     check('observation', 'La observación es obligatoria').not().isEmpty(),
     validarCampos,

@@ -22,7 +22,7 @@ const router = express.Router();
 
 
 router.post('/upload-apprentices',[
-    validateAdmin,
+    authenticateUser,
      upload.single('file'),
      validarCampos
 ],controllerApprentice.uploadApprentices);
@@ -67,7 +67,7 @@ router.get('/listapprenticebyid/:id', [
 
 //-------------------------------------------------------------rs
 router.get('/listapprenticebyfiche/:idfiche', [
-    validateAdmin,
+    authenticateUser,
     check('idfiche', 'El ID de la ficha es obligatorio').notEmpty(), 
     check('idfiche').custom(async (idfiche, { req }) => {
 
@@ -81,7 +81,7 @@ router.get('/listapprenticebyfiche/:idfiche', [
 
 //-------------------------------------------------------------
 router.get('/listapprenticebystatus/:status', [
-    validateAdmin,
+    authenticateUser,
     check('status', 'El status es obligatorio').notEmpty(),
     validarCampos
 ], controllerApprentice.listapprenticebystatus);
@@ -89,7 +89,7 @@ router.get('/listapprenticebystatus/:status', [
 
 //-------------------------------------------------------------
 router.get('/listapprenticebymodality/:idModality', [
-    validateAdmin,
+    authenticateUser,
     check('idModality', 'La idModality es obligatoria').notEmpty(),
     check('idModality').custom(modalityHelper.existsModalityID),
     validarCampos
@@ -105,7 +105,7 @@ router.get('/listHistoryApprentice/:numDocument', [
 
 
 router.get('/listBitacoasAndFollowup/:id', [
-    validateAdmin,
+    authenticateUser,
     check('id', 'El ID ingresado no es valido.').isMongoId(),
     check('id').custom(apprenticeHelper.existApprentice),
     validarCampos
@@ -114,7 +114,7 @@ router.get('/listBitacoasAndFollowup/:id', [
 
 //------------------------------------------------------------- 
 router.post('/addapprentice', [
-    validateAdmin,
+    authenticateUser,
     check('fiche', 'El campo ficha es obligatorio').notEmpty(),
     check('fiche.idFiche', 'El ID no es válido').isMongoId(),
     check('fiche.idFiche').custom(async (idFiche, { req }) => {
@@ -140,7 +140,7 @@ router.post('/addapprentice', [
 
 //-------------------------------------------------------------
 router.put('/updateapprenticebyid/:id', [
-    validateAdmin,
+    authenticateUser,
     check('id', 'El ID no es válido').isMongoId(),
     check('fiche.idFiche', 'El ID de la ficha no es válido').optional().isMongoId(),
     check('fiche.idFiche').optional().custom(async (idFiche, { req }) => {
@@ -165,7 +165,7 @@ router.put('/updateapprenticebyid/:id', [
 
 //-------------------------------------------------------------
 router.put('/updateStatus/:id', [
-    validateAdmin,
+    authenticateUser,
     check('id', 'El ID no es válido').isMongoId(),
     check('status', 'El status es obligatorio').notEmpty(),
     
@@ -178,7 +178,7 @@ router.put('/updateStatus/:id', [
 
 // -----------------------------------------------------------------
 router.put('/enableapprentice/:id', [
-    validateAdmin,
+    authenticateUser,
     check('id', 'El id no es valido').isMongoId(),
     check('id').custom(apprenticeHelper.existApprentice),
     validarCampos
@@ -186,7 +186,7 @@ router.put('/enableapprentice/:id', [
 
 //----------------------------------------------------------------
 router.put('/disableapprentice/:id', [
-    validateAdmin,
+    authenticateUser,
     check('id', 'El id no es valido').isMongoId(),
     check('id').custom(apprenticeHelper.existApprentice),
     validarCampos
