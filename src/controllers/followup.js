@@ -107,13 +107,13 @@ listfollowupbyinstructor: async (req, res) => {
       }
       const idInstructor = instructor.idInstructor;
       const followup = await Followup.find({ 'instructor.idinstructor': idInstructor })
-        .populate({
-          path: 'register',
-          populate: {
-            path: 'idApprentice',
-            path: 'idModality'
-          }
-        });
+      .populate({
+        path: 'register',
+        populate: [
+          { path: 'idApprentice' },
+          { path: 'idModality' }
+        ]
+      });
         console.log('Número de seguimientos encontrados:', followup.length);  
       if (!followup || followup.length === 0) {
         return res.status(404).json({ error: 'No se encontraron seguimientos para este instructor' });

@@ -107,7 +107,6 @@ const controllerBinnacles = {
           { path: 'idModality' }
         ]
       });
-      
         console.log('Número de seguimientos encontrados:', binnacles.length); 
         console.log(binnacles);
         
