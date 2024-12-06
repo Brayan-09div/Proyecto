@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import multer from 'multer';
 
 import { validateAdmin } from '../middleware/valitate-admin.js';
+
 import { authenticateUser } from '../middleware/validateall.js';
 
 import { validarCampos } from '../middleware/validate-fields.js';
@@ -49,20 +50,15 @@ router.post('/loginApprentice', [
 
 //-------------------------------------------------------------
 router.get('/listallapprentice', [
-    validateAdmin,
-], controllerApprentice.listallapprentice);
-
-
-
-router.get('/listallapprenticeBy', [
     authenticateUser,
 ], controllerApprentice.listallapprentice);
+
 //-------------------------------------------------------------
 
 
 //-------------------------------------------------------------
 router.get('/listapprenticebyid/:id', [
-    validateAdmin,
+    authenticateUser,
     check('id', 'El ID ingresado no es valido.').isMongoId(),
     check('id').custom(apprenticeHelper.existApprentice),
     validarCampos

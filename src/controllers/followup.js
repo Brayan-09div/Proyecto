@@ -223,21 +223,20 @@ listfollowupbyinstructor: async (req, res) => {
   
 // Actuactulizar un El estado del 1,2,3,4
 updatestatus: async (req, res) => {
-  const {id,status} = req.params
+  const { id, status } = req.params;  
   try {
     const statusSelect = [1, 2, 3, 4];
-    if (!statusSelect.includes(status)) {
+    if (!statusSelect.includes(parseInt(status))) {
       return res.status(400).json({ error: 'Estado inválido' });
     }
-    const updatedFollowup = await Followup.findByIdAndUpdate(id,{ status: status }, { new:true})
+    const updatedFollowup = await Followup.findByIdAndUpdate(id, { status: parseInt(status) }, { new: true });
     if (!updatedFollowup) {
       return res.status(404).json({ error: 'Followup no encontrado' });
     }
-    console.log("followup encontrado",error)
-    res.json(updatedFollowup)
+    res.json(updatedFollowup);
   } catch (error) {
-    console.error("Error al actualiar followup",error)
-    res.status(500).json({error:"Error al actualizar followup"});
+    console.error("Error al actualizar followup", error);
+    res.status(500).json({ error: "Error al actualizar followup" });
   }
 },
 

@@ -6,6 +6,9 @@ import controllerFollowup from '../controllers/followup.js'
 import {followupHelper} from '../helpers/followup.js'
 import { instructorHelper } from '../helpers/instructor.js'
 import {registerHelper} from '../helpers/register.js';
+
+
+import { authenticateUser } from '../middleware/validateall.js';
  
 const router = express.Router();
 
@@ -78,7 +81,7 @@ router.put('/updatefollowupbyid/:id',[
 
 // ----------------------------------------------------------------
 router.put('/updatestatus/:id/:status',[
-    validateAdmin,
+    authenticateUser,
     check('id','El id no es valido').isMongoId(),
     check('id').custom(followupHelper.existsFollowupID),
     validarCampos
