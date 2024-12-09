@@ -34,7 +34,6 @@ router.get('/listBinnaclesByRegister/:register',[
 
 
 
-
 router.get('/listbinnaclesbyinstructor/:idinstructor', [
    authenticateUser,
    check('idinstructor').custom(async (idinstructor, { req }) => {

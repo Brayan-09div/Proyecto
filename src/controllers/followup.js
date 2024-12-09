@@ -131,69 +131,81 @@ listfollowupbyinstructor: async (req, res) => {
   addfollowup: async (req, res) => {
     const { register, instructor, number, month, document } = req.body;
     try {
-      const followupsForRegister = await Followup.find({ register }).countDocuments(); // Cambiado count() por countDocuments()
+      const followupsForRegister = await Followup.find({ register }).countDocuments();
       if (followupsForRegister >= 3) {
         return res.status(400).json({ error: "Ya hay 3 seguimientos para este registro" });
       }
+  
       const existsFollowup = await Followup.findOne({ register, number });
       if (existsFollowup) {
         return res.status(400).json({ error: "El número de seguimiento ya existe para este registro" });
       }
+  
       const registerRecord = await Register.findById(register).populate("idModality");
       if (!registerRecord) {
         return res.status(400).json({ error: "No se encontró registro asociado con la asignación" });
       }
+  
       const modality = registerRecord.idModality;
       if (!modality) {
         return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
       }
+  
       const hoursFollow = modality.hourInstructorFollow;
       if (!hoursFollow) {
-        return res.status(400).json({
-          error: "No se definieron horas de seguimiento para esta modalidad",
-        });
+        return res.status(400).json({ error: "No se definieron horas de seguimiento para esta modalidad" });
       }
+  
       const hoursPerBinnacle = hoursFollow / 4;
-      if (!Array.isArray(registerRecord.hourFollowupPending)) {
-        registerRecord.hourFollowupPending = [];
-      }
-      const followUpInstructors = registerRecord.assignment.flatMap(assign => assign.followUpInstructor);
-      if (!followUpInstructors || followUpInstructors.length === 0) {
-        return res.status(400).json({ error: "No hay instructores de seguimiento asignados" });
-      }
-      followUpInstructors.forEach(followUpInstructor => {
-        registerRecord.hourFollowupPending.push({
-          idInstructor: followUpInstructor.idInstructor,
-          name: followUpInstructor.name,
-          hour: hoursPerBinnacle,
-        });
-      });
+  
       const activeFollowUpInstructor = registerRecord.assignment.some(a =>
         a.followUpInstructor.some(f =>
           f.idInstructor.toString() === instructor.idinstructor.toString() && f.status === 1
         )
       );
+  
       if (!activeFollowUpInstructor) {
         return res.status(400).json({ error: "El instructor proporcionado no está activo como instructor de seguimiento en la asignación" });
       }
+  
+      if (!Array.isArray(registerRecord.hourFollowupPending)) {
+        registerRecord.hourFollowupPending = [];
+      }
+  
+      const instructorExistsInPending = registerRecord.hourFollowupPending.some(
+        (entry) => entry.idInstructor.toString() === instructor.idinstructor.toString()
+      );
+  
+      if (!instructorExistsInPending) {
+        registerRecord.hourFollowupPending.push({
+          idInstructor: instructor.idinstructor,
+          name: instructor.name,
+          hour: hoursPerBinnacle,
+        });
+      }
+  
       const followup = new Followup({
         register,
         instructor: {
           idinstructor: instructor.idinstructor,
-          name: instructor.name
+          name: instructor.name,
         },
         number,
         month,
         document,
         status: 1,
       });
+  
       const result = await followup.save();
+  
       const updatedFollowup = await Followup.findByIdAndUpdate(
         result._id,
         { status: '2' },
         { new: true }
       );
+  
       console.log("Seguimiento guardado y actualizado a ejecutado", updatedFollowup);
+  
       await registerRecord.save();
       res.status(201).json(updatedFollowup);
     } catch (error) {
@@ -201,9 +213,7 @@ listfollowupbyinstructor: async (req, res) => {
       res.status(500).json({ error: "Error al insertar Seguimiento" });
     }
   },
-
   
-
   // Actualizar un followup por su ID---------------------------------------------------
   updatefollowupbyid: async (req, res) => {
     const { id } = req.params;
@@ -239,62 +249,80 @@ updatestatus: async (req, res) => {
     res.status(500).json({ error: "Error al actualizar followup" });
   }
 },
-
-  validateHoursFollowup: async (req, res) => {
-    const { id } = req.params;
-    try {
-      // Buscar el Followup por su id
-      const followup = await Followup.findById(id);
-      if (!followup) {
-        return res.status(404).json({ error: "Followup no encontrado" });
-      }
-      // Buscar el registro relacionado con este Followup
-      const register = await Register.findById(followup.register).populate("idModality");
-      if (!register) {
-        return res.status(404).json({ error: "Registro no encontrado" });
-      }
-      // Obtener la modalidad del registro
-      const modality = register.idModality;
-      if (!modality) {
-        return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
-      }
-      // Obtener las horas de seguimiento definidas en la modalidad
-      const hourFollow = modality.hourInstructorFollow;
-      if (!hourFollow) {
-        return res.status(400).json({ error: "No se definieron horas de seguimiento para esta modalidad" });
-      }
-      // Si `hourFollowupExcuted` no es un arreglo, lo inicializamos como un arreglo vacío
-      if (!Array.isArray(register.hourFollowupExcuted)) {
-        register.hourFollowupExcuted = [];
-      }
-      // Si `hourFollowupPending` no es un arreglo, lo inicializamos como un arreglo vacío
-      if (!Array.isArray(register.hourFollowupPending)) {
-        register.hourFollowupPending = [];
-      }
-      // Procesar las horas pendientes y moverlas a las horas ejecutadas
-      register.hourFollowupPending.forEach(pendingHour => {
-        // Solo movemos las horas que son mayores a 0
-        if (pendingHour.hour > 0) {
-          register.hourFollowupExcuted.push({
-            idInstructor: pendingHour.idInstructor,
-            name: pendingHour.name,
-            hour: pendingHour.hour,
-          });
-        }
-      });
-      // Limpiar las horas pendientes después de moverlas
-      register.hourFollowupPending = [];
-      // Guardar los cambios en el registro
-      await register.save();
-      return res.json({
-        message: "Horas de seguimiento procesadas correctamente",
-        register,
-      });
-    } catch (error) {
-      console.error("Error al validar horas de seguimiento:", error);
-      return res.status(500).json({ error: "Error interno del servidor" });
+validateHoursFollowup: async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Buscar el Followup por su id
+    const followup = await Followup.findById(id);
+    if (!followup) {
+      return res.status(404).json({ error: "Followup no encontrado" });
     }
-  },
+
+    // Verificar si las horas ya fueron ejecutadas
+    if (followup.HoursFollowupExecuted) {
+      return res.status(400).json({ error: "Las horas de seguimiento ya han sido cobradas" });
+    }
+
+    // Buscar el registro relacionado con este Followup
+    const register = await Register.findById(followup.register).populate("idModality");
+    if (!register) {
+      return res.status(404).json({ error: "Registro no encontrado" });
+    }
+
+    // Obtener la modalidad del registro
+    const modality = register.idModality;
+    if (!modality) {
+      return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
+    }
+
+    // Obtener las horas de seguimiento definidas en la modalidad
+    const hourFollow = modality.hourInstructorFollow;
+    if (!hourFollow) {
+      return res.status(400).json({ error: "No se definieron horas de seguimiento para esta modalidad" });
+    }
+
+    // Si `hourFollowupExcuted` no es un arreglo, inicializarlo como un arreglo vacío
+    if (!Array.isArray(register.hourFollowupExcuted)) {
+      register.hourFollowupExcuted = [];
+    }
+
+    // Si `hourFollowupPending` no es un arreglo, inicializarlo como un arreglo vacío
+    if (!Array.isArray(register.hourFollowupPending)) {
+      register.hourFollowupPending = [];
+    }
+
+    // Procesar las horas pendientes y moverlas a las horas ejecutadas
+    register.hourFollowupPending.forEach((pendingHour) => {
+      if (pendingHour.hour > 0) {
+        register.hourFollowupExcuted.push({
+          idInstructor: pendingHour.idInstructor,
+          name: pendingHour.name,
+          hour: pendingHour.hour,
+        });
+      }
+    });
+
+    // Limpiar las horas pendientes después de moverlas
+    register.hourFollowupPending = [];
+
+    // Actualizar `HoursFollowupExecuted` a true
+    followup.HoursFollowupExecuted = true;
+
+    // Guardar los cambios en el registro y el seguimiento
+    await register.save();
+    await followup.save();
+
+    return res.json({
+      message: "Horas de seguimiento procesadas correctamente",
+      register,
+      followup,
+    });
+  } catch (error) {
+    console.error("Error al validar horas de seguimiento:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
+  }
+},
+
 
 
   addObservation : async (req, res) => {

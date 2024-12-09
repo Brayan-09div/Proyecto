@@ -215,35 +215,54 @@ addbinnacles: async (req, res) => {
   updateCheckProjectInstructor: async (req, res) => {
     const { id } = req.params;
     try {
+      // Buscar la bitácora por ID
       const binnacle = await Binnacles.findById(id);
       if (!binnacle) {
         return res.status(404).json({ error: "Bitácora no encontrada" });
       }
+  
+      // Verificar si ya se actualizó el check de proyecto
       if (binnacle.checkProjectInstructor) {
         return res.status(400).json({ error: "El check de proyecto ya está actualizado" });
       }
+  
+      // Actualizar el check de proyecto
       binnacle.checkProjectInstructor = true;
       await binnacle.save();
+  
+      // Obtener el registro relacionado
       const register = await Register.findById(binnacle.register).populate("idModality");
       if (!register) {
         return res.status(404).json({ error: "Registro no encontrado" });
       }
+  
+      // Validar la modalidad
       const modality = register.idModality;
       if (!modality) {
         return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
       }
+  
+      // Validar horas de proyecto definidas en la modalidad
       const hoursProject = modality.hourInstructorProject;
       if (!hoursProject) {
-        return res.status(400).json({
-          error: "No se definieron horas de proyecto para esta modalidad",
-        });
+        return res.status(400).json({ error: "No se definieron horas de proyecto para esta modalidad" });
       }
+  
+      // Calcular horas por bitácora
       const hoursPerBinnacle = hoursProject / 6 / 2;
-      const projectInstructors = register.assignment.flatMap(assign => assign.projectInstructor);
-      if (!projectInstructors || projectInstructors.length === 0) {
-        return res.status(400).json({ error: "No hay instructores de proyecto asignados" });
+  
+      // Filtrar instructores activos en las asignaciones del registro
+      const activeProjectInstructors = register.assignment.flatMap(assign =>
+        assign.projectInstructor.filter(instructor => instructor.status === 1)
+      );
+  
+      // Validar si hay instructores activos
+      if (!activeProjectInstructors || activeProjectInstructors.length === 0) {
+        return res.status(400).json({ error: "No hay instructores de proyecto activos asignados" });
       }
-      projectInstructors.forEach(instructor => {
+  
+      // Asignar horas pendientes a los instructores activos
+      activeProjectInstructors.forEach(instructor => {
         if (!Array.isArray(register.ProyectHourPending)) {
           register.ProyectHourPending = [];
         }
@@ -253,17 +272,20 @@ addbinnacles: async (req, res) => {
           hour: hoursPerBinnacle,
         });
       });
+  
+      // Guardar los cambios en el registro
       await register.save();
-      res.json({
+  
+      return res.json({
         message: "Horas de proyecto asignadas correctamente",
         register,
       });
     } catch (error) {
       console.error("Error al asignar horas de proyecto:", error);
-      res.status(500).json({ error: "Error interno del servidor" });
+      return res.status(500).json({ error: "Error interno del servidor" });
     }
   },
-
+  
 
   updateCheckTechnicalInstructor: async (req, res) => {
     const { id } = req.params;
@@ -279,9 +301,7 @@ addbinnacles: async (req, res) => {
       }
       binnacle.checkTechnicalInstructor = true;
       await binnacle.save();
-      const register = await Register.findById(binnacle.register).populate(
-        "idModality"
-      );
+      const register = await Register.findById(binnacle.register).populate("idModality");
       if (!register) {
         return res.status(404).json({ error: "Registro no encontrado" });
       }
@@ -298,12 +318,12 @@ addbinnacles: async (req, res) => {
         });
       }
       const hoursPerBinnacle = hoursTechnical / 6 / 2;
-      const technicalInstructors = register.assignment.flatMap(
-        (assign) => assign.technicalInstructor
+      const technicalInstructors = register.assignment.flatMap(assign =>
+        assign.technicalInstructor.filter(instructor => instructor.status === 1)
       );
       if (!technicalInstructors || technicalInstructors.length === 0) {
         return res.status(400).json({
-          error: "No hay instructores técnicos asignados",
+          error: "No hay instructores técnicos activos asignados",
         });
       }
       technicalInstructors.forEach((instructor) => {
@@ -326,6 +346,7 @@ addbinnacles: async (req, res) => {
       res.status(500).json({ error: "Error interno del servidor" });
     }
   },
+
 
 
   validateHoursTechnical: async (req, res) => {

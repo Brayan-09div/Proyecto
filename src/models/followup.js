@@ -10,7 +10,7 @@ const followupSchema = new mongoose.Schema({
     month: {type:String,  require:true},
     document: {type:String, require:true},
     status:{type:Number , require:true, default:1},
-
+    HoursFollowupExecuted: { type: Boolean, default: false },
     observation: [{
         observation: String,
         user: {type:mongoose.Schema.Types.ObjectId, ref: 'userEP'},
