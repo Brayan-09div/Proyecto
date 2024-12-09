@@ -97,7 +97,7 @@ router.get('/listapprenticebymodality/:idModality', [
 
 
 router.get('/listHistoryApprentice/:numDocument', [
-    validateApprentice,
+    authenticateUser,
     check('numDocument', 'El número de documento es obligatorio').notEmpty(),
     validarCampos
 ], controllerApprentice.listHistoryApprentice);
@@ -166,7 +166,6 @@ router.put('/updateStatus/:id', [
     authenticateUser,
     check('id', 'El ID no es válido').isMongoId(),
     check('status', 'El status es obligatorio').notEmpty(),
-    
     validarCampos
 ], controllerApprentice.updateStatus);
 

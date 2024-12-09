@@ -89,20 +89,39 @@ listapprenticebymodality: async (req, res) => {
 },
 
 //listar historial del aprendiz
- listHistoryApprentice: async (req, res) => {
+listHistoryApprentice: async (req, res) => {
     const { numDocument } = req.params;
-     try {
-      console.log("Número de documento recibido", numDocument);
+    try {
+        console.log("Número de documento recibido", numDocument);
         const apprentices = await Apprentice.find({ numDocument });
-        if (!apprentices) {
-                return res.status(404).json({ message: 'No se encontraron aprendices para este número de documento' });
-         }
-        console.log('Historial del aprendiz', apprentices);
-        res.status(200).json(apprentices);
+        if (apprentices.length === 0) {
+            return res.status(404).json({ message: 'No se encontraron aprendices para este número de documento' });
+        }
+        const registerIds = apprentices.map(apprentice => apprentice._id);
+        const registers = await Register.find({ idApprentice: { $in: registerIds } }).populate('idModality');
 
-        } catch (error) {
-         console.error('Error al listar el historial del Aprendiz', error);
-         res.status(500).json({ message: 'Error interno del servidor', error: error.message });
+        if (registers.length === 0) {
+            return res.status(404).json({ message: 'No se encontraron registros asociados a estos aprendices.' });
+        }
+        const binnacles = await Binnacles.find({ register: { $in: registers.map(register => register._id) } }).sort({ createdAt: -1 });
+        const followups = await Followup.find({ register: { $in: registers.map(register => register._id) } }).sort({ createdAt: -1 });
+        res.status(200).json({
+            message: 'Historial del aprendiz',
+            data: {
+                apprentices,
+                registers,
+                binnacles,
+                followups,
+            },
+            counts: {
+                registers: registers.length,
+                binnacles: binnacles.length,
+                followups: followups.length,
+            }
+        });
+    } catch (error) {
+        console.error('Error al listar el historial del Aprendiz', error);
+        res.status(500).json({ message: 'Error interno del servidor', error: error.message });
     }
 },
 
@@ -113,18 +132,19 @@ listBitacorasAndFollowup: async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ message: 'El ID proporcionado no es válido.' });
         }
-        const register = await Register.findOne({ idApprentice: new mongoose.Types.ObjectId(id) })
+        const registers = await Register.find({ idApprentice: new mongoose.Types.ObjectId(id) })
             .populate('idModality');
-        if (!register) {
-            return res.status(404).json({ message: 'No se encontró el registro para este aprendiz.' });
+        
+        if (registers.length === 0) {
+            return res.status(404).json({ message: 'No se encontraron registros para este aprendiz.' });
         }
-        const registerId = register._id;
-        const binnacles = await Binnacles.find({ register: registerId }).sort({ createdAt: -1 });
-        const followups = await Followup.find({ register: registerId }).sort({ createdAt: -1 });
+        const registerIds = registers.map(register => register._id);
+        const binnacles = await Binnacles.find({ register: { $in: registerIds } }).sort({ createdAt: -1 });
+        const followups = await Followup.find({ register: { $in: registerIds } }).sort({ createdAt: -1 });
         return res.status(200).json({
             message: 'Consulta exitosa.',
             data: {
-                register,
+                registers,  
                 binnacles,
                 followups,
             },
@@ -138,6 +158,7 @@ listBitacorasAndFollowup: async (req, res) => {
         return res.status(500).json({ message: 'Error al consultar los datos.', error });
     }
 },
+
 
 
 // Login para aprendices -----------------------------------------------------
@@ -240,35 +261,56 @@ updateapprenticebyid: async (req, res) => {
 updateStatus: async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
+
     try {
+        // Verificar que el aprendiz existe
         const apprentice = await Apprentice.findById(id);
         if (!apprentice) {
             return res.status(404).json({ message: 'Aprendiz no encontrado' });
         }
-        const statusNumber = [0, 1, 2, 3, 4];
-        if (!statusNumber.includes(status)) {
-            return res.status(400).json({ message: 'Estado inválido' });
-        }
-        const register = await Register.findOne({ idApprentice: apprentice._id });
 
+        // Validar que el estado es válido (de 2 a 4)
+        const validStatuses = [2, 3, 4];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ message: 'Estado inválido. El estado debe estar entre 2 y 4.' });
+        }
+
+        // Buscar el registro del aprendiz
+        const register = await Register.findOne({ idApprentice: apprentice._id });
         if (!register) {
             return res.status(404).json({ message: 'Registro no encontrado para el aprendiz' });
         }
+
+        // Si el estado es 3, verificar las condiciones adicionales
         const today = new Date();
         const totalHoursExecuted = register.hourFollowupExcuted + register.businessProyectHourExcuted + register.productiveProjectHourExcuted;
 
-        if (register.endDate < today && totalHoursExecuted >= 864) {
-            apprentice.status = 3;  
+        if (status === 3) {
+            // Asignar estado 3 si las horas ejecutadas son 864 o más y la fecha de finalización ha pasado
+            if (register.endDate < today && totalHoursExecuted >= 864) {
+                apprentice.status = 3;  
+            } else {
+                return res.status(400).json({ message: 'El aprendiz no cumple con los requisitos para el estado 3.' });
+            }
         }
+
+        // Si el estado es 4, verificar que el aprendiz esté en estado 3 y tenga los documentos necesarios
         if (status === 4) {
             if (apprentice.status !== 3) {
-                return res.status(400).json({ message: 'El aprendiz debe estar en estado "Por Certificación" para ser certificado' });
+                return res.status(400).json({ message: 'El aprendiz debe estar en estado "Finalizado" para ser certificado.' });
             }
             if (!register.certificationDoc || !register.docAlternative) {
-                return res.status(400).json({ message: 'Faltan documentos para certificar' });
+                return res.status(400).json({ message: 'Faltan documentos para certificar al aprendiz.' });
             }
             apprentice.status = 4;  
         }
+
+        // Si el estado es 2, se asigna directamente sin restricciones adicionales
+        if (status === 2) {
+            apprentice.status = 2;  
+        }
+
+        // Guardar el cambio de estado
         const updatedApprentice = await apprentice.save();
         res.json({ message: 'Estado actualizado correctamente', updatedApprentice });
 
@@ -277,6 +319,7 @@ updateStatus: async (req, res) => {
         res.status(500).json({ error: 'Error al actualizar el estado del aprendiz' });
     }
 },
+
 
 
 // activar
