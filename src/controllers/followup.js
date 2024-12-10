@@ -45,6 +45,12 @@ const followupController = {
     const { register } = req.params;
     try {
       const followup = await Followup.find({ register: register})
+      .populate({
+        path: 'register',
+        populate: {
+          path: 'idApprentice'
+        }
+      })
       if(followup.length === 0){
         return res.status(404).json({ error: `No se encontraron seguminetos para el registro ${register}`})
       }
