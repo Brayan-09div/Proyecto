@@ -1199,6 +1199,46 @@ res.status(200).json({ message: "Asignación de instructores realizada con éxit
         });
     }
   },
+
+  updateHoursForApprentices: async (req, res) => {
+    const { id } = req.params;
+    try {
+        const register = await Register.findById(id).populate('idApprentice');
+        if (!register) {
+            return res.status(404).json({ message: 'Registro no encontrado' });
+        }
+        if (register.hoursExecutedApprentice) {
+            return res.status(400).json({ message: 'Las horas ya fueron asignadas a los aprendices.' });
+        }
+
+        const hoursToAdd = register.hourProductiveStageApprentice;
+        for (const apprenticeId of register.idApprentice) {
+            const apprentice = await Apprentice.findById(apprenticeId);
+            if (!apprentice) {
+                continue;
+            }
+            apprentice.HoursExecutedPS += hoursToAdd;
+            apprentice.HoursPendingPS -= hoursToAdd;
+            if (apprentice.HoursPendingPS < 0) {
+                apprentice.HoursPendingPS = 0;
+            }
+            if (apprentice.HoursExecutedPS >= apprentice.HoursTotalPS) {
+                apprentice.status = 3; 
+            }
+            await apprentice.save();
+        }
+        register.status = 0;
+        register.hoursExecutedApprentice = true;
+        await register.save();
+
+        res.status(200).json({ message: 'Horas actualizadas y registro desactivado exitosamente.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error al actualizar las horas de los aprendices.' });
+    }
+},
+
+
 };
 
 export default controllerRegister;

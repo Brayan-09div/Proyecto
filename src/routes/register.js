@@ -163,6 +163,12 @@ router.put('/disableregister/:id', [
 ], controllerRegister.disableregister);
 
 
+router.put('/validateHoursApprentice/:id', [
+  authenticateUser,
+  check('id', 'El id no es válido').isMongoId(),
+  check('id').custom(registerHelper.existResgister),
+  validarCampos
+], controllerRegister.updateHoursForApprentices);
 
 
 // rutas assignments

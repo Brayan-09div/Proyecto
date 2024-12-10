@@ -14,6 +14,7 @@ const registerSchema = new mongoose.Schema({
     certificationDoc: { type: String },
     judymentPhoto: { type: String },
     hourProductiveStageApprentice: { type: Number },
+    hoursExecutedApprentice: {type: Boolean, default: false}, 
 
     hourFollowupExcuted: [{ 
         idInstructor: { type: mongoose.Schema.Types.ObjectId },
