@@ -169,10 +169,6 @@ router.put('/updateStatus/:id', [
     validarCampos
 ], controllerApprentice.updateStatus);
 
-
-
-
-
 // -----------------------------------------------------------------
 router.put('/enableapprentice/:id', [
     authenticateUser,

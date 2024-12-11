@@ -2,10 +2,14 @@ import Apprentice from '../models/apprentice.js'
 import Register from "../models/register.js";
 import Binnacles from "../models/binnacles.js";
 import Followup from "../models/followup.js";
+import Modality from "../models/modality.js";
 
 import { generarJWT } from "../middleware/validate-apprentice.js";
 import mongoose from 'mongoose';
 import xlsx from 'xlsx';
+import axios from 'axios';
+import dotenv from 'dotenv';
+dotenv.config();
 
 
 const  controllerApprentice ={
@@ -364,40 +368,64 @@ disableapprentice: async (req, res) => {
     }
 },
 
-
 uploadApprentices: async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: 'No se ha enviado ningún archivo' });
         }
+
         const workbook = xlsx.read(req.file.buffer);
-        const sheetName = workbook.SheetNames[0]; 
-        const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]); 
+        const sheetName = workbook.SheetNames[0];
+        const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
         const errors = [];
+        const createdApprentices = [];
+
+        const fichasResponse = await axios.get(`${process.env.REPFORA}/api/fiches`, {
+            headers: { token: req.headers['token'] }
+        });
+        const fichas = fichasResponse.data.map(ficha => ({
+            _id: ficha._id,
+            number: ficha.number,
+            programName: ficha.program.name.trim().toLowerCase()
+        }));
+
         for (const row of sheetData) {
             const cleanedRow = Object.fromEntries(
                 Object.entries(row).map(([key, value]) => [key.trim(), value])
             );
-            const fiche = {
-                idFiche: cleanedRow.fiche, 
-                name: cleanedRow['Fiche Name'],
-                number: cleanedRow['Fiche Number']
-            };
+
             const {
-                tpDocument,
-                numDocument,
-                firstName,
-                lastName,
-                phone,
-                institutionalEmail,
-                personalEmail
+                'Fiche Name': ficheName,
+                'Modality Name': modalityName,
+                'Tipo De Documento': tpDocument,
+                'Numero De Documento': numDocument,
+                'Nombres': firstName,
+                'Apellidos': lastName,
+                'Telefono': phone,
+                'Correo Institucional': institutionalEmail,
+                'Correo Personal': personalEmail
             } = cleanedRow;
-            // Verificación de los datos
-            console.log('Row data:', cleanedRow);
+
             try {
-                await Apprentice.create({
-                    fiche,
-                    idModality: cleanedRow['Modality ID'],
+                const modality = await Modality.findOne({ name: modalityName.trim() });
+                if (!modality) {
+                    errors.push({ row: cleanedRow, error: 'Modalidad no encontrada' });
+                    continue;
+                }
+
+                const fiche = fichas.find(f => f.programName === ficheName.trim().toLowerCase());
+                if (!fiche) {
+                    errors.push({ row: cleanedRow, error: 'Ficha no encontrada' });
+                    continue;
+                }
+
+                const newApprentice = await Apprentice.create({
+                    fiche: {
+                        idFiche: fiche._id,
+                        name: fiche.programName,
+                        number: fiche.number
+                    },
+                    idModality: modality._id,
                     tpDocument,
                     numDocument,
                     firstName,
@@ -405,25 +433,38 @@ uploadApprentices: async (req, res) => {
                     phone,
                     institutionalEmail,
                     personalEmail,
-                    status: 1, 
                 });
+                createdApprentices.push(newApprentice);
             } catch (err) {
                 errors.push({ row: cleanedRow, error: err.message });
             }
         }
-        if (errors.length > 0) {
-            return res.status(207).json({
-                message: 'Algunos registros no pudieron ser procesados',
+
+        if (createdApprentices.length === 0 && errors.length > 0) {
+            return res.status(400).json({
+                message: 'No se pudo crear ningún aprendiz',
                 errors,
             });
         }
-        res.status(201).json({ message: 'Aprendices creados exitosamente' });
+
+        if (errors.length > 0) {
+            return res.status(207).json({
+                message: 'Algunos registros no pudieron ser procesados',
+                created: createdApprentices,
+                errors,
+            });
+        }
+
+        res.status(201).json({
+            message: 'Aprendices creados exitosamente',
+            created: createdApprentices,
+        });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error al procesar el archivo', error: error.message });
     }
-}
-
+},
 
 }
 export default controllerApprentice;
