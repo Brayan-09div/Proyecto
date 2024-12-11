@@ -71,6 +71,8 @@ router.get('/listregisterbyenddate/:endDate', [
   validarCampos
 ], controllerRegister.listregisterbyenddate)
 
+router.get('/matchesRegister/:idApprentice/:idInstructor', controllerRegister.findMatches)
+
 router.post('/addregister', [
   authenticateUser,
   check('idApprentice', 'El campo es obligatorio').notEmpty(),

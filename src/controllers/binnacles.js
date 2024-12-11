@@ -122,43 +122,117 @@ const controllerBinnacles = {
 
 
 // Insertar bitácoras (solo para generar la bitácora sin observaciones)
+// addbinnacles: async (req, res) => {
+//   const { register, instructor, number, document } = req.body;
+//   try {
+//     const existingBinnacle = await Binnacles.findOne({ register, number });
+//     if (existingBinnacle) {
+//       return res.status(400).json({ error: "El número de bitácora ya existe para este registro" });
+//     }
+//     const registerRecord = await Register.findById(register);
+//     if (!registerRecord) {
+//       return res.status(400).json({ error: "No se encontró el registro asociado a la asignación" });
+//     }
+//     const activeFollowUpInstructor = registerRecord.assignment.some(a =>
+//       a.followUpInstructor.some(f =>
+//         f.idInstructor.toString() === instructor.idinstructor.toString() && f.status === 1
+//       )
+//     );
+//     if (!activeFollowUpInstructor) {
+//       return res.status(400).json({
+//         error: "El instructor proporcionado no está activo como instructor de seguimiento en la asignación"
+//       });
+//     }
+//     const binnacle = new Binnacles({
+//       register,
+//       instructor: {
+//         idinstructor: instructor.idinstructor,
+//         name: instructor.name
+//       },
+//       number,
+//       document,
+//       status: '1',
+//     });
+//     const savedBinnacle = await binnacle.save();
+//     const updatedBinnacle = await Binnacles.findByIdAndUpdate(
+//       savedBinnacle._id,
+//       { status: '2' }, 
+//       { new: true }
+//     );
+//     console.log("Bitácora guardada y actualizada a ejecutado:", updatedBinnacle);
+//     res.status(201).json(updatedBinnacle);
+//   } catch (error) {
+//     console.error("Error al insertar bitácora:", error);
+//     res.status(500).json({ error: "Error al insertar bitácora" });
+//   }
+// },
+
 addbinnacles: async (req, res) => {
-  const { register, instructor, number, document } = req.body;
+  const { idApprentice, instructor, number, document, status } = req.body;
+
   try {
+    const { idinstructor, name } = instructor;
+
+    // Buscar los registros relacionados con el idApprentice y idinstructor
+    const registers = await Register.find({
+      idApprentice: idApprentice,
+      "assignment": {
+        $elemMatch: {
+          status: 1,
+          followUpInstructor: {
+            $elemMatch: {
+              idInstructor: idinstructor,
+              status: 1
+            }
+          }
+        }
+      },
+      status: 1 
+    });
+
+    if (registers.length === 0) {
+      return res.status(400).json({ error: "No se encontraron registros para el aprendiz y el instructor proporcionados." });
+    }
+
+    const register = registers[0]._id;
+
     const existingBinnacle = await Binnacles.findOne({ register, number });
     if (existingBinnacle) {
       return res.status(400).json({ error: "El número de bitácora ya existe para este registro" });
     }
+
     const registerRecord = await Register.findById(register);
-    if (!registerRecord) {
-      return res.status(400).json({ error: "No se encontró el registro asociado a la asignación" });
-    }
     const activeFollowUpInstructor = registerRecord.assignment.some(a =>
       a.followUpInstructor.some(f =>
-        f.idInstructor.toString() === instructor.idinstructor.toString() && f.status === 1
+        f.idInstructor.toString() === idinstructor.toString() && f.status === 1
       )
     );
+    
     if (!activeFollowUpInstructor) {
       return res.status(400).json({
         error: "El instructor proporcionado no está activo como instructor de seguimiento en la asignación"
       });
     }
+
     const binnacle = new Binnacles({
       register,
       instructor: {
-        idinstructor: instructor.idinstructor,
-        name: instructor.name
+        idinstructor,
+        name
       },
       number,
       document,
-      status: '1',
+      status: status || '1',
     });
+
     const savedBinnacle = await binnacle.save();
+
     const updatedBinnacle = await Binnacles.findByIdAndUpdate(
       savedBinnacle._id,
-      { status: '2' }, 
+      { status: '2' },
       { new: true }
     );
+
     console.log("Bitácora guardada y actualizada a ejecutado:", updatedBinnacle);
     res.status(201).json(updatedBinnacle);
   } catch (error) {
@@ -166,7 +240,6 @@ addbinnacles: async (req, res) => {
     res.status(500).json({ error: "Error al insertar bitácora" });
   }
 },
-
 
 
   // Actualizar bitácora---------------------------------------------------------

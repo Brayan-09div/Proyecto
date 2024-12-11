@@ -134,14 +134,130 @@ listfollowupbyinstructor: async (req, res) => {
     }
   },
 
+  // addfollowup: async (req, res) => {
+  //   const { register, instructor, number, month, document } = req.body;
+  //   try {
+  //     const followupsForRegister = await Followup.find({ register }).countDocuments();
+  //     if (followupsForRegister >= 3) {
+  //       return res.status(400).json({ error: "Ya hay 3 seguimientos para este registro" });
+  //     }
+  
+  //     const existsFollowup = await Followup.findOne({ register, number });
+  //     if (existsFollowup) {
+  //       return res.status(400).json({ error: "El número de seguimiento ya existe para este registro" });
+  //     }
+  
+  //     const registerRecord = await Register.findById(register).populate("idModality");
+  //     if (!registerRecord) {
+  //       return res.status(400).json({ error: "No se encontró registro asociado con la asignación" });
+  //     }
+  
+  //     const modality = registerRecord.idModality;
+  //     if (!modality) {
+  //       return res.status(400).json({ error: "El registro no tiene una modalidad asociada" });
+  //     }
+  
+  //     const hoursFollow = modality.hourInstructorFollow;
+  //     if (!hoursFollow) {
+  //       return res.status(400).json({ error: "No se definieron horas de seguimiento para esta modalidad" });
+  //     }
+  
+  //     const hoursPerBinnacle = hoursFollow / 4;
+  
+  //     const activeFollowUpInstructor = registerRecord.assignment.some(a =>
+  //       a.followUpInstructor.some(f =>
+  //         f.idInstructor.toString() === instructor.idinstructor.toString() && f.status === 1
+  //       )
+  //     );
+  
+  //     if (!activeFollowUpInstructor) {
+  //       return res.status(400).json({ error: "El instructor proporcionado no está activo como instructor de seguimiento en la asignación" });
+  //     }
+  
+  //     if (!Array.isArray(registerRecord.hourFollowupPending)) {
+  //       registerRecord.hourFollowupPending = [];
+  //     }
+  
+  //     const instructorExistsInPending = registerRecord.hourFollowupPending.some(
+  //       (entry) => entry.idInstructor.toString() === instructor.idinstructor.toString()
+  //     );
+  
+  //     if (!instructorExistsInPending) {
+  //       registerRecord.hourFollowupPending.push({
+  //         idInstructor: instructor.idinstructor,
+  //         name: instructor.name,
+  //         hour: hoursPerBinnacle,
+  //       });
+  //     }
+  
+  //     const followup = new Followup({
+  //       register,
+  //       instructor: {
+  //         idinstructor: instructor.idinstructor,
+  //         name: instructor.name,
+  //       },
+  //       number,
+  //       month,
+  //       document,
+  //       status: 1,
+  //     });
+  
+  //     const result = await followup.save();
+  
+  //     const updatedFollowup = await Followup.findByIdAndUpdate(
+  //       result._id,
+  //       { status: '2' },
+  //       { new: true }
+  //     );
+  
+  //     console.log("Seguimiento guardado y actualizado a ejecutado", updatedFollowup);
+  
+  //     await registerRecord.save();
+  //     res.status(201).json(updatedFollowup);
+  //   } catch (error) {
+  //     console.error("Error al insertar seguimiento", error);
+  //     res.status(500).json({ error: "Error al insertar Seguimiento" });
+  //   }
+  // },
+
   addfollowup: async (req, res) => {
-    const { register, instructor, number, month, document } = req.body;
+    const { idApprentice, instructor, number, month, document } = req.body;
+  
     try {
+      const { idinstructor, name } = instructor;
+  
+      // Buscar los registros relacionados con el idApprentice e idInstructor
+      const registers = await Register.find({
+        idApprentice: idApprentice,
+        "assignment": {
+          $elemMatch: {
+            status: 1, // Validar que la asignación esté activa
+            followUpInstructor: {
+              $elemMatch: {
+                idInstructor: idinstructor, // Usar idInstructor del objeto instructor
+                status: 1 // Validar que el estado del instructor sea activo
+              }
+            }
+          }
+        },
+        status: 1 // Validar que el registro esté activo
+      });
+  
+      if (registers.length === 0) {
+        return res
+          .status(400)
+          .json({ error: "No se encontraron registros para el aprendiz y el instructor proporcionados." });
+      }
+  
+      const register = registers[0]._id;
+  
+      // Validar si ya existen 3 seguimientos para el registro
       const followupsForRegister = await Followup.find({ register }).countDocuments();
       if (followupsForRegister >= 3) {
         return res.status(400).json({ error: "Ya hay 3 seguimientos para este registro" });
       }
   
+      // Validar si ya existe un seguimiento con el mismo número
       const existsFollowup = await Followup.findOne({ register, number });
       if (existsFollowup) {
         return res.status(400).json({ error: "El número de seguimiento ya existe para este registro" });
@@ -164,28 +280,18 @@ listfollowupbyinstructor: async (req, res) => {
   
       const hoursPerBinnacle = hoursFollow / 4;
   
-      const activeFollowUpInstructor = registerRecord.assignment.some(a =>
-        a.followUpInstructor.some(f =>
-          f.idInstructor.toString() === instructor.idinstructor.toString() && f.status === 1
-        )
-      );
-  
-      if (!activeFollowUpInstructor) {
-        return res.status(400).json({ error: "El instructor proporcionado no está activo como instructor de seguimiento en la asignación" });
-      }
-  
       if (!Array.isArray(registerRecord.hourFollowupPending)) {
         registerRecord.hourFollowupPending = [];
       }
   
       const instructorExistsInPending = registerRecord.hourFollowupPending.some(
-        (entry) => entry.idInstructor.toString() === instructor.idinstructor.toString()
+        (entry) => entry.idInstructor.toString() === idinstructor.toString()
       );
   
       if (!instructorExistsInPending) {
         registerRecord.hourFollowupPending.push({
-          idInstructor: instructor.idinstructor,
-          name: instructor.name,
+          idInstructor: idinstructor,
+          name,
           hour: hoursPerBinnacle,
         });
       }
@@ -193,8 +299,8 @@ listfollowupbyinstructor: async (req, res) => {
       const followup = new Followup({
         register,
         instructor: {
-          idinstructor: instructor.idinstructor,
-          name: instructor.name,
+          idinstructor,
+          name,
         },
         number,
         month,
@@ -216,9 +322,10 @@ listfollowupbyinstructor: async (req, res) => {
       res.status(201).json(updatedFollowup);
     } catch (error) {
       console.error("Error al insertar seguimiento", error);
-      res.status(500).json({ error: "Error al insertar Seguimiento" });
+      res.status(500).json({ error: "Error al insertar seguimiento" });
     }
   },
+  
   
   // Actualizar un followup por su ID---------------------------------------------------
   updatefollowupbyid: async (req, res) => {

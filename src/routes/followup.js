@@ -59,7 +59,7 @@ router.get('/listfollowupbyinstructoremail/:email', [
 //-------------------------------------------------------------
 router.post('/addfollowup',[
     authenticateUser,
-    check('register').custom(registerHelper.existResgister),
+    check('idApprentice', 'El registro es obligatorio y debe ser un ID válido').isMongoId(),
     check('instructor', 'El instructor es obligatorio').notEmpty(),
     check('instructor.idinstructor', 'El id no es válido').isMongoId(),
     check('idinstructor').custom(async (idInstructor, { req }) => {

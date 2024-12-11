@@ -52,11 +52,26 @@ router.get('/listbinnaclesbyinstructoremail/:email', [
 
 
 
- router.post('/addbinnacles', [
-   check('register', 'El registro es obligatorio y debe ser un ID válido').isMongoId(),
+//  router.post('/addbinnacles', [
+//    check('register', 'El registro es obligatorio y debe ser un ID válido').isMongoId(),
+//    check('instructor', 'El instructor es obligatorio').notEmpty(),
+//    check('instructor.idinstructor', 'El id no es válido').isMongoId(),
+//    check('idinstructor').custom(async (idInstructor, { req }) => {
+//      if (idInstructor) {
+//        await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
+//      }
+//    }),
+//    check('number', 'El número es obligatorio').isInt({ min: 1 }),
+//    check('document', 'El documento es obligatorio').notEmpty(),
+//    validarCampos
+//  ], controllerBinnacles.addbinnacles);
+
+router.post('/addbinnacles', [
+   authenticateUser,
+   check('idApprentice', 'El registro es obligatorio y debe ser un ID válido').isMongoId(),
    check('instructor', 'El instructor es obligatorio').notEmpty(),
    check('instructor.idinstructor', 'El id no es válido').isMongoId(),
-   check('idinstructor').custom(async (idInstructor, { req }) => {
+   check('idInstructor').custom(async (idInstructor, { req }) => {
      if (idInstructor) {
        await instructorHelper.existsInstructorsID(idInstructor, req.headers.token);
      }

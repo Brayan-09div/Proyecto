@@ -230,6 +230,39 @@ listallregister: async (req, res) => {
         .json({ error: "Error al listar por fecha de finalización" });
     }
   },
+//list apprentice, instructer, status
+findMatches: async (req, res) => {
+  const { idApprentice, idInstructor } = req.params;
+  console.log(idApprentice)
+  
+  try {
+    // const { idApprentice, idInstructor, status } = req.params;
+    const registers = await Register.find({
+      idApprentice: idApprentice, // Busca por idApprentice._id
+      "assignment": {
+        $elemMatch: {
+          status: 1, // Busca en assignment donde status sea 1
+          followUpInstructor: {
+            $elemMatch: {
+              idInstructor: idInstructor, // Busca el instructor con el id proporcionado
+              status: 1 // Y que su status sea 1
+            }
+          }
+        }
+      },
+      status: 1
+    })
+
+    console.log("Registros encontrados:", registers);
+    res.json({ data: registers });
+  } catch (error) {
+    console.error("Error al buscar coincidencias", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Error al buscar coincidencias" });
+  }
+},
+
 
   addRegister: async (req, res) => {
     const {
