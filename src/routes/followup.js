@@ -78,8 +78,8 @@ router.put('/updatefollowupbyid/:id',[
     authenticateUser,
     check('id','El id no es valido').isMongoId(),
     check('number','El number es maximo de 10 caracteres').isLength({ max: 10 }),
-    check('document','El document es maximo de 50 caracteres').isLength({ max: 50 }),
-    check('observations','El observations es de maximo 50 caracteres').isLength({ max: 50 }),
+    check('document','El document es maximo de 50 caracteres').isLength({ max: 100 }),
+    check('observations','El observations es de maximo 50 caracteres').isLength({ max: 100 }),
     validarCampos
 ],controllerFollowup.updatefollowupbyid)
 

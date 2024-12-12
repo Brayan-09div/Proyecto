@@ -87,7 +87,7 @@ router.post('/addbinnacles', [
    authenticateUser, 
    check('id', 'El id no es válido').isMongoId(), 
    check('number').optional().isNumeric(), 
-   check('document').optional().isLength({ max: 50 }), 
+   check('document').optional().isLength({ max: 100 }), 
    validarCampos 
 ], controllerBinnacles.updatebinnaclebyid);
 
