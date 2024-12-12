@@ -185,4 +185,7 @@ router.put('/disableapprentice/:id', [
     validarCampos
 ], controllerApprentice.disableapprentice);
 
+//----------------------------------------------------------------
+router.put('/certificationapprentice/:id', controllerApprentice.certificationApprentice)
+
 export default router;

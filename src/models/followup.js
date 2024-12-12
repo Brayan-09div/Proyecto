@@ -7,7 +7,7 @@ const followupSchema = new mongoose.Schema({
         name: String
     },
     number: { type: Number, required: true, enum: [1, 2, 3] },
-    month: {type:String,  require:true},
+    month: {type: Date,  require:true},
     document: {type:String, require:true},
     status:{type:Number , require:true, default:1},
     HoursFollowupExecuted: { type: Boolean, default: false },

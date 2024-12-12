@@ -14,9 +14,11 @@ const apprenticeSchema = new mongoose.Schema({
     HoursTotalPS: { type: Number, required: true, default: 864  },
     HoursExecutedPS:{ type: Number, required: true, default: 0 }, 
     HoursPendingPS:{ type: Number, required: true, default: 864 },
+    certificationDoc: { type: String },
+    judymentPhoto: { type: String }
     
 }, { timestamps: true });
-
+    
 export default mongoose.model("Apprentice", apprenticeSchema);
 
 
